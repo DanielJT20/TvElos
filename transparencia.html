@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transparência | TV ELOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">TV ELOS</a>
+            <nav>
+                <ul>
+                    <li><a href="programas.html">Programas</a></li>
+                    <li><a href="projetos.html">Projetos</a></li>
+                    <li><a href="sobre.html">TV ELOS</a></li>
+                    <li><a href="processo.html">Processo</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                    <li><button class="login-btn" onclick="toggleModal()">Login</button></li>
+                </ul>
+            </nav>
+        </header>
+
+        <h1 class="page-title">Transparência</h1>
+        <p class="page-subtitle">A TV ELOS acredita na importância da transparência. Aqui você encontra informações sobre nossa gestão, financiamento e decisões institucionais.</p>
+
+        <div class="content-block">
+            <h2>Relatórios de Atividades</h2>
+            <p>Publicamos relatórios mensais com informações sobre produções realizadas, audiência, engajamento e métricas de impacto.</p>
+            <p>Todos os nossos relatórios estão disponíveis para consulta pública, garantindo que qualquer pessoa possa acompanhar o desenvolvimento do projeto.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Financiamento e Orçamento</h2>
+            <p>A TV ELOS funciona através de apoio institucional, parcerias e contribuições voluntárias. Nosso orçamento é gerido de forma responsável e todos os gastos são documentados.</p>
+            <p>Acreditamos que um projeto para a comunidade deve ser transparente em relação a seus recursos e como são utilizados.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Decisões e Governança</h2>
+            <p>As principais decisões da TV ELOS são tomadas de forma participativa. Realizamos assembleias regulares abertas à comunidade onde discutimos direcionamentos estratégicos.</p>
+            <p>Toda pessoa envolvida ou interessada no projeto pode participar das discussões e contribuir com ideias.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Estatísticas de Produção</h2>
+            <p><strong>Programas Produzidos:</strong> 35+ episódios em 2026</p>
+            <p><strong>Áreas de Cobertura:</strong> Audiovisual, pautas sociais, experimentação estética</p>
+            <p><strong>Equipe Ativa:</strong> 40+ colaboradores</p>
+            <p><strong>Alcance Mensal:</strong> 10.000+ espectadores</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Código de Ética</h2>
+            <p>Todos os membros da TV ELOS se comprometem com:</p>
+            <p>• Respeito à diversidade de pensamento e identidade</p>
+            <p>• Produção de conteúdo responsável e bem-pesquisado</p>
+            <p>• Transparência em todas as comunicações</p>
+            <p>• Inclusão e representatividade nas pautas e na equipe</p>
+            <p>• Colaboração e comunicação não-violenta</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-box">
+            <button class="close-modal" onclick="toggleModal()">&times;</button>
+            <h2>Login</h2>
+            
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="email">E-mail Institucional</label>
+                    <input type="email" id="email" required placeholder="nome@tvelos.com.br">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha de Acesso</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="submit-btn">Entrar na Plataforma</button>
+                
+                <div class="login-options">
+                    <a href="#">Esqueci minha senha</a>
+                    <a href="#">Solicitar acesso de Participante</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

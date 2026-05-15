@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programas | TV ELOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">TV ELOS</a>
+            <nav>
+                <ul>
+                    <li><a href="programas.html">Programas</a></li>
+                    <li><a href="projetos.html">Projetos</a></li>
+                    <li><a href="sobre.html">TV ELOS</a></li>
+                    <li><a href="processo.html">Processo</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                    <li><button class="login-btn" onclick="toggleModal()">Login</button></li>
+                </ul>
+            </nav>
+        </header>
+
+        <h1 class="page-title">Programas</h1>
+        <p class="page-subtitle">Conheça os principais programas produzidos pela TV ELOS. Plataforma audiovisual focada em conexões, pautas sociais e experimentação estética.</p>
+
+        <div class="section-title">Todos os Programas</div>
+        
+        <div class="program-list">
+            <div class="program-item" id="oquerolou">
+                <a href="#">O Que Rolou?</a>
+            </div>
+            <div class="content-block">
+                <p>Programa de atualidades e análise das principais pautas da semana, com convidados especiais e discussões aprofundadas.</p>
+            </div>
+
+            <div class="program-item" id="conexaoelos">
+                <a href="#">Conexão Elos</a>
+            </div>
+            <div class="content-block">
+                <p>Programa focado em conexões humanas, histórias de vida e protagonismo de diferentes pessoas e comunidades.</p>
+            </div>
+
+            <div class="program-item" id="cortessemana">
+                <a href="#">Cortes da Semana</a>
+            </div>
+            <div class="content-block">
+                <p>Compilação de melhores momentos da semana, recortes de programas e conteúdos destacados da plataforma.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-box">
+            <button class="close-modal" onclick="toggleModal()">&times;</button>
+            <h2>Login</h2>
+            
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="email">E-mail Institucional</label>
+                    <input type="email" id="email" required placeholder="nome@tvelos.com.br">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha de Acesso</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="submit-btn">Entrar na Plataforma</button>
+                
+                <div class="login-options">
+                    <a href="#">Esqueci minha senha</a>
+                    <a href="#">Solicitar acesso de Participante</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

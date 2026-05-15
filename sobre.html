@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre | TV ELOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">TV ELOS</a>
+            <nav>
+                <ul>
+                    <li><a href="programas.html">Programas</a></li>
+                    <li><a href="projetos.html">Projetos</a></li>
+                    <li><a href="sobre.html">TV ELOS</a></li>
+                    <li><a href="processo.html">Processo</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                    <li><button class="login-btn" onclick="toggleModal()">Login</button></li>
+                </ul>
+            </nav>
+        </header>
+
+        <h1 class="page-title">Sobre a TV ELOS</h1>
+        <p class="page-subtitle">Conheça a história, missão e valores que guiam a plataforma audiovisual universitária focada em conexões e experimentação estética.</p>
+
+        <div class="content-block">
+            <h2>Nossa Missão</h2>
+            <p>A TV ELOS é uma plataforma audiovisual universitária que busca criar conexões significativas entre pessoas, comunidades e saberes. Através da produção de conteúdo audiovisual de qualidade, nos propomos a explorar novas formas de contar histórias e abordar pautas sociais relevantes.</p>
+            <p>Acreditamos no poder do audiovisual como ferramenta de transformação social e experimentação estética, promovendo diálogos que amplificam vozes historicamente marginalizadas.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Nossos Valores</h2>
+            <p><strong>Conexão:</strong> Buscamos criar pontes entre pessoas, ideias e comunidades através da narração audiovisual.</p>
+            <p><strong>Autenticidade:</strong> Valorizamos histórias reais, perspectivas diversas e vozes autênticas.</p>
+            <p><strong>Inovação Estética:</strong> Experimentamos constantemente novas linguagens e formatos audiovisuais.</p>
+            <p><strong>Transparência:</strong> Operamos com total clareza em nossos processos, financiamento e decisões.</p>
+            <p><strong>Inclusão:</strong> Aberto a participação de qualquer pessoa interessada em criar e aprender audiovisual.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Nossa Equipe</h2>
+            <p>A TV ELOS é composta por estudantes, profissionais e entusiastas apaixonados por audiovisual. Somos um coletivo diverso que trabalha colaborativamente para produzir conteúdo relevante e transformador.</p>
+            <p>Cada membro traz suas habilidades, perspectivas e criatividade para a construção conjunta dessa plataforma.</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-box">
+            <button class="close-modal" onclick="toggleModal()">&times;</button>
+            <h2>Login</h2>
+            
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="email">E-mail Institucional</label>
+                    <input type="email" id="email" required placeholder="nome@tvelos.com.br">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha de Acesso</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="submit-btn">Entrar na Plataforma</button>
+                
+                <div class="login-options">
+                    <a href="#">Esqueci minha senha</a>
+                    <a href="#">Solicitar acesso de Participante</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

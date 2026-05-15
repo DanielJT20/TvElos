@@ -121,16 +121,18 @@
 
         /* Classe base aplicada aos dois H1 (o elástico e o glitch) */
         .title-layer {
-            font-size: 16vw;
+            font-size: 12vw;
             font-weight: 800;
             text-transform: uppercase;
-            line-height: 0.85;
+            line-height: 1;
             letter-spacing: -0.05em;
             margin-left: -0.05em;
             transform-origin: left center;
+            white-space: nowrap;
+            display: inline-block;
             
             /* A mágica da suavidade na entrada e na saída acontece aqui */
-            transition: opacity 0.6s ease-in-out; 
+            transition: opacity 0.7s ease-in-out; 
             will-change: opacity;
         }
 
@@ -143,11 +145,11 @@
         }
 
         @keyframes elastic {
-            0% { transform: scale3d(1, 1, 1); letter-spacing: -0.05em; color: var(--text-color); }
-            30% { transform: scale3d(1.15, 0.8, 1); letter-spacing: 0.02em; color: var(--accent-color); }
-            50% { transform: scale3d(0.85, 1.1, 1); letter-spacing: -0.08em; color: var(--text-color); }
-            80% { transform: scale3d(1.05, 0.95, 1); color: var(--cyan-accent); }
-            100% { transform: scale3d(1, 1, 1); letter-spacing: -0.05em; }
+            0% { transform: scaleX(1) scaleY(1); letter-spacing: -0.05em; color: var(--text-color); }
+            30% { transform: scaleX(1.1) scaleY(0.95); letter-spacing: 0.02em; color: var(--accent-color); }
+            50% { transform: scaleX(0.95) scaleY(1.05); letter-spacing: -0.08em; color: var(--text-color); }
+            80% { transform: scaleX(1.05) scaleY(0.98); color: var(--cyan-accent); }
+            100% { transform: scaleX(1) scaleY(1); letter-spacing: -0.05em; }
         }
 
         /* ==========================================
@@ -157,8 +159,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 90%;
-            height: 90%;
+            width: 100%;
+            height: 100%;
             opacity: 0;
             animation: glitch-anim 2.5s infinite linear alternate-reverse;
             pointer-events: none; /* Impede que atrapalhe o hover do wrapper */
@@ -169,8 +171,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 90%;
-            height: 90%;
+            width: 100%;
+            height: 100%;
             background: var(--bg-color); /* Essencial para o glitch cortar o fundo correto */
         }
 
@@ -415,7 +417,7 @@
         @media (max-width: 768px) {
             .container { padding: 20px; }
             nav ul { grid-template-columns: 1fr; gap: 10px; }
-            .title-layer { font-size: 25vw; }
+            .title-layer { font-size: 12vw; }
             .hero-sub, .program-list, .section-title { grid-column: 1 / -1; }
             .program-item { font-size: 2rem; }
         }

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato | TV ELOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">TV ELOS</a>
+            <nav>
+                <ul>
+                    <li><a href="programas.html">Programas</a></li>
+                    <li><a href="projetos.html">Projetos</a></li>
+                    <li><a href="sobre.html">TV ELOS</a></li>
+                    <li><a href="processo.html">Processo</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                    <li><button class="login-btn" onclick="toggleModal()">Login</button></li>
+                </ul>
+            </nav>
+        </header>
+
+        <h1 class="page-title">Contato</h1>
+        <p class="page-subtitle">Entre em contato conosco para parcerias, sugestões de pautas, participação na equipe ou qualquer dúvida sobre a plataforma.</p>
+
+        <div class="content-block">
+            <h2>Formas de Contato</h2>
+            <p><strong>E-mail:</strong> contato@tvelos.com.br</p>
+            <p><strong>Instagram:</strong> @tvelos</p>
+            <p><strong>Redes Sociais:</strong> Siga-nos para atualizações de programação</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Envie uma Mensagem</h2>
+            <p>Preencha o formulário abaixo e nossa equipe entrará em contato em breve.</p>
+            <form action="#" method="POST" style="margin-top: 30px;">
+                <div class="form-group">
+                    <label for="name">Nome Completo</label>
+                    <input type="text" id="name" name="name" required placeholder="Seu nome">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required placeholder="seu.email@exemplo.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">Assunto</label>
+                    <input type="text" id="subject" name="subject" required placeholder="Qual é o assunto?">
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Mensagem</label>
+                    <textarea id="message" name="message" required placeholder="Sua mensagem aqui..." style="background: transparent; border: none; border-bottom: 2px solid rgba(255, 255, 255, 0.3); color: var(--text-color); font-size: 1rem; padding: 10px 0; font-family: inherit; outline: none; transition: border-color 0.3s; min-height: 120px; resize: vertical;" onfocus="this.style.borderBottomColor = 'var(--accent-color)'" onblur="this.style.borderBottomColor = 'rgba(255, 255, 255, 0.3)'"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Enviar Mensagem</button>
+            </form>
+        </div>
+
+        <div class="content-block">
+            <h2>Participar da Equipe</h2>
+            <p>Interessado em fazer parte da TV ELOS? Temos sempre espaço para pessoas apaixonadas por audiovisual!</p>
+            <p>Áreas onde você pode contribuir: Produção, Câmera, Som, Edição, Direção, Pesquisa, Administração e muito mais.</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-box">
+            <button class="close-modal" onclick="toggleModal()">&times;</button>
+            <h2>Login</h2>
+            
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="login-email">E-mail Institucional</label>
+                    <input type="email" id="login-email" required placeholder="nome@tvelos.com.br">
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Senha de Acesso</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="submit-btn">Entrar na Plataforma</button>
+                
+                <div class="login-options">
+                    <a href="#">Esqueci minha senha</a>
+                    <a href="#">Solicitar acesso de Participante</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

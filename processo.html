@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processo | TV ELOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">TV ELOS</a>
+            <nav>
+                <ul>
+                    <li><a href="programas.html">Programas</a></li>
+                    <li><a href="projetos.html">Projetos</a></li>
+                    <li><a href="sobre.html">TV ELOS</a></li>
+                    <li><a href="processo.html">Processo</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                    <li><button class="login-btn" onclick="toggleModal()">Login</button></li>
+                </ul>
+            </nav>
+        </header>
+
+        <h1 class="page-title">Processo</h1>
+        <p class="page-subtitle">Conheça nossa metodologia de trabalho, cronogramas de produção e como funcionam os fluxos internos da TV ELOS.</p>
+
+        <div class="content-block">
+            <h2>Fluxo de Produção</h2>
+            <p>Nosso processo de produção é colaborativo e estruturado para garantir qualidade enquanto mantemos a flexibilidade necessária para experimentação estética.</p>
+            <p>Cada projeto passa por etapas bem definidas: ideação, planejamento, produção, edição, revisão e distribuição.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Pautas e Agendamentos</h2>
+            <p>Trabalhamos com um sistema de pautas abertas que recebe sugestões da comunidade. Todas as propostas são analisadas e agendadas conforme viabilidade de produção.</p>
+            <p>Nosso cronograma é atualizado regularmente e pode ser acompanhado pela comunidade através da plataforma.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Equipe e Tarefas</h2>
+            <p>A TV ELOS é organizada por áreas de trabalho: direção, produção, câmera, som, edição e pós-produção. Cada membro conhece suas responsabilidades e trabalha de forma colaborativa.</p>
+            <p>Para participar, entre em contato conosco através da página de contato ou participe das nossas reuniões semanais.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Qualidade e Revisão</h2>
+            <p>Mantemos um rigoroso processo de revisão antes de cada publicação. Isso inclui verificação de conteúdo, qualidade técnica e conformidade com os valores da plataforma.</p>
+            <p>Feedbacks são sempre bem-vindos e nos ajudam a melhorar constantemente nossas produções.</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-box">
+            <button class="close-modal" onclick="toggleModal()">&times;</button>
+            <h2>Login</h2>
+            
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="email">E-mail Institucional</label>
+                    <input type="email" id="email" required placeholder="nome@tvelos.com.br">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha de Acesso</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="submit-btn">Entrar na Plataforma</button>
+                
+                <div class="login-options">
+                    <a href="#">Esqueci minha senha</a>
+                    <a href="#">Solicitar acesso de Participante</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
