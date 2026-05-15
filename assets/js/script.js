@@ -1,28 +1,23 @@
 // Função para abrir e fechar o Modal
 function toggleModal() {
     const modal = document.getElementById('loginModal');
-    if (modal) {
-        modal.classList.toggle('active');
-    }
+    if (modal) modal.classList.toggle('active');
 }
 
 // Alterna entre as abas de Login e Cadastro
 function switchTab(tab) {
     const formLogin = document.getElementById('form-login');
     const formCadastro = document.getElementById('form-cadastro');
-    const tabs = document.querySelectorAll('.modal-tab');
-
-    tabs.forEach(t => {
+    document.querySelectorAll('.modal-tab').forEach(t => {
         t.classList.toggle('active', t.dataset.tab === tab);
     });
-
-    if (formLogin) formLogin.style.display = tab === 'login' ? 'block' : 'none';
+    if (formLogin)    formLogin.style.display    = tab === 'login'    ? 'block' : 'none';
     if (formCadastro) formCadastro.style.display = tab === 'cadastro' ? 'block' : 'none';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Clique nas abas
+    // ── Abas do modal ──
     document.querySelectorAll('.modal-tab').forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
     });
@@ -49,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     localStorage.setItem('tvelos_usuario', JSON.stringify(data.usuario));
                     toggleModal();
                     atualizarBotaoLogin(data.usuario);
-                    alert(`Bem-vindo(a), ${data.usuario.nome}!`);
                 } else {
                     alert(data.erro || 'Credenciais inválidas.');
                 }
@@ -67,15 +61,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (formCadastro) {
         formCadastro.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const nome = document.getElementById('cadastro-nome').value.trim();
-            const email = document.getElementById('cadastro-email').value.trim();
-            const senha = document.getElementById('cadastro-senha').value;
+            const nome     = document.getElementById('cadastro-nome').value.trim();
+            const email    = document.getElementById('cadastro-email').value.trim();
+            const senha    = document.getElementById('cadastro-senha').value;
             const confirmar = document.getElementById('cadastro-confirmar').value;
             const btn = formCadastro.querySelector('.submit-btn');
-            if (senha !== confirmar) {
-                alert('As senhas não coincidem.');
-                return;
-            }
+            if (senha !== confirmar) { alert('As senhas não coincidem.'); return; }
             btn.textContent = 'Criando conta...';
             btn.disabled = true;
             try {
@@ -86,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`Conta criada com sucesso! Bem-vindo(a), ${data.nome}. Faça login para continuar.`);
+                    alert(`Conta criada! Bem-vindo(a), ${data.nome}. Faça login para continuar.`);
                     formCadastro.reset();
                     switchTab('login');
                 } else {
@@ -106,10 +97,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (formPauta) {
         formPauta.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const titulo = document.getElementById('pauta-titulo').value.trim();
+            const titulo    = document.getElementById('pauta-titulo').value.trim();
             const descricao = document.getElementById('pauta-descricao').value.trim();
-            const autor = document.getElementById('pauta-autor').value.trim();
-            const email = document.getElementById('pauta-email').value.trim();
+            const autor     = document.getElementById('pauta-autor').value.trim();
+            const email     = document.getElementById('pauta-email').value.trim();
             const btn = formPauta.querySelector('.submit-btn');
             btn.textContent = 'Enviando...';
             btn.disabled = true;
@@ -123,9 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (res.ok) {
                     formPauta.reset();
                     document.getElementById('pauta-success').style.display = 'block';
-                    setTimeout(() => {
-                        document.getElementById('pauta-success').style.display = 'none';
-                    }, 5000);
+                    setTimeout(() => { document.getElementById('pauta-success').style.display = 'none'; }, 6000);
                 } else {
                     alert(data.erro || 'Erro ao enviar pauta.');
                 }
@@ -143,9 +132,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (formContato) {
         formContato.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const nome = document.getElementById('contato-nome').value.trim();
-            const email = document.getElementById('contato-email').value.trim();
-            const assunto = document.getElementById('contato-assunto').value.trim();
+            const nome     = document.getElementById('contato-nome').value.trim();
+            const email    = document.getElementById('contato-email').value.trim();
+            const assunto  = document.getElementById('contato-assunto').value.trim();
             const mensagem = document.getElementById('contato-mensagem').value.trim();
             const btn = formContato.querySelector('.submit-btn');
             btn.textContent = 'Enviando...';
@@ -160,9 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (res.ok) {
                     formContato.reset();
                     document.getElementById('contato-success').style.display = 'block';
-                    setTimeout(() => {
-                        document.getElementById('contato-success').style.display = 'none';
-                    }, 5000);
+                    setTimeout(() => { document.getElementById('contato-success').style.display = 'none'; }, 6000);
                 } else {
                     alert(data.erro || 'Erro ao enviar mensagem.');
                 }
@@ -173,17 +160,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 btn.disabled = false;
             }
         });
-    }
-
-    // Restaura estado de login ao carregar a página
-    const usuarioSalvo = localStorage.getItem('tvelos_usuario');
-    if (usuarioSalvo) {
-        try {
-            atualizarBotaoLogin(JSON.parse(usuarioSalvo));
-        } catch (e) {
-            localStorage.removeItem('tvelos_usuario');
-            localStorage.removeItem('tvelos_token');
-        }
     }
 
     // ── Animação Hero ──
@@ -200,11 +176,25 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 3000);
         });
     }
+
+    // ── Restaura estado de login ──
+    const usuarioSalvo = localStorage.getItem('tvelos_usuario');
+    if (usuarioSalvo) {
+        try { atualizarBotaoLogin(JSON.parse(usuarioSalvo)); }
+        catch (e) {
+            localStorage.removeItem('tvelos_usuario');
+            localStorage.removeItem('tvelos_token');
+        }
+    }
 });
 
 function atualizarBotaoLogin(usuario) {
+    const isEquipe = ['editor', 'admin'].includes(usuario.role);
+    const primeiroNome = usuario.nome.split(' ')[0];
+
+    // Atualiza o botão de login em todos os headers
     document.querySelectorAll('.login-btn').forEach(btn => {
-        btn.textContent = usuario.nome.split(' ')[0];
+        btn.textContent = primeiroNome;
         btn.onclick = function () {
             if (confirm('Deseja sair da plataforma?')) {
                 localStorage.removeItem('tvelos_token');
@@ -212,5 +202,18 @@ function atualizarBotaoLogin(usuario) {
                 location.reload();
             }
         };
+    });
+
+    // Injeta link "Meu Painel" na nav se ainda não existir
+    const navLists = document.querySelectorAll('nav ul');
+    navLists.forEach(ul => {
+        if (!ul.querySelector('.painel-link')) {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="painel.html" class="painel-link" style="color: var(--accent-color); font-weight:700">${isEquipe ? 'Painel Admin' : 'Meu Painel'}</a>`;
+            // Insere antes do botão de login
+            const loginLi = ul.querySelector('.login-btn')?.parentElement;
+            if (loginLi) ul.insertBefore(li, loginLi);
+            else ul.appendChild(li);
+        }
     });
 }

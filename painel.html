@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel | TV ELOS</title>
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .painel-header {
+            grid-column: 1 / -1;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 30px;
+            margin-bottom: 10px;
+        }
+        .painel-role {
+            display: inline-block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 4px 12px;
+            margin-bottom: 16px;
+        }
+        .stats-grid {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 24px 20px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent-color);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.4);
+        }
+        .pauta-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .pauta-table th {
+            text-align: left;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.4);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 14px;
+        }
+        .pauta-table td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            vertical-align: top;
+        }
+        .pauta-table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        .badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            font-weight: 700;
+        }
+        .badge-pendente   { color: #f59e0b; border: 1px solid #f59e0b; }
+        .badge-em_analise { color: #3b82f6; border: 1px solid #3b82f6; }
+        .badge-aprovada   { color: var(--accent-color); border: 1px solid var(--accent-color); }
+        .badge-rejeitada  { color: #ef4444; border: 1px solid #ef4444; }
+
+        .status-select {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            cursor: pointer;
+            outline: none;
+        }
+        .status-select option { background: #111; }
+
+        .painel-section {
+            grid-column: 1 / -1;
+            margin-bottom: 60px;
+        }
+        .painel-section .section-title {
+            margin-bottom: 20px;
+        }
+        .mensagem-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 20px 24px;
+            margin-bottom: 12px;
+        }
+        .mensagem-card-meta {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .mensagem-card-nome {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .mensagem-card-texto {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.5;
+        }
+        .empty-state {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 40px 20px;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+        #acesso-negado {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 100px 20px;
+        }
+        .loading-msg {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 30px;
+        }
+        .obs-input {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            width: 180px;
+            outline: none;
+        }
+        .btn-mini {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-mini:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">TV ELOS</a>
+            <nav>
+                <ul>
+                    <li><a href="programas.html">Programas</a></li>
+                    <li><a href="projetos.html">Projetos</a></li>
+                    <li><a href="sobre.html">TV ELOS</a></li>
+                    <li><a href="processo.html">Processo</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                    <li><a href="transparencia.html">Transparência</a></li>
+                    <li><button class="login-btn" onclick="sair()">Sair</button></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div id="acesso-negado" style="display:none">
+            <p style="font-size:1.2rem; margin-bottom:20px;">Você precisa estar logado para acessar o painel.</p>
+            <a href="index.html"><button class="submit-btn">Voltar ao Início</button></a>
+        </div>
+
+        <div id="painel-conteudo" style="display:none; grid-column: 1 / -1;">
+
+            <div class="painel-header">
+                <div class="painel-role" id="role-badge">Participante</div>
+                <h1 class="page-title" style="margin-bottom: 8px;" id="painel-titulo">Meu Painel</h1>
+                <p class="page-subtitle" id="painel-subtitulo">Acompanhe suas pautas enviadas e o status de cada uma.</p>
+            </div>
+
+            <!-- STATS (só equipe/admin) -->
+            <div id="stats-section" style="display:none; grid-column: 1 / -1;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-pendentes">—</div>
+                        <div class="stat-label">Pendentes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-em-analise">—</div>
+                        <div class="stat-label">Em Análise</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-aprovadas">—</div>
+                        <div class="stat-label">Aprovadas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-rejeitadas">—</div>
+                        <div class="stat-label">Rejeitadas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-usuarios">—</div>
+                        <div class="stat-label">Usuários</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-mensagens">—</div>
+                        <div class="stat-label">Mensagens</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAUTAS PARTICIPANTE -->
+            <div id="minhas-pautas-section" class="painel-section" style="display:none;">
+                <div class="section-title">Minhas Pautas</div>
+                <div id="minhas-pautas-conteudo" class="loading-msg">Carregando...</div>
+            </div>
+
+            <!-- TODAS AS PAUTAS (equipe) -->
+            <div id="todas-pautas-section" class="painel-section" style="display:none;">
+                <div class="section-title">Gerenciar Pautas</div>
+                <div id="todas-pautas-conteudo" class="loading-msg">Carregando...</div>
+            </div>
+
+            <!-- MENSAGENS DE CONTATO (equipe) -->
+            <div id="mensagens-section" class="painel-section" style="display:none;">
+                <div class="section-title">Mensagens de Contato</div>
+                <div id="mensagens-conteudo" class="loading-msg">Carregando...</div>
+            </div>
+
+        </div>
+
+        <footer>
+            <div class="footer-links">
+                <a href="programas.html">Programas</a>
+                <a href="projetos.html">Projetos</a>
+                <a href="sobre.html">TV ELOS</a>
+                <a href="processo.html">Processo</a>
+                <a href="contato.html">Contato</a>
+                <a href="transparencia.html">Transparência</a>
+            </div>
+            <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('tvelos_token');
+        const usuarioRaw = localStorage.getItem('tvelos_usuario');
+
+        function sair() {
+            if (confirm('Deseja sair da plataforma?')) {
+                localStorage.removeItem('tvelos_token');
+                localStorage.removeItem('tvelos_usuario');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function statusBadge(status) {
+            return `<span class="badge badge-${status}">${status.replace('_', ' ')}</span>`;
+        }
+
+        function formatData(d) {
+            if (!d) return '—';
+            return new Date(d).toLocaleDateString('pt-BR');
+        }
+
+        function authHeader() {
+            return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+        }
+
+        async function carregarMinhasPautas() {
+            const el = document.getElementById('minhas-pautas-conteudo');
+            try {
+                const res = await fetch('/api/pautas/minhas', { headers: authHeader() });
+                const pautas = await res.json();
+                if (!res.ok) throw new Error(pautas.erro);
+                if (!pautas.length) {
+                    el.innerHTML = '<div class="empty-state">Você ainda não enviou nenhuma pauta.<br><a href="projetos.html" style="color:var(--accent-color)">Enviar pauta</a></div>';
+                    return;
+                }
+                el.innerHTML = `
+                    <table class="pauta-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${pautas.map(p => `
+                                <tr>
+                                    <td><strong>${p.titulo}</strong><br><small style="color:rgba(255,255,255,0.4)">${p.descricao ? p.descricao.substring(0,80) + (p.descricao.length > 80 ? '…' : '') : ''}</small></td>
+                                    <td style="color:rgba(255,255,255,0.4); white-space:nowrap">${formatData(p.dataCriacao)}</td>
+                                    <td>${statusBadge(p.status)}</td>
+                                    <td style="color:rgba(255,255,255,0.5); font-size:0.8rem">${p.observacao || '—'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>`;
+            } catch (e) {
+                el.innerHTML = `<div class="empty-state">Erro ao carregar pautas: ${e.message}</div>`;
+            }
+        }
+
+        async function atualizarStatus(id, novoStatus, obs) {
+            const res = await fetch(`/api/pautas/${id}/status`, {
+                method: 'PUT',
+                headers: authHeader(),
+                body: JSON.stringify({ status: novoStatus, observacao: obs })
+            });
+            if (res.ok) {
+                await carregarTodasPautas();
+                await carregarStats();
+            } else {
+                const d = await res.json();
+                alert(d.erro || 'Erro ao atualizar status');
+            }
+        }
+
+        async function carregarTodasPautas() {
+            const el = document.getElementById('todas-pautas-conteudo');
+            try {
+                const res = await fetch('/api/pautas', { headers: authHeader() });
+                const pautas = await res.json();
+                if (!res.ok) throw new Error(pautas.erro);
+                if (!pautas.length) {
+                    el.innerHTML = '<div class="empty-state">Nenhuma pauta enviada ainda.</div>';
+                    return;
+                }
+                el.innerHTML = `
+                    <table class="pauta-table">
+                        <thead>
+                            <tr>
+                                <th>Título / Autor</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th>Observação</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pautas-tbody">
+                            ${pautas.map(p => `
+                                <tr id="row-${p._id}">
+                                    <td>
+                                        <strong>${p.titulo}</strong><br>
+                                        <small style="color:rgba(255,255,255,0.4)">${p.autor} · ${p.email}</small>
+                                        ${p.descricao ? `<br><small style="color:rgba(255,255,255,0.3); font-style:italic">${p.descricao.substring(0,100)}${p.descricao.length > 100 ? '…' : ''}</small>` : ''}
+                                    </td>
+                                    <td style="color:rgba(255,255,255,0.4); white-space:nowrap">${formatData(p.dataCriacao)}</td>
+                                    <td>${statusBadge(p.status)}</td>
+                                    <td><input class="obs-input" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Observação..."></td>
+                                    <td>
+                                        <select class="status-select" id="sel-${p._id}">
+                                            <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
+                                            <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
+                                            <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
+                                            <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
+                                        </select>
+                                        <br><br>
+                                        <button class="btn-mini" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">Salvar</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>`;
+            } catch (e) {
+                el.innerHTML = `<div class="empty-state">Erro: ${e.message}</div>`;
+            }
+        }
+
+        async function carregarStats() {
+            try {
+                const res = await fetch('/api/admin/stats', { headers: authHeader() });
+                const stats = await res.json();
+                if (!res.ok) return;
+                document.getElementById('stat-pendentes').textContent   = stats.pendentes;
+                document.getElementById('stat-em-analise').textContent  = stats.em_analise;
+                document.getElementById('stat-aprovadas').textContent   = stats.aprovadas;
+                document.getElementById('stat-rejeitadas').textContent  = stats.rejeitadas;
+                document.getElementById('stat-usuarios').textContent    = stats.totalUsuarios;
+                document.getElementById('stat-mensagens').textContent   = stats.totalMensagens;
+            } catch (e) {}
+        }
+
+        async function carregarMensagens() {
+            const el = document.getElementById('mensagens-conteudo');
+            try {
+                const res = await fetch('/api/contato', { headers: authHeader() });
+                const msgs = await res.json();
+                if (!res.ok) throw new Error(msgs.erro);
+                if (!msgs.length) {
+                    el.innerHTML = '<div class="empty-state">Nenhuma mensagem recebida ainda.</div>';
+                    return;
+                }
+                el.innerHTML = msgs.map(m => `
+                    <div class="mensagem-card">
+                        <div class="mensagem-card-meta">${formatData(m.dataCriacao)} · ${m.email} ${m.assunto ? '· ' + m.assunto : ''}</div>
+                        <div class="mensagem-card-nome">${m.nome}</div>
+                        <div class="mensagem-card-texto">${m.mensagem}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                el.innerHTML = `<div class="empty-state">Erro: ${e.message}</div>`;
+            }
+        }
+
+        // ── Bootstrap da página ──
+        if (!token || !usuarioRaw) {
+            document.getElementById('acesso-negado').style.display = 'block';
+        } else {
+            const usuario = JSON.parse(usuarioRaw);
+            const isEquipe = ['editor', 'admin'].includes(usuario.role);
+
+            document.getElementById('painel-conteudo').style.display = 'block';
+
+            // Badge de role
+            const roleName = { participante: 'Participante', editor: 'Equipe', admin: 'Admin' };
+            document.getElementById('role-badge').textContent = roleName[usuario.role] || usuario.role;
+            document.getElementById('painel-titulo').textContent = `Olá, ${usuario.nome.split(' ')[0]}`;
+
+            if (isEquipe) {
+                document.getElementById('painel-subtitulo').textContent = 'Gerencie as pautas, acompanhe as estatísticas e responda mensagens.';
+                document.getElementById('stats-section').style.display = 'block';
+                document.getElementById('todas-pautas-section').style.display = 'block';
+                document.getElementById('mensagens-section').style.display = 'block';
+
+                carregarStats();
+                carregarTodasPautas();
+                carregarMensagens();
+            } else {
+                document.getElementById('minhas-pautas-section').style.display = 'block';
+                carregarMinhasPautas();
+            }
+        }
+    </script>
+</body>
+</html>
