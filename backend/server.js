@@ -269,6 +269,35 @@ app.post('/api/usuarios/login', async (req, res) => {
 });
 
 // ==========================================
+// ROTAS - CONTATO
+// ==========================================
+
+// POST mensagem de contato
+app.post('/api/contato', async (req, res) => {
+    try {
+        const { nome, email, assunto, mensagem } = req.body;
+
+        if (!nome || !email || !mensagem) {
+            return res.status(400).json({ erro: 'Nome, email e mensagem são obrigatórios' });
+        }
+
+        const novaMsg = {
+            nome,
+            email,
+            assunto: assunto || '',
+            mensagem,
+            dataCriacao: new Date(),
+            lida: false
+        };
+
+        const resultado = await db.collection('contato').insertOne(novaMsg);
+        res.status(201).json({ mensagem: 'Mensagem enviada com sucesso', _id: resultado.insertedId });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+// ==========================================
 // HEALTH CHECK
 // ==========================================
 

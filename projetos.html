@@ -19,42 +19,75 @@
                     <li><a href="sobre.html">TV ELOS</a></li>
                     <li><a href="processo.html">Processo</a></li>
                     <li><a href="contato.html">Contato</a></li>
+                    <li><a href="transparencia.html">Transparência</a></li>
                     <li><button class="login-btn" onclick="toggleModal()">Login</button></li>
                 </ul>
             </nav>
         </header>
 
         <h1 class="page-title">Projetos</h1>
-        <p class="page-subtitle">Acompanhe os projetos em desenvolvimento, as pautas sugeridas pela comunidade e as histórias que estão sendo construídas.</p>
+        <p class="page-subtitle">Acompanhe as pautas da semana, os convidados e os últimos episódios. Participe enviando sua pauta.</p>
 
         <div class="section-title">O Que Rolou na Semana?</div>
         <div class="content-block">
             <h2>Convidados da Semana</h2>
-            <p>Conheça os convidados que participaram de nossas produções nesta semana. Pessoas incríveis compartilhando suas histórias, experiências e perspectivas únicas sobre temas relevantes para a comunidade.</p>
-            <p>Acompanhe as entrevistas, documentários e bate-papos que estão transformando a forma como abordamos pautas sociais.</p>
+            <p>Esta semana a TV ELOS recebeu vozes incríveis da nossa comunidade universitária. Acompanhe as entrevistas, documentários e bate-papos que abordam pautas sociais relevantes e histórias de transformação.</p>
+            <p>Acesse a página de <a href="programas.html" style="color: var(--accent-color);">Programas</a> para assistir aos episódios completos.</p>
         </div>
 
         <div class="section-title">Últimos Episódios</div>
         <div class="program-list">
             <div class="program-item">
-                <a href="#">Episódio 01 - Transformação Digital</a>
+                <a href="programas.html#oquerolou">Ep. 03 — Transformação Digital</a>
             </div>
             <div class="program-item">
-                <a href="#">Episódio 02 - Vozes da Comunidade</a>
+                <a href="programas.html#conexaoelos">Ep. 02 — Vozes da Comunidade</a>
             </div>
             <div class="program-item">
-                <a href="#">Episódio 03 - Protagonismo Jovem</a>
+                <a href="programas.html#cortessemana">Ep. 01 — Protagonismo Jovem</a>
             </div>
         </div>
 
         <div class="section-title">Envie sua Pauta</div>
         <div class="content-block">
             <h2>Participe do Projeto</h2>
-            <p>Você tem uma pauta interessante ou quer fazer parte da equipe de produção? Envie sua inscrição e nos ajude a criar conteúdo relevante e transformador.</p>
-            <p>A TV ELOS funciona através da colaboração e da participação ativa de pessoas dispostas a explorar novas formas de contar histórias.</p>
+            <p>Você tem uma história importante ou uma pauta que a comunidade precisa ouvir? Preencha o formulário abaixo e nossa equipe vai analisar sua proposta.</p>
+        </div>
+
+        <div class="content-block">
+            <form id="form-pauta">
+                <div class="form-group">
+                    <label for="pauta-titulo">Título da Pauta</label>
+                    <input type="text" id="pauta-titulo" required placeholder="Qual é o tema da sua pauta?">
+                </div>
+                <div class="form-group">
+                    <label for="pauta-descricao">Descrição</label>
+                    <textarea id="pauta-descricao" placeholder="Descreva sua pauta, por que ela é importante e como pode ser abordada..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pauta-autor">Seu Nome</label>
+                    <input type="text" id="pauta-autor" required placeholder="Nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="pauta-email">Seu E-mail</label>
+                    <input type="email" id="pauta-email" required placeholder="seu.email@exemplo.com">
+                </div>
+                <button type="submit" class="submit-btn">Enviar Pauta</button>
+                <div id="pauta-success" class="form-success">
+                    Pauta enviada com sucesso! Nossa equipe entrará em contato em breve.
+                </div>
+            </form>
         </div>
 
         <footer>
+            <div class="footer-links">
+                <a href="programas.html">Programas</a>
+                <a href="projetos.html">Projetos</a>
+                <a href="sobre.html">TV ELOS</a>
+                <a href="processo.html">Processo</a>
+                <a href="contato.html">Contato</a>
+                <a href="transparencia.html">Transparência</a>
+            </div>
             <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
         </footer>
     </div>

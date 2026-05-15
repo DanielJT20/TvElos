@@ -32,14 +32,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (formLogin) {
         formLogin.addEventListener('submit', async function (e) {
             e.preventDefault();
-
             const email = document.getElementById('login-email').value.trim();
             const senha = document.getElementById('login-password').value;
             const btn = formLogin.querySelector('.submit-btn');
-
             btn.textContent = 'Entrando...';
             btn.disabled = true;
-
             try {
                 const res = await fetch('/api/usuarios/login', {
                     method: 'POST',
@@ -47,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify({ email, senha })
                 });
                 const data = await res.json();
-
                 if (res.ok) {
                     localStorage.setItem('tvelos_token', data.token);
                     localStorage.setItem('tvelos_usuario', JSON.stringify(data.usuario));
@@ -71,21 +67,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (formCadastro) {
         formCadastro.addEventListener('submit', async function (e) {
             e.preventDefault();
-
             const nome = document.getElementById('cadastro-nome').value.trim();
             const email = document.getElementById('cadastro-email').value.trim();
             const senha = document.getElementById('cadastro-senha').value;
             const confirmar = document.getElementById('cadastro-confirmar').value;
             const btn = formCadastro.querySelector('.submit-btn');
-
             if (senha !== confirmar) {
                 alert('As senhas não coincidem.');
                 return;
             }
-
             btn.textContent = 'Criando conta...';
             btn.disabled = true;
-
             try {
                 const res = await fetch('/api/usuarios/registro', {
                     method: 'POST',
@@ -93,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify({ nome, email, senha })
                 });
                 const data = await res.json();
-
                 if (res.ok) {
                     alert(`Conta criada com sucesso! Bem-vindo(a), ${data.nome}. Faça login para continuar.`);
                     formCadastro.reset();
@@ -105,6 +96,80 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Não foi possível conectar ao servidor.');
             } finally {
                 btn.textContent = 'Criar Conta';
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // ── ENVIAR PAUTA ──
+    const formPauta = document.getElementById('form-pauta');
+    if (formPauta) {
+        formPauta.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const titulo = document.getElementById('pauta-titulo').value.trim();
+            const descricao = document.getElementById('pauta-descricao').value.trim();
+            const autor = document.getElementById('pauta-autor').value.trim();
+            const email = document.getElementById('pauta-email').value.trim();
+            const btn = formPauta.querySelector('.submit-btn');
+            btn.textContent = 'Enviando...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/pautas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ titulo, descricao, autor, email })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    formPauta.reset();
+                    document.getElementById('pauta-success').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('pauta-success').style.display = 'none';
+                    }, 5000);
+                } else {
+                    alert(data.erro || 'Erro ao enviar pauta.');
+                }
+            } catch (err) {
+                alert('Não foi possível conectar ao servidor.');
+            } finally {
+                btn.textContent = 'Enviar Pauta';
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // ── FORMULÁRIO DE CONTATO ──
+    const formContato = document.getElementById('form-contato');
+    if (formContato) {
+        formContato.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const nome = document.getElementById('contato-nome').value.trim();
+            const email = document.getElementById('contato-email').value.trim();
+            const assunto = document.getElementById('contato-assunto').value.trim();
+            const mensagem = document.getElementById('contato-mensagem').value.trim();
+            const btn = formContato.querySelector('.submit-btn');
+            btn.textContent = 'Enviando...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/contato', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, assunto, mensagem })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    formContato.reset();
+                    document.getElementById('contato-success').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('contato-success').style.display = 'none';
+                    }, 5000);
+                } else {
+                    alert(data.erro || 'Erro ao enviar mensagem.');
+                }
+            } catch (err) {
+                alert('Não foi possível conectar ao servidor.');
+            } finally {
+                btn.textContent = 'Enviar Mensagem';
                 btn.disabled = false;
             }
         });

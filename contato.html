@@ -19,6 +19,7 @@
                     <li><a href="sobre.html">TV ELOS</a></li>
                     <li><a href="processo.html">Processo</a></li>
                     <li><a href="contato.html">Contato</a></li>
+                    <li><a href="transparencia.html">Transparência</a></li>
                     <li><button class="login-btn" onclick="toggleModal()">Login</button></li>
                 </ul>
             </nav>
@@ -37,28 +38,27 @@
         <div class="content-block">
             <h2>Envie uma Mensagem</h2>
             <p>Preencha o formulário abaixo e nossa equipe entrará em contato em breve.</p>
-            <form action="#" method="POST" style="margin-top: 30px;">
+            <form id="form-contato" style="margin-top: 30px;">
                 <div class="form-group">
-                    <label for="name">Nome Completo</label>
-                    <input type="text" id="name" name="name" required placeholder="Seu nome">
+                    <label for="contato-nome">Nome Completo</label>
+                    <input type="text" id="contato-nome" required placeholder="Seu nome">
                 </div>
-                
                 <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" required placeholder="seu.email@exemplo.com">
+                    <label for="contato-email">E-mail</label>
+                    <input type="email" id="contato-email" required placeholder="seu.email@exemplo.com">
                 </div>
-                
                 <div class="form-group">
-                    <label for="subject">Assunto</label>
-                    <input type="text" id="subject" name="subject" required placeholder="Qual é o assunto?">
+                    <label for="contato-assunto">Assunto</label>
+                    <input type="text" id="contato-assunto" placeholder="Qual é o assunto?">
                 </div>
-                
                 <div class="form-group">
-                    <label for="message">Mensagem</label>
-                    <textarea id="message" name="message" required placeholder="Sua mensagem aqui..." style="background: transparent; border: none; border-bottom: 2px solid rgba(255, 255, 255, 0.3); color: var(--text-color); font-size: 1rem; padding: 10px 0; font-family: inherit; outline: none; transition: border-color 0.3s; min-height: 120px; resize: vertical;" onfocus="this.style.borderBottomColor = 'var(--accent-color)'" onblur="this.style.borderBottomColor = 'rgba(255, 255, 255, 0.3)'"></textarea>
+                    <label for="contato-mensagem">Mensagem</label>
+                    <textarea id="contato-mensagem" required placeholder="Sua mensagem aqui..."></textarea>
                 </div>
-                
                 <button type="submit" class="submit-btn">Enviar Mensagem</button>
+                <div id="contato-success" class="form-success">
+                    Mensagem enviada com sucesso! Responderemos em breve.
+                </div>
             </form>
         </div>
 
@@ -66,9 +66,18 @@
             <h2>Participar da Equipe</h2>
             <p>Interessado em fazer parte da TV ELOS? Temos sempre espaço para pessoas apaixonadas por audiovisual!</p>
             <p>Áreas onde você pode contribuir: Produção, Câmera, Som, Edição, Direção, Pesquisa, Administração e muito mais.</p>
+            <p style="margin-top: 15px;">Para participar como equipe, envie sua inscrição em <a href="projetos.html" style="color: var(--accent-color);">Projetos</a> ou fale diretamente por e-mail.</p>
         </div>
 
         <footer>
+            <div class="footer-links">
+                <a href="programas.html">Programas</a>
+                <a href="projetos.html">Projetos</a>
+                <a href="sobre.html">TV ELOS</a>
+                <a href="processo.html">Processo</a>
+                <a href="contato.html">Contato</a>
+                <a href="transparencia.html">Transparência</a>
+            </div>
             <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
         </footer>
     </div>
