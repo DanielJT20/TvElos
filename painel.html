@@ -287,6 +287,20 @@
                 <div id="mensagens-conteudo" class="loading-msg">Carregando...</div>
             </div>
 
+            <!-- EXPORTAÇÃO POWER BI (equipe) -->
+            <div id="export-section" class="painel-section" style="display:none;">
+                <div class="section-title">Exportação para Power BI</div>
+                <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:28px;">
+                    <p style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-bottom:24px; line-height:1.6;">
+                        Use as URLs abaixo no Power BI: <strong>Obter Dados → Web</strong> → cole a URL. Os dados são atualizados em tempo real sempre que o Power BI atualizar.
+                    </p>
+                    <div id="export-urls-lista"></div>
+                    <p style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-top:20px; text-transform:uppercase; letter-spacing:1px;">
+                        Mantenha essas URLs em sigilo — elas dão acesso de leitura aos dados.
+                    </p>
+                </div>
+            </div>
+
             <!-- GERENCIAR VÍDEOS (equipe) -->
             <div id="videos-section" class="painel-section" style="display:none;">
                 <div class="section-title">Gerenciar Vídeos</div>
@@ -495,6 +509,42 @@
             return null;
         }
 
+        function mostrarExportUrls() {
+            const base = window.location.origin;
+            const el = document.getElementById('export-urls-lista');
+            const endpoints = [
+                { label: 'Pautas',   path: 'pautas',   desc: 'Todas as pautas enviadas com status' },
+                { label: 'Usuários', path: 'usuarios', desc: 'Usuários cadastrados na plataforma' },
+                { label: 'Contato',  path: 'contato',  desc: 'Mensagens recebidas pelo formulário' },
+                { label: 'Vídeos',   path: 'videos',   desc: 'Vídeos publicados nos programas' },
+                { label: 'Resumo',   path: 'resumo',   desc: 'Totais e estatísticas gerais' }
+            ];
+            el.innerHTML = endpoints.map(e => {
+                const url = `${base}/api/export/${e.path}?token=SEU_EXPORT_TOKEN`;
+                return `
+                <div style="margin-bottom:16px; padding:16px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--accent-color); font-weight:700">${e.label}</span>
+                        <span style="font-size:0.7rem; color:rgba(255,255,255,0.35)">${e.desc}</span>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <code style="flex:1; font-size:0.72rem; color:rgba(255,255,255,0.6); word-break:break-all; font-family:monospace; background:rgba(255,255,255,0.04); padding:8px 12px;">${url}</code>
+                        <button class="btn-mini" onclick="navigator.clipboard.writeText('${url}').then(()=>{ this.textContent='✓ Copiado!'; setTimeout(()=>this.textContent='Copiar',2000); })">Copiar</button>
+                    </div>
+                </div>`;
+            }).join('') + `
+            <div style="margin-top:20px; padding:14px 16px; border:1px solid rgba(207,255,4,0.2); background:rgba(207,255,4,0.04);">
+                <p style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-bottom:6px;"><strong style="color:var(--accent-color)">Como usar no Power BI:</strong></p>
+                <p style="font-size:0.75rem; color:rgba(255,255,255,0.4); line-height:1.6;">
+                    1. Abra o Power BI Desktop<br>
+                    2. Clique em <strong>Obter Dados → Web</strong><br>
+                    3. Cole a URL acima (substituindo SEU_EXPORT_TOKEN pelo token real)<br>
+                    4. Clique em OK → o Power BI detecta a tabela automaticamente<br>
+                    5. Clique em <strong>Carregar</strong> ou <strong>Transformar Dados</strong>
+                </p>
+            </div>`;
+        }
+
         async function carregarVideos() {
             const el = document.getElementById('videos-lista');
             try {
@@ -614,11 +664,13 @@
                 document.getElementById('stats-section').style.display = 'block';
                 document.getElementById('todas-pautas-section').style.display = 'block';
                 document.getElementById('mensagens-section').style.display = 'block';
+                document.getElementById('export-section').style.display = 'block';
                 document.getElementById('videos-section').style.display = 'block';
 
                 carregarStats();
                 carregarTodasPautas();
                 carregarMensagens();
+                mostrarExportUrls();
                 carregarVideos();
             } else {
                 document.getElementById('minhas-pautas-section').style.display = 'block';

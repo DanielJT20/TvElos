@@ -317,6 +317,128 @@ app.get('/api/admin/stats', authMiddleware, equipeMiddleware, async (req, res) =
 });
 
 // ==========================================
+// ROTAS - EXPORT (Power BI / BI Tools)
+// ==========================================
+
+function exportMiddleware(req, res, next) {
+    const token = req.query.token;
+    const exportToken = process.env.EXPORT_TOKEN;
+    if (!exportToken) {
+        return res.status(503).json({ erro: 'EXPORT_TOKEN não configurado no servidor.' });
+    }
+    if (!token || token !== exportToken) {
+        return res.status(401).json({ erro: 'Token inválido. Acesso negado.' });
+    }
+    next();
+}
+
+app.get('/api/export/pautas', exportMiddleware, async (req, res) => {
+    try {
+        const pautas = await db.collection('pautas')
+            .find({})
+            .sort({ dataCriacao: -1 })
+            .toArray();
+        const dados = pautas.map(p => ({
+            id: p._id.toString(),
+            titulo: p.titulo,
+            descricao: p.descricao || '',
+            autor: p.autor,
+            email: p.email,
+            status: p.status,
+            observacao: p.observacao || '',
+            dataCriacao: p.dataCriacao ? new Date(p.dataCriacao).toISOString() : '',
+            dataAtualizacao: p.dataAtualizacao ? new Date(p.dataAtualizacao).toISOString() : ''
+        }));
+        res.json(dados);
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+app.get('/api/export/usuarios', exportMiddleware, async (req, res) => {
+    try {
+        const usuarios = await db.collection('usuarios')
+            .find({}, { projection: { senha: 0 } })
+            .sort({ dataCriacao: -1 })
+            .toArray();
+        const dados = usuarios.map(u => ({
+            id: u._id.toString(),
+            nome: u.nome,
+            email: u.email,
+            role: u.role,
+            dataCriacao: u.dataCriacao ? new Date(u.dataCriacao).toISOString() : ''
+        }));
+        res.json(dados);
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+app.get('/api/export/contato', exportMiddleware, async (req, res) => {
+    try {
+        const mensagens = await db.collection('contato')
+            .find({})
+            .sort({ dataCriacao: -1 })
+            .toArray();
+        const dados = mensagens.map(m => ({
+            id: m._id.toString(),
+            nome: m.nome,
+            email: m.email,
+            assunto: m.assunto || '',
+            mensagem: m.mensagem,
+            lida: m.lida ? 'Sim' : 'Não',
+            dataCriacao: m.dataCriacao ? new Date(m.dataCriacao).toISOString() : ''
+        }));
+        res.json(dados);
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+app.get('/api/export/videos', exportMiddleware, async (req, res) => {
+    try {
+        const videos = await db.collection('programas')
+            .find({})
+            .sort({ dataCriacao: -1 })
+            .toArray();
+        const dados = videos.map(v => ({
+            id: v._id.toString(),
+            titulo: v.titulo,
+            tag: v.tag || '',
+            categoria: v.categoria,
+            descricao: v.descricao || '',
+            videoUrl: v.videoUrl || '',
+            dataCriacao: v.dataCriacao ? new Date(v.dataCriacao).toISOString() : ''
+        }));
+        res.json(dados);
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+app.get('/api/export/resumo', exportMiddleware, async (req, res) => {
+    try {
+        const [totalPautas, pendentes, aprovadas, rejeitadas, em_analise, totalUsuarios, totalMensagens, totalVideos] = await Promise.all([
+            db.collection('pautas').countDocuments(),
+            db.collection('pautas').countDocuments({ status: 'pendente' }),
+            db.collection('pautas').countDocuments({ status: 'aprovada' }),
+            db.collection('pautas').countDocuments({ status: 'rejeitada' }),
+            db.collection('pautas').countDocuments({ status: 'em_analise' }),
+            db.collection('usuarios').countDocuments(),
+            db.collection('contato').countDocuments(),
+            db.collection('programas').countDocuments()
+        ]);
+        res.json([{
+            totalPautas, pendentes, aprovadas, rejeitadas, em_analise,
+            totalUsuarios, totalMensagens, totalVideos,
+            atualizadoEm: new Date().toISOString()
+        }]);
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+// ==========================================
 // HEALTH CHECK
 // ==========================================
 
