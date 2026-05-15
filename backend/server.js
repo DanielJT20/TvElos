@@ -80,11 +80,28 @@ app.get('/api/programas/:id', async (req, res) => {
 
 app.post('/api/programas', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
-        const { titulo, descricao, categoria, videoUrl, dataPublicacao } = req.body;
+        const { titulo, tag, descricao, categoria, videoUrl } = req.body;
         if (!titulo) return res.status(400).json({ erro: 'Título obrigatório' });
-        const novo = { titulo, descricao, categoria, videoUrl, dataPublicacao: dataPublicacao || new Date(), dataCriacao: new Date() };
+        const novo = {
+            titulo,
+            tag: tag || '',
+            descricao: descricao || '',
+            categoria: categoria || 'Geral',
+            videoUrl: videoUrl || '',
+            dataCriacao: new Date()
+        };
         const resultado = await db.collection('programas').insertOne(novo);
         res.status(201).json({ _id: resultado.insertedId, ...novo });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
+app.delete('/api/programas/:id', authMiddleware, equipeMiddleware, async (req, res) => {
+    try {
+        const resultado = await db.collection('programas').deleteOne({ _id: new ObjectId(req.params.id) });
+        if (resultado.deletedCount === 0) return res.status(404).json({ erro: 'Vídeo não encontrado' });
+        res.json({ mensagem: 'Vídeo removido com sucesso' });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -283,16 +300,17 @@ app.get('/api/contato', authMiddleware, equipeMiddleware, async (req, res) => {
 // GET estatísticas gerais (equipe only)
 app.get('/api/admin/stats', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
-        const [totalPautas, pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens] = await Promise.all([
+        const [totalPautas, pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens, totalVideos] = await Promise.all([
             db.collection('pautas').countDocuments(),
             db.collection('pautas').countDocuments({ status: 'pendente' }),
             db.collection('pautas').countDocuments({ status: 'em_analise' }),
             db.collection('pautas').countDocuments({ status: 'aprovada' }),
             db.collection('pautas').countDocuments({ status: 'rejeitada' }),
             db.collection('usuarios').countDocuments(),
-            db.collection('contato').countDocuments()
+            db.collection('contato').countDocuments(),
+            db.collection('programas').countDocuments()
         ]);
-        res.json({ totalPautas, pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens });
+        res.json({ totalPautas, pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens, totalVideos });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }

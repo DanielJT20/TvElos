@@ -28,120 +28,8 @@
         <h1 class="page-title">Programas</h1>
         <p class="page-subtitle">Conteúdo audiovisual universitário focado em conexões, pautas sociais e experimentação estética.</p>
 
-        <div class="section-title">O Que Rolou?</div>
-        <div class="video-grid">
-            <div class="video-card">
-                <div class="video-embed">
-                    <div class="video-placeholder">
-                        <div class="video-placeholder-icon">▶</div>
-                        Em breve
-                    </div>
-                </div>
-                <div class="video-info">
-                    <span class="video-tag">Episódio 03</span>
-                    <h3>Transformação Digital</h3>
-                    <p>Análise das principais pautas da semana com convidados especiais e discussões aprofundadas sobre impacto social.</p>
-                </div>
-            </div>
-            <div class="video-card">
-                <div class="video-embed">
-                    <div class="video-placeholder">
-                        <div class="video-placeholder-icon">▶</div>
-                        Em breve
-                    </div>
-                </div>
-                <div class="video-info">
-                    <span class="video-tag">Episódio 02</span>
-                    <h3>Vozes da Comunidade</h3>
-                    <p>Atualidades e análise semanal com foco nas histórias que movem a nossa comunidade universitária.</p>
-                </div>
-            </div>
-            <div class="video-card">
-                <div class="video-embed">
-                    <div class="video-placeholder">
-                        <div class="video-placeholder-icon">▶</div>
-                        Em breve
-                    </div>
-                </div>
-                <div class="video-info">
-                    <span class="video-tag">Episódio 01</span>
-                    <h3>Protagonismo Jovem</h3>
-                    <p>Estreia do programa com pautas sobre protagonismo jovem e participação comunitária.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-title">Conexão Elos</div>
-        <div class="video-grid">
-            <div class="video-card">
-                <div class="video-embed">
-                    <div class="video-placeholder">
-                        <div class="video-placeholder-icon">▶</div>
-                        Em breve
-                    </div>
-                </div>
-                <div class="video-info">
-                    <span class="video-tag">Episódio 02</span>
-                    <h3>Histórias de Resistência</h3>
-                    <p>Conexões humanas e histórias de vida que revelam o protagonismo de diferentes comunidades.</p>
-                </div>
-            </div>
-            <div class="video-card">
-                <div class="video-embed">
-                    <div class="video-placeholder">
-                        <div class="video-placeholder-icon">▶</div>
-                        Em breve
-                    </div>
-                </div>
-                <div class="video-info">
-                    <span class="video-tag">Episódio 01</span>
-                    <h3>Quem Somos</h3>
-                    <p>Primeiro episódio de Conexão Elos, apresentando as pessoas e histórias que constroem a TV ELOS.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-title">Cortes da Semana</div>
-        <div class="video-grid">
-            <div class="video-card">
-                <div class="video-embed">
-                    <div class="video-placeholder">
-                        <div class="video-placeholder-icon">▶</div>
-                        Em breve
-                    </div>
-                </div>
-                <div class="video-info">
-                    <span class="video-tag">Corte</span>
-                    <h3>Os Melhores Momentos #03</h3>
-                    <p>Compilação dos melhores momentos e recortes dos programas desta semana.</p>
-                </div>
-            </div>
-            <div class="video-card">
-                <div class="video-embed">
-                    <div class="video-placeholder">
-                        <div class="video-placeholder-icon">▶</div>
-                        Em breve
-                    </div>
-                </div>
-                <div class="video-info">
-                    <span class="video-tag">Corte</span>
-                    <h3>Os Melhores Momentos #02</h3>
-                    <p>Destaques e recortes dos conteúdos mais impactantes da semana anterior.</p>
-                </div>
-            </div>
-            <div class="video-card">
-                <div class="video-embed">
-                    <div class="video-placeholder">
-                        <div class="video-placeholder-icon">▶</div>
-                        Em breve
-                    </div>
-                </div>
-                <div class="video-info">
-                    <span class="video-tag">Corte</span>
-                    <h3>Os Melhores Momentos #01</h3>
-                    <p>Primeiro compilado de cortes da TV ELOS, marcando o início da nossa programação.</p>
-                </div>
-            </div>
+        <div id="programas-conteudo" style="grid-column: 1 / -1;">
+            <div style="color:rgba(255,255,255,0.3); font-size:0.85rem; text-align:center; padding:60px 20px;">Carregando programas...</div>
         </div>
 
         <footer>
@@ -160,12 +48,10 @@
     <div class="modal-overlay" id="loginModal">
         <div class="login-box">
             <button class="close-modal" onclick="toggleModal()">&times;</button>
-
             <div class="modal-tabs">
                 <button class="modal-tab active" data-tab="login">Entrar</button>
                 <button class="modal-tab" data-tab="cadastro">Cadastrar</button>
             </div>
-
             <form id="form-login">
                 <div class="form-group">
                     <label for="login-email">E-mail Institucional</label>
@@ -180,7 +66,6 @@
                     <a href="#" onclick="switchTab('cadastro'); return false;">Criar conta</a>
                 </div>
             </form>
-
             <form id="form-cadastro" style="display:none">
                 <div class="form-group">
                     <label for="cadastro-nome">Nome Completo</label>
@@ -207,5 +92,76 @@
     </div>
 
     <script src="assets/js/script.js"></script>
+    <script>
+        const CATEGORIAS_ORDEM = ['O Que Rolou?', 'Conexão Elos', 'Cortes da Semana'];
+
+        function toEmbedUrl(url) {
+            if (!url) return null;
+            const short = url.match(/youtu\.be\/([^?&]+)/);
+            if (short) return `https://www.youtube.com/embed/${short[1]}`;
+            const watch = url.match(/[?&]v=([^&]+)/);
+            if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
+            if (url.includes('/embed/')) return url;
+            return null;
+        }
+
+        function renderVideoCard(v) {
+            const embedUrl = toEmbedUrl(v.videoUrl);
+            const embedHtml = embedUrl
+                ? `<iframe src="${embedUrl}" title="${v.titulo}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+                : `<div class="video-placeholder"><div class="video-placeholder-icon">▶</div>Em breve</div>`;
+            return `
+                <div class="video-card">
+                    <div class="video-embed">${embedHtml}</div>
+                    <div class="video-info">
+                        ${v.tag ? `<span class="video-tag">${v.tag}</span>` : ''}
+                        <h3>${v.titulo}</h3>
+                        ${v.descricao ? `<p>${v.descricao}</p>` : ''}
+                    </div>
+                </div>`;
+        }
+
+        async function carregarProgramas() {
+            const el = document.getElementById('programas-conteudo');
+            try {
+                const res = await fetch('/api/programas');
+                const videos = await res.json();
+
+                if (!videos.length) {
+                    el.innerHTML = `
+                        <div style="color:rgba(255,255,255,0.3); font-size:0.9rem; text-align:center; padding:80px 20px; border: 1px dashed rgba(255,255,255,0.1);">
+                            Nenhum episódio publicado ainda. Fique de olho!
+                        </div>`;
+                    return;
+                }
+
+                // Agrupa por categoria
+                const grupos = {};
+                videos.forEach(v => {
+                    const cat = v.categoria || 'Outros';
+                    if (!grupos[cat]) grupos[cat] = [];
+                    grupos[cat].push(v);
+                });
+
+                // Ordena: categorias conhecidas primeiro, depois o resto
+                const cats = [
+                    ...CATEGORIAS_ORDEM.filter(c => grupos[c]),
+                    ...Object.keys(grupos).filter(c => !CATEGORIAS_ORDEM.includes(c))
+                ];
+
+                el.innerHTML = cats.map(cat => `
+                    <div class="section-title">${cat}</div>
+                    <div class="video-grid">
+                        ${grupos[cat].map(renderVideoCard).join('')}
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                el.innerHTML = `<div style="color:rgba(255,255,255,0.4); text-align:center; padding:60px;">Erro ao carregar programas.</div>`;
+            }
+        }
+
+        carregarProgramas();
+    </script>
 </body>
 </html>
