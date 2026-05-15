@@ -1,12 +1,3 @@
-// Obter programas
-const programas = await obterProgramas();
-
-// Enviar pauta
-await enviarPauta('Minha pauta', 'Descrição', 'João', 'joao@email.com');
-
-// Login
-await loginUsuario('email@tvelos.com.br', 'senha');
-
 // Função para abrir e fechar o Modal
 function toggleModal() {
     const modal = document.getElementById('loginModal');
@@ -23,19 +14,15 @@ document.addEventListener('DOMContentLoaded', function() {
         let isGlitching = false; 
 
         heroWrapper.addEventListener('mouseenter', () => {
-            if (isGlitching) return; // Trava a execução se a animação já estiver ocorrendo
+            if (isGlitching) return;
             
             isGlitching = true;
             
-            // Adiciona a classe que engatilha o fade-in do glitch e fade-out do elástico no CSS
             heroWrapper.classList.add('is-glitching');
 
-            // Mantém a animação por 3 segundos
             setTimeout(() => {
-                // Inicia o crossfade reverso (volta ao original)
                 heroWrapper.classList.remove('is-glitching');
                 
-                // Aguarda 600ms (o tempo da transição no CSS) antes de liberar um novo hover
                 setTimeout(() => {
                     isGlitching = false; 
                 }, 600); 

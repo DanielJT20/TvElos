@@ -14,7 +14,11 @@ app.use(express.json());
 
 // Conexão MongoDB
 let db;
-const client = new MongoClient(process.env.MONGODB_URI);
+const client = new MongoClient(process.env.MONGODB_URI, {
+    tls: true,
+    tlsAllowInvalidCertificates: false,
+    serverSelectionTimeoutMS: 10000
+});
 
 async function connectDB() {
     try {
