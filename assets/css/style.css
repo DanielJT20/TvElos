@@ -355,13 +355,47 @@ nav a:hover {
 
 .close-modal:hover { color: var(--accent-color); }
 
-.login-box h2 {
-    font-size: 3rem;
+/* Modal Tabs */
+.modal-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 40px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-tab {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.5rem;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: -2px;
-    margin-bottom: 40px;
+    letter-spacing: -1px;
+    padding: 0 0 16px 0;
+    margin-right: 30px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.modal-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-color);
+    transition: width 0.3s ease;
+}
+
+.modal-tab.active {
     color: var(--accent-color);
+}
+
+.modal-tab.active::after {
+    width: 100%;
 }
 
 .form-group {

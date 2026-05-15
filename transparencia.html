@@ -70,24 +70,47 @@
     <div class="modal-overlay" id="loginModal">
         <div class="login-box">
             <button class="close-modal" onclick="toggleModal()">&times;</button>
-            <h2>Login</h2>
-            
-            <form action="#" method="POST">
+
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="login">Entrar</button>
+                <button class="modal-tab" data-tab="cadastro">Cadastrar</button>
+            </div>
+
+            <form id="form-login">
                 <div class="form-group">
-                    <label for="email">E-mail Institucional</label>
-                    <input type="email" id="email" required placeholder="nome@tvelos.com.br">
+                    <label for="login-email">E-mail Institucional</label>
+                    <input type="email" id="login-email" required placeholder="nome@tvelos.com.br">
                 </div>
-                
                 <div class="form-group">
-                    <label for="password">Senha de Acesso</label>
-                    <input type="password" id="password" required placeholder="••••••••">
+                    <label for="login-password">Senha de Acesso</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
                 </div>
-                
                 <button type="submit" class="submit-btn">Entrar na Plataforma</button>
-                
                 <div class="login-options">
-                    <a href="#">Esqueci minha senha</a>
-                    <a href="#">Solicitar acesso de Participante</a>
+                    <a href="#" onclick="switchTab('cadastro'); return false;">Criar conta</a>
+                </div>
+            </form>
+
+            <form id="form-cadastro" style="display:none">
+                <div class="form-group">
+                    <label for="cadastro-nome">Nome Completo</label>
+                    <input type="text" id="cadastro-nome" required placeholder="Seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="cadastro-email">E-mail</label>
+                    <input type="email" id="cadastro-email" required placeholder="nome@tvelos.com.br">
+                </div>
+                <div class="form-group">
+                    <label for="cadastro-senha">Senha</label>
+                    <input type="password" id="cadastro-senha" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label for="cadastro-confirmar">Confirmar Senha</label>
+                    <input type="password" id="cadastro-confirmar" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="submit-btn">Criar Conta</button>
+                <div class="login-options">
+                    <a href="#" onclick="switchTab('login'); return false;">Já tenho uma conta</a>
                 </div>
             </form>
         </div>
