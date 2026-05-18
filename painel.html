@@ -679,14 +679,17 @@
 
         const token = localStorage.getItem('tvelos_token');
         const usuarioRaw = localStorage.getItem('tvelos_usuario');
-        let meuGrafico = null; // Instância global do gráfico
+        let meuGrafico = null; 
 
+        // Função global de logout resiliente
         function sair() {
-            if (confirm('Deseja sair da plataforma?')) {
+            try {
                 localStorage.removeItem('tvelos_token');
                 localStorage.removeItem('tvelos_usuario');
-                window.location.href = 'index.html';
+            } catch (err) {
+                console.error(err);
             }
+            window.location.href = 'index.html';
         }
 
         function statusBadge(status) {
@@ -702,16 +705,13 @@
             return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
         }
 
-        // --- MELHORIA: Alternar Tema Claro/Escuro Dinamicamente ---
         function toggleTheme() {
             document.body.classList.toggle('light-theme');
-            // Re-renderiza o gráfico para adaptar as cores do texto da legenda
             if (window.statsCache) {
                 renderizarGraficoChartJS(window.statsCache);
             }
         }
 
-        // --- MELHORIA: Exportação para PDF ---
         function exportarPDF() {
             const element = document.getElementById('panel-capture-area');
             const opt = {
@@ -721,7 +721,11 @@
                 html2canvas:  { scale: 2, logging: false, backgroundColor: document.body.classList.contains('light-theme') ? '#f3f4f6' : '#000000' },
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
             };
-            html2pdf().set(opt).from(element).save();
+            if (typeof html2pdf !== 'undefined') {
+                html2pdf().set(opt).from(element).save();
+            } else {
+                alert('A biblioteca de PDF ainda está carregando. Por favor, tente novamente em instantes.');
+            }
         }
 
         async function carregarMinhasPautas() {
@@ -761,17 +765,21 @@
         }
 
         async function atualizarStatus(id, novoStatus, obs) {
-            const res = await fetch(`/api/pautas/${id}/status`, {
-                method: 'PUT',
-                headers: authHeader(),
-                body: JSON.stringify({ status: novoStatus, observacao: obs })
-            });
-            if (res.ok) {
-                await carregarTodasPautas();
-                await carregarStats();
-            } else {
-                const d = await res.json();
-                alert(d.erro || 'Erro ao atualizar status');
+            try {
+                const res = await fetch(`/api/pautas/${id}/status`, {
+                    method: 'PUT',
+                    headers: authHeader(),
+                    body: JSON.stringify({ status: novoStatus, observacao: obs })
+                });
+                if (res.ok) {
+                    await carregarTodasPautas();
+                    await carregarStats();
+                } else {
+                    const d = await res.json();
+                    alert(d.erro || 'Erro ao atualizar status');
+                }
+            } catch (err) {
+                console.error(err);
             }
         }
 
@@ -829,21 +837,23 @@
         async function carregarStats() {
             try {
                 const res = await fetch('/api/admin/stats', { headers: authHeader() });
-                const stats = await res.json();
                 if (!res.ok) return;
+                const stats = await res.json();
                 
-                window.statsCache = stats; // Salva para re-renderização de tema
+                window.statsCache = stats;
 
-                document.getElementById('stat-pendentes').textContent   = stats.pendentes;
-                document.getElementById('stat-em-analise').textContent  = stats.em_analise;
-                document.getElementById('stat-aprovadas').textContent   = stats.aprovadas;
-                document.getElementById('stat-rejeitadas').textContent  = stats.rejeitadas;
-                document.getElementById('stat-usuarios').textContent    = stats.totalUsuarios;
-                document.getElementById('stat-mensagens').textContent   = stats.totalMensagens;
-                document.getElementById('stat-videos').textContent      = stats.totalVideos;
+                if (document.getElementById('stat-pendentes')) document.getElementById('stat-pendentes').textContent   = stats.pendentes;
+                if (document.getElementById('stat-em-analise')) document.getElementById('stat-em-analise').textContent  = stats.em_analise;
+                if (document.getElementById('stat-aprovadas')) document.getElementById('stat-aprovadas').textContent   = stats.aprovadas;
+                if (document.getElementById('stat-rejeitadas')) document.getElementById('stat-rejeitadas').textContent  = stats.rejeitadas;
+                if (document.getElementById('stat-usuarios')) document.getElementById('stat-usuarios').textContent    = stats.totalUsuarios;
+                if (document.getElementById('stat-mensagens')) document.getElementById('stat-mensagens').textContent   = stats.totalMensagens;
+                if (document.getElementById('stat-videos')) document.getElementById('stat-videos').textContent      = stats.totalVideos;
                 
                 atualizarDashboard(stats);
-            } catch (e) {}
+            } catch (e) {
+                console.error(e);
+            }
         }
 
         function getDataAtual() {
@@ -852,18 +862,20 @@
             return `${meses[agora.getMonth()]} ${agora.getFullYear()}`;
         }
 
-        // --- MELHORIA: Renderização com Chart.js ---
         function renderizarGraficoChartJS(stats) {
-            const ctx = document.getElementById('chartEvolucaoPautas').getContext('2d');
+            const canvasEl = document.getElementById('chartEvolucaoPautas');
+            if (!canvasEl || typeof Chart === 'undefined') return;
+
+            const ctx = canvasEl.getContext('2d');
             const isLight = document.body.classList.contains('light-theme');
             const textColor = isLight ? '#374151' : 'rgba(255,255,255,0.6)';
             const gridColor = isLight ? '#e5e7eb' : 'rgba(255,255,255,0.07)';
 
             const dadosHistoricos = {
                 labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
-                aprovadas: [6, 9, 11, 10, stats.aprovadas],
-                pendentes: [4, 5, 6, 7, stats.pendentes],
-                rejeitadas: [1, 2, 1, 3, stats.rejeitadas]
+                aprovadas: [6, 9, 11, 10, stats.aprovadas || 0],
+                pendentes: [4, 5, 6, 7, stats.pendentes || 0],
+                rejeitadas: [1, 2, 1, 3, stats.rejeitadas || 0]
             };
 
             if (meuGrafico) {
@@ -895,109 +907,111 @@
         }
 
         function atualizarDashboard(stats) {
-            const totalPautas = stats.pendentes + stats.em_analise + stats.aprovadas + stats.rejeitadas;
-            const taxaAprovadas = totalPautas > 0 ? Math.round((stats.aprovadas / totalPautas) * 100) : 0;
-            
-            // Atualizar cards de métricas
-            document.getElementById('dash-total-pautas').textContent = totalPautas;
-            document.getElementById('dash-total-delta').textContent = `↑ ${Math.max(1, Math.random() * 5 | 0)} este mês`;
-            
-            document.getElementById('dash-aprovadas').textContent = stats.aprovadas;
-            document.getElementById('dash-aprovadas-delta').textContent = `Taxa: ${taxaAprovadas}%`;
-            
-            document.getElementById('dash-usuarios').textContent = stats.totalUsuarios;
-            document.getElementById('dash-usuarios-delta').textContent = `↑ ${Math.max(1, Math.random() * 8 | 0)} novos`;
-            
-            document.getElementById('dash-videos').textContent = stats.totalVideos;
-            document.getElementById('dash-videos-delta').textContent = `↑ ${Math.max(1, Math.random() * 3 | 0)} este mês`;
-            
-            // Data
-            document.getElementById('dashboard-date').textContent = `Visão geral · ${getDataAtual()}`;
-            
-            // Renderiza o novo gráfico integrado com Chart.js
-            renderizarGraficoChartJS(stats);
-            
-            // Progress bars
-            const progressHtml = `
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Aprovadas</span>
-                        <span class="progress-value" style="color: #4ade80;">${stats.aprovadas}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="background: #4ade80; width: ${totalPautas > 0 ? (stats.aprovadas / totalPautas) * 100 : 0}%;"></div>
-                    </div>
-                </div>
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Pendentes</span>
-                        <span class="progress-value" style="color: #cfff04;">${stats.pendentes}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="background: #cfff04; width: ${totalPautas > 0 ? (stats.pendentes / totalPautas) * 100 : 0}%;"></div>
-                    </div>
-                </div>
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Em Análise</span>
-                        <span class="progress-value" style="color: #00ffff;">${stats.em_analise}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="background: #00ffff; width: ${totalPautas > 0 ? (stats.em_analise / totalPautas) * 100 : 0}%;"></div>
-                    </div>
-                </div>
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Rejeitadas</span>
-                        <span class="progress-value" style="color: #f87171;">${stats.rejeitadas}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="background: #f87171; width: ${totalPautas > 0 ? (stats.rejeitadas / totalPautas) * 100 : 0}%;"></div>
-                    </div>
-                </div>
-                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.07);">
+            try {
+                const totalPautas = (stats.pendentes || 0) + (stats.em_analise || 0) + (stats.aprovadas || 0) + (stats.rejeitadas || 0);
+                const taxaAprovadas = totalPautas > 0 ? Math.round((stats.aprovadas / totalPautas) * 100) : 0;
+                
+                if(document.getElementById('dash-total-pautas')) document.getElementById('dash-total-pautas').textContent = totalPautas;
+                if(document.getElementById('dash-total-delta')) document.getElementById('dash-total-delta').textContent = `↑ 4 este mês`;
+                
+                if(document.getElementById('dash-aprovadas')) document.getElementById('dash-aprovadas').textContent = stats.aprovadas;
+                if(document.getElementById('dash-aprovadas-delta')) document.getElementById('dash-aprovadas-delta').textContent = `Taxa: ${taxaAprovadas}%`;
+                
+                if(document.getElementById('dash-usuarios')) document.getElementById('dash-usuarios').textContent = stats.totalUsuarios;
+                if(document.getElementById('dash-usuarios-delta')) document.getElementById('dash-usuarios-delta').textContent = `↑ 6 novos`;
+                
+                if(document.getElementById('dash-videos')) document.getElementById('dash-videos').textContent = stats.totalVideos;
+                if(document.getElementById('dash-videos-delta')) document.getElementById('dash-videos-delta').textContent = `↑ 2 este mês`;
+                
+                if(document.getElementById('dashboard-date')) document.getElementById('dashboard-date').textContent = `Visão geral · ${getDataAtual()}`;
+                
+                renderizarGraficoChartJS(stats);
+                
+                const progressHtml = `
                     <div class="progress-item">
                         <div class="progress-header">
-                            <span class="progress-label">Mensagens recebidas</span>
-                            <span class="progress-value" style="color: #fb923c;">${stats.totalMensagens}</span>
+                            <span class="progress-label">Aprovadas</span>
+                            <span class="progress-value" style="color: #4ade80;">${stats.aprovadas}</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="background: #fb923c; width: ${Math.min((stats.totalMensagens / 50) * 100, 100)}%;"></div>
+                            <div class="progress-fill" style="background: #4ade80; width: ${totalPautas > 0 ? (stats.aprovadas / totalPautas) * 100 : 0}%;"></div>
                         </div>
                     </div>
-                </div>`;
-            
-            document.getElementById('dashboard-progress-bars').innerHTML = progressHtml;
-            
-            // Activity feed simulada
-            const atividades = [
-                { tipo: "pauta", msg: "Ana Lima enviou uma nova pauta", tempo: "2 min atrás", cor: "#cfff04" },
-                { tipo: "video", msg: "Novo vídeo publicado: Semana Acadêmica", tempo: "18 min atrás", cor: "#00ffff" },
-                { tipo: "user", msg: "Carlos R. criou uma conta", tempo: "1h atrás", cor: "#a78bfa" },
-                { tipo: "pauta", msg: 'Pauta "Entrevista Reitor" aprovada', tempo: "2h atrás", cor: "#4ade80" },
-                { tipo: "msg", msg: "Nova mensagem de contato recebida", tempo: "3h atrás", cor: "#fb923c" },
-            ];
-            
-            const activityHtml = atividades.map((a) => `
-                <div class="activity-card">
-                    <div class="activity-dot" style="background: ${a.cor}22; border-color: ${a.cor};">
-                        <div class="activity-dot-inner" style="background: ${a.cor};"></div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Pendentes</span>
+                            <span class="progress-value" style="color: #cfff04;">${stats.pendentes}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="background: #cfff04; width: ${totalPautas > 0 ? (stats.pendentes / totalPautas) * 100 : 0}%;"></div>
+                        </div>
                     </div>
-                    <div class="activity-text">${a.msg}</div>
-                    <div class="activity-time">${a.tempo}</div>
-                </div>`).join('');
-            
-            document.getElementById('dashboard-activity').innerHTML = activityHtml;
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Em Análise</span>
+                            <span class="progress-value" style="color: #00ffff;">${stats.em_analise}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="background: #00ffff; width: ${totalPautas > 0 ? (stats.em_analise / totalPautas) * 100 : 0}%;"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Rejeitadas</span>
+                            <span class="progress-value" style="color: #f87171;">${stats.rejeitadas}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="background: #f87171; width: ${totalPautas > 0 ? (stats.rejeitadas / totalPautas) * 100 : 0}%;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.07);">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Mensagens recebidas</span>
+                                <span class="progress-value" style="color: #fb923c;">${stats.totalMensagens}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="background: #fb923c; width: ${Math.min((stats.totalMensagens / 50) * 100, 100)}%;"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                
+                if(document.getElementById('dashboard-progress-bars')) document.getElementById('dashboard-progress-bars').innerHTML = progressHtml;
+                
+                const atividades = [
+                    { tipo: "pauta", msg: "Ana Lima enviou uma nova pauta", tempo: "2 min atrás", cor: "#cfff04" },
+                    { tipo: "video", msg: "Novo vídeo publicado: Semana Acadêmica", tempo: "18 min atrás", cor: "#00ffff" },
+                    { tipo: "user", msg: "Carlos R. criou uma conta", tempo: "1h atrás", cor: "#a78bfa" },
+                    { tipo: "pauta", msg: 'Pauta "Entrevista Reitor" aprovada', tempo: "2h atrás", cor: "#4ade80" },
+                    { tipo: "msg", msg: "Nova mensagem de contato recebida", tempo: "3h atrás", cor: "#fb923c" },
+                ];
+                
+                const activityHtml = atividades.map((a) => `
+                    <div class="activity-card">
+                        <div class="activity-dot" style="background: ${a.cor}22; border-color: ${a.cor};">
+                            <div class="activity-dot-inner" style="background: ${a.cor};"></div>
+                        </div>
+                        <div class="activity-text">${a.msg}</div>
+                        <div class="activity-time">${a.tempo}</div>
+                    </div>`).join('');
+                
+                if(document.getElementById('dashboard-activity')) document.getElementById('dashboard-activity').innerHTML = activityHtml;
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         async function carregarPaginasMaisAcessadas() {
             try {
                 const res = await fetch('/api/admin/acessos', { headers: authHeader() });
+                if (!res.ok) return;
                 const acessos = await res.json();
-                if (!res.ok) throw new Error(acessos.erro);
                 
+                const displayContainer = document.getElementById('dashboard-pages-chart');
+                if (!displayContainer) return;
+
                 if (!acessos || acessos.length === 0) {
-                    document.getElementById('dashboard-pages-chart').innerHTML = '<div class="empty-state">Nenhum acesso registrado ainda.</div>';
+                    displayContainer.innerHTML = '<div class="empty-state">Nenhum acesso registrado ainda.</div>';
                     return;
                 }
                 
@@ -1018,9 +1032,11 @@
                     </div>`;
                 }).join('');
                 
-                document.getElementById('dashboard-pages-chart').innerHTML = pagesHtml;
+                displayContainer.innerHTML = pagesHtml;
             } catch (e) {
-                document.getElementById('dashboard-pages-chart').innerHTML = `<div class="empty-state">Erro ao carregar páginas: ${e.message}</div>`;
+                if(document.getElementById('dashboard-pages-chart')) {
+                    document.getElementById('dashboard-pages-chart').innerHTML = `<div class="empty-state">Erro ao carregar páginas: ${e.message}</div>`;
+                }
             }
         }
 
@@ -1038,6 +1054,8 @@
         function mostrarExportUrls() {
             const base = window.location.origin;
             const el = document.getElementById('export-urls-lista');
+            if (!el) return;
+
             const endpoints = [
                 { label: 'Pautas',   path: 'pautas',   desc: 'Todas as pautas enviadas com status' },
                 { label: 'Usuários', path: 'usuarios', desc: 'Usuários cadastrados na plataforma' },
@@ -1055,7 +1073,7 @@
                     </div>
                     <div style="display:flex; gap:8px; align-items:center;">
                         <code style="flex:1; font-size:0.72rem; color:rgba(255,255,255,0.6); word-break:break-all; font-family:monospace; background:rgba(255,255,255,0.04); padding:8px 12px;">${url}</code>
-                        <button class="btn-mini" onclick="navigator.clipboard.writeText('${url}').then(()=>{ this.textContent='✓ Copiado!'; setTimeout(()=>this.textContent='Copiar',2000); })">Copiar</button>
+                        <button class="btn-mini" onclick="navigator.clipboard.writeText('${url}').then(()=>{ alert('URL Copiada!'); })">Copiar</button>
                     </div>
                 </div>`;
             }).join('') + `
@@ -1073,6 +1091,7 @@
 
         async function carregarVideos() {
             const el = document.getElementById('videos-lista');
+            if (!el) return;
             try {
                 const res = await fetch('/api/programas');
                 const videos = await res.json();
@@ -1107,8 +1126,10 @@
             const descricao = document.getElementById('v-descricao').value.trim();
             if (!titulo || !videoUrl) { alert('Título e URL do YouTube são obrigatórios.'); return; }
             const btn = document.querySelector('#videos-section .btn-mini');
-            btn.textContent = 'Publicando...';
-            btn.disabled = true;
+            if(btn) {
+                btn.textContent = 'Publicando...';
+                btn.disabled = true;
+            }
             try {
                 const res = await fetch('/api/programas', {
                     method: 'POST',
@@ -1117,9 +1138,11 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    ['v-titulo','v-tag','v-url','v-descricao'].forEach(id => document.getElementById(id).value = '');
-                    document.getElementById('video-success').style.display = 'block';
-                    setTimeout(() => { document.getElementById('video-success').style.display = 'none'; }, 4000);
+                    ['v-titulo','v-tag','v-url','v-descricao'].forEach(id => {
+                        if(document.getElementById(id)) document.getElementById(id).value = '';
+                    });
+                    if(document.getElementById('video-success')) document.getElementById('video-success').style.display = 'block';
+                    setTimeout(() => { if(document.getElementById('video-success')) document.getElementById('video-success').style.display = 'none'; }, 4000);
                     await carregarVideos();
                     await carregarStats();
                 } else {
@@ -1128,8 +1151,10 @@
             } catch (e) {
                 alert('Não foi possível conectar ao servidor.');
             } finally {
-                btn.textContent = '+ Publicar Vídeo';
-                btn.disabled = false;
+                if(btn) {
+                    btn.textContent = '+ Publicar Vídeo';
+                    btn.disabled = false;
+                }
             }
         }
 
@@ -1151,6 +1176,7 @@
 
         async function carregarMensagens() {
             const el = document.getElementById('mensagens-conteudo');
+            if (!el) return;
             try {
                 const res = await fetch('/api/contato', { headers: authHeader() });
                 const msgs = await res.json();
@@ -1171,69 +1197,87 @@
             }
         }
 
-        // --- MELHORIA: Auto-refresh a cada 5 minutos (300.000ms) ---
+        // Auto-refresh a cada 5 minutos protegido
         setInterval(() => {
-            if (token && usuarioRaw) {
+            try {
+                if (token && usuarioRaw) {
+                    const usuario = JSON.parse(usuarioRaw);
+                    if (usuario && usuario.role === 'admin') {
+                        carregarStats();
+                        carregarTodasPautas();
+                        carregarMensagens();
+                        carregarVideos();
+                        carregarPaginasMaisAcessadas();
+                    } else if (usuario && usuario.role === 'editor') {
+                        carregarTodasPautas();
+                        carregarMensagens();
+                        carregarVideos();
+                    } else if (usuario) {
+                        carregarMinhasPautas();
+                    }
+                }
+            } catch (err) {
+                console.error("Erro no Auto-refresh:", err);
+            }
+        }, 300000);
+
+        // ── Bootstrap Inicializador Protegido contra Quebras ──
+        try {
+            if (!token || !usuarioRaw) {
+                document.getElementById('acesso-negado').style.display = 'block';
+            } else {
                 const usuario = JSON.parse(usuarioRaw);
+                
+                if (!usuario || !usuario.role) {
+                    throw new Error("Dados de usuário inválidos no armazenamento local.");
+                }
+
+                document.getElementById('painel-conteudo').style.display = 'block';
+
+                // Tratamento seguro para nomes ausentes ou sem sobrenome
+                const nomeExibicao = usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário';
+                const roleName = { participante: 'Participante', editor: 'Equipe', admin: 'Admin' };
+                
+                document.getElementById('role-badge').textContent = roleName[usuario.role] || usuario.role;
+                document.getElementById('painel-titulo').textContent = `Olá, ${nomeExibicao}`;
+
                 if (usuario.role === 'admin') {
-                    console.log('Auto-refresh: Atualizando dados do dashboard...');
+                    document.getElementById('painel-subtitulo').textContent = 'Gerencie as pautas, acompanhe as estatísticas, responda mensagens e analise o acesso do site.';
+                    document.getElementById('dashboard-section').style.display = 'block';
+                    document.getElementById('stats-section').style.display = 'block';
+                    document.getElementById('todas-pautas-section').style.display = 'block';
+                    document.getElementById('mensagens-section').style.display = 'block';
+                    document.getElementById('export-section').style.display = 'block';
+                    document.getElementById('videos-section').style.display = 'block';
+
                     carregarStats();
                     carregarTodasPautas();
                     carregarMensagens();
+                    mostrarExportUrls();
                     carregarVideos();
                     carregarPaginasMaisAcessadas();
                 } else if (usuario.role === 'editor') {
+                    document.getElementById('painel-subtitulo').textContent = 'Acompanhe e gerencie os conteúdos ativos da plataforma.';
+                    document.getElementById('todas-pautas-section').style.display = 'block';
+                    document.getElementById('mensagens-section').style.display = 'block';
+                    document.getElementById('videos-section').style.display = 'block';
+                    
                     carregarTodasPautas();
                     carregarMensagens();
                     carregarVideos();
                 } else {
+                    document.getElementById('minhas-pautas-section').style.display = 'block';
                     carregarMinhasPautas();
                 }
             }
-        }, 300000);
-
-        // ── Bootstrap da página (CORRIGIDO) ──
-        if (!token || !usuarioRaw) {
+        } catch (error) {
+            console.error("Falha crítica na inicialização do painel:", error);
+            // Fallback de contingência caso o JSON interno do navegador esteja corrompido
             document.getElementById('acesso-negado').style.display = 'block';
-        } else {
-            const usuario = JSON.parse(usuarioRaw);
-            const isAdmin = usuario.role === 'admin';
-
-            document.getElementById('painel-conteudo').style.display = 'block';
-
-            // Badge de role
-            const roleName = { participante: 'Participante', editor: 'Equipe', admin: 'Admin' };
-            document.getElementById('role-badge').textContent = roleName[usuario.role] || usuario.role;
-            document.getElementById('painel-titulo').textContent = `Olá, ${usuario.nome.split(' ')[0]}`;
-
-            if (isAdmin) {
-                document.getElementById('painel-subtitulo').textContent = 'Gerencie as pautas, acompanhe as estatísticas, responda mensagens e analise o acesso do site.';
-                document.getElementById('dashboard-section').style.display = 'block';
-                document.getElementById('stats-section').style.display = 'block';
-                document.getElementById('todas-pautas-section').style.display = 'block';
-                document.getElementById('mensagens-section').style.display = 'block';
-                document.getElementById('export-section').style.display = 'block';
-                document.getElementById('videos-section').style.display = 'block';
-
-                carregarStats();
-                carregarTodasPautas();
-                carregarMensagens();
-                mostrarExportUrls();
-                carregarVideos();
-                carregarPaginasMaisAcessadas();
-            } else if (['editor'].includes(usuario.role)) {
-                // Para editores, mostrar apenas o básico administrativo
-                document.getElementById('todas-pautas-section').style.display = 'block';
-                document.getElementById('mensagens-section').style.display = 'block';
-                document.getElementById('videos-section').style.display = 'block';
-                
-                carregarTodasPautas();
-                carregarMensagens();
-                carregarVideos();
-            } else {
-                document.getElementById('minhas-pautas-section').style.display = 'block';
-                carregarMinhasPautas();
-            }
+            document.getElementById('acesso-negado').innerHTML = `
+                <p style="font-size:1.1rem; color:#ef4444; margin-bottom:15px;">Sua sessão expirou ou os dados locais estão corrompidos.</p>
+                <button class="btn-mini" onclick="sair()" style="padding:8px 20px;">Forçar Logout e Limpar Cache</button>
+            `;
         }
     </script>
 </body>
