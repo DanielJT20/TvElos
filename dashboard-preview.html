@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard TV ELOS - Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', system-ui, sans-serif;
+            padding: 32px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .dashboard-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard-title span:first-child {
+            color: #cfff04;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 2px;
+        }
+
+        .dashboard-title span:last-child {
+            color: rgba(255,255,255,0.3);
+            font-size: 14px;
+        }
+
+        .dashboard-date {
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+        }
+
+        .dashboard-live {
+            background: rgba(207,255,4,0.08);
+            border: 1px solid rgba(207,255,4,0.2);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            color: #cfff04;
+        }
+
+        .metric-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card-dashboard {
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 18px 22px;
+            border-left: 3px solid;
+        }
+
+        .metric-card-dashboard.yellow { border-left-color: #cfff04; }
+        .metric-card-dashboard.green { border-left-color: #4ade80; }
+        .metric-card-dashboard.cyan { border-left-color: #00ffff; }
+        .metric-card-dashboard.purple { border-left-color: #a78bfa; }
+
+        .metric-card-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .metric-card-value {
+            font-size: 36px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .metric-card-delta {
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+        }
+
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-box {
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .dashboard-box-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .bar-chart {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            height: 140px;
+            padding: 0 4px;
+        }
+
+        .bar-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bar-stack {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 120px;
+            width: 100%;
+            gap: 1px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-segment {
+            width: 100%;
+            transition: height 0.3s;
+        }
+
+        .bar-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 400;
+        }
+
+        .bar-label.active {
+            color: #cfff04;
+            font-weight: 700;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.45);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .progress-item {
+            margin-bottom: 14px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .progress-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.65);
+        }
+
+        .progress-value {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .activity-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .activity-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid;
+        }
+
+        .activity-dot-inner {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .activity-text {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.4;
+        }
+
+        .activity-time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            margin-top: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-row {
+                grid-template-columns: 1fr;
+            }
+            .activity-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .metric-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .activity-grid {
+                grid-template-columns: 1fr;
+            }
+            body {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <div class="dashboard-title">
+                    <span>TV ELOS</span>
+                    <span>/ Painel de Métricas</span>
+                </div>
+                <div class="dashboard-date">Visão geral · Maio 2026</div>
+            </div>
+            <div class="dashboard-live">● Ao vivo</div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="metric-cards-grid">
+            <div class="metric-card-dashboard yellow">
+                <div class="metric-card-label">Total de Pautas</div>
+                <div class="metric-card-value">29</div>
+                <div class="metric-card-delta">↑ 3 este mês</div>
+            </div>
+            <div class="metric-card-dashboard green">
+                <div class="metric-card-label">Aprovadas</div>
+                <div class="metric-card-value">14</div>
+                <div class="metric-card-delta">Taxa: 48%</div>
+            </div>
+            <div class="metric-card-dashboard cyan">
+                <div class="metric-card-label">Usuários</div>
+                <div class="metric-card-value">37</div>
+                <div class="metric-card-delta">↑ 6 novos</div>
+            </div>
+            <div class="metric-card-dashboard purple">
+                <div class="metric-card-label">Vídeos</div>
+                <div class="metric-card-value">12</div>
+                <div class="metric-card-delta">↑ 2 este mês</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="dashboard-row">
+            <!-- Bar Chart -->
+            <div class="dashboard-box">
+                <div class="dashboard-box-title">Evolução Mensal de Pautas</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 12px;">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #4ade80;"></span>
+                            <span>Aprovadas</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #cfff04;"></span>
+                            <span>Pendentes</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #f87171;"></span>
+                            <span>Rejeitadas</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bar-chart">
+                    <div class="bar-column">
+                        <div class="bar-stack" style="outline: none;">
+                            <div class="bar-segment" style="background: #f87171; height: 8px;"></div>
+                            <div class="bar-segment" style="background: #cfff04; height: 32px;"></div>
+                            <div class="bar-segment" style="background: #4ade80; height: 48px;"></div>
+                        </div>
+                        <span class="bar-label">Jan</span>
+                    </div>
+                    <div class="bar-column">
+                        <div class="bar-stack" style="outline: none;">
+                            <div class="bar-segment" style="background: #f87171; height: 16px;"></div>
+                            <div class="bar-segment" style="background: #cfff04; height: 40px;"></div>
+                            <div class="bar-segment" style="background: #4ade80; height: 56px;"></div>
+                        </div>
+                        <span class="bar-label">Fev</span>
+                    </div>
+                    <div class="bar-column">
+                        <div class="bar-stack" style="outline: none;">
+                            <div class="bar-segment" style="background: #f87171; height: 8px;"></div>
+                            <div class="bar-segment" style="background: #cfff04; height: 48px;"></div>
+                            <div class="bar-segment" style="background: #4ade80; height: 64px;"></div>
+                        </div>
+                        <span class="bar-label">Mar</span>
+                    </div>
+                    <div class="bar-column">
+                        <div class="bar-stack" style="outline: none;">
+                            <div class="bar-segment" style="background: #f87171; height: 24px;"></div>
+                            <div class="bar-segment" style="background: #cfff04; height: 56px;"></div>
+                            <div class="bar-segment" style="background: #4ade80; height: 64px;"></div>
+                        </div>
+                        <span class="bar-label">Abr</span>
+                    </div>
+                    <div class="bar-column">
+                        <div class="bar-stack" style="outline: 1px solid rgba(207,255,4,0.4);">
+                            <div class="bar-segment" style="background: #f87171; height: 32px;"></div>
+                            <div class="bar-segment" style="background: #cfff04; height: 64px;"></div>
+                            <div class="bar-segment" style="background: #4ade80; height: 84px;"></div>
+                        </div>
+                        <span class="bar-label active">Mai</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bars -->
+            <div class="dashboard-box">
+                <div class="dashboard-box-title">Situação Atual das Pautas</div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Aprovadas</span>
+                        <span class="progress-value" style="color: #4ade80;">14</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #4ade80; width: 48%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Pendentes</span>
+                        <span class="progress-value" style="color: #cfff04;">8</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #cfff04; width: 28%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Em Análise</span>
+                        <span class="progress-value" style="color: #00ffff;">3</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #00ffff; width: 10%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Rejeitadas</span>
+                        <span class="progress-value" style="color: #f87171;">4</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #f87171; width: 14%;"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.07);">
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Mensagens recebidas</span>
+                            <span class="progress-value" style="color: #fb923c;">21</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="background: #fb923c; width: 42%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="dashboard-box" style="grid-column: 1 / -1;">
+            <div class="dashboard-box-title">Atividade Recente</div>
+            <div class="activity-grid">
+                <div class="activity-card">
+                    <div class="activity-dot" style="background: #cfff0422; border-color: #cfff04;">
+                        <div class="activity-dot-inner" style="background: #cfff04;"></div>
+                    </div>
+                    <div class="activity-text">Ana Lima enviou uma nova pauta</div>
+                    <div class="activity-time">2 min atrás</div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-dot" style="background: #00ffff22; border-color: #00ffff;">
+                        <div class="activity-dot-inner" style="background: #00ffff;"></div>
+                    </div>
+                    <div class="activity-text">Novo vídeo publicado: Semana Acadêmica</div>
+                    <div class="activity-time">18 min atrás</div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-dot" style="background: #a78bfa22; border-color: #a78bfa;">
+                        <div class="activity-dot-inner" style="background: #a78bfa;"></div>
+                    </div>
+                    <div class="activity-text">Carlos R. criou uma conta</div>
+                    <div class="activity-time">1h atrás</div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-dot" style="background: #4ade8022; border-color: #4ade80;">
+                        <div class="activity-dot-inner" style="background: #4ade80;"></div>
+                    </div>
+                    <div class="activity-text">Pauta "Entrevista Reitor" aprovada</div>
+                    <div class="activity-time">2h atrás</div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-dot" style="background: #fb923c22; border-color: #fb923c;">
+                        <div class="activity-dot-inner" style="background: #fb923c;"></div>
+                    </div>
+                    <div class="activity-text">Nova mensagem de contato recebida</div>
+                    <div class="activity-time">3h atrás</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

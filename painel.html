@@ -202,6 +202,273 @@
         .form-group input[type="email"] {
             width: 100%;
         }
+        /* Dashboard Styles */
+        .dashboard-container {
+            grid-column: 1 / -1;
+        }
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .dashboard-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dashboard-title span:first-child {
+            color: #cfff04;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 2px;
+        }
+        .dashboard-title span:last-child {
+            color: rgba(255,255,255,0.3);
+            font-size: 14px;
+        }
+        .dashboard-date {
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+        }
+        .dashboard-live {
+            background: rgba(207,255,4,0.08);
+            border: 1px solid rgba(207,255,4,0.2);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            color: #cfff04;
+        }
+        .metric-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .metric-card-dashboard {
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 18px 22px;
+            border-left: 3px solid;
+        }
+        .metric-card-dashboard.yellow { border-left-color: #cfff04; }
+        .metric-card-dashboard.green { border-left-color: #4ade80; }
+        .metric-card-dashboard.cyan { border-left-color: #00ffff; }
+        .metric-card-dashboard.purple { border-left-color: #a78bfa; }
+        .metric-card-dashboard.orange { border-left-color: #fb923c; }
+        .metric-card-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .metric-card-value {
+            font-size: 36px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .metric-card-delta {
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+        }
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .dashboard-box {
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .dashboard-box-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .chart-container {
+            height: 160px;
+            margin-bottom: 12px;
+        }
+        .bar-chart {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            height: 140px;
+            padding: 0 4px;
+        }
+        .bar-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .bar-stack {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 120px;
+            width: 100%;
+            gap: 1px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .bar-segment {
+            width: 100%;
+            transition: height 0.3s;
+        }
+        .bar-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 400;
+        }
+        .bar-label.active {
+            color: #cfff04;
+            font-weight: 700;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.45);
+        }
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .progress-item {
+            margin-bottom: 14px;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .progress-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.65);
+        }
+        .progress-value {
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s;
+        }
+        .activity-section {
+            grid-column: 1 / -1;
+        }
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+        .activity-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .activity-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid;
+        }
+        .activity-dot-inner {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .activity-text {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.4;
+        }
+        .activity-time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            margin-top: auto;
+        }
+        .page-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .page-bar-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            min-width: 120px;
+            text-align: right;
+        }
+        .page-bar-container {
+            flex: 1;
+            height: 24px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .page-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #cfff04, #4ade80);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+        }
+        .page-bar-value {
+            font-size: 11px;
+            font-weight: 700;
+            color: #000;
+            mix-blend-mode: screen;
+        }
+        @media (max-width: 1024px) {
+            .dashboard-row {
+                grid-template-columns: 1fr;
+            }
+            .activity-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 640px) {
+            .metric-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .activity-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -234,6 +501,97 @@
                 <div class="painel-role" id="role-badge">Participante</div>
                 <h1 class="page-title" style="margin-bottom: 8px;" id="painel-titulo">Meu Painel</h1>
                 <p class="page-subtitle" id="painel-subtitulo">Acompanhe suas pautas enviadas e o status de cada uma.</p>
+            </div>
+
+            <!-- DASHBOARD (só equipe/admin) -->
+            <div id="dashboard-section" style="display:none; grid-column: 1 / -1;">
+                <div class="dashboard-container">
+                    <div class="dashboard-header">
+                        <div>
+                            <div class="dashboard-title">
+                                <span>TV ELOS</span>
+                                <span>/ Painel de Métricas</span>
+                            </div>
+                            <div class="dashboard-date" id="dashboard-date">Visão geral · Maio 2026</div>
+                        </div>
+                        <div class="dashboard-live">● Ao vivo</div>
+                    </div>
+
+                    <!-- Metric Cards -->
+                    <div class="metric-cards-grid">
+                        <div class="metric-card-dashboard yellow">
+                            <div class="metric-card-label">Total de Pautas</div>
+                            <div class="metric-card-value" id="dash-total-pautas">—</div>
+                            <div class="metric-card-delta" id="dash-total-delta">↑ — este mês</div>
+                        </div>
+                        <div class="metric-card-dashboard green">
+                            <div class="metric-card-label">Aprovadas</div>
+                            <div class="metric-card-value" id="dash-aprovadas">—</div>
+                            <div class="metric-card-delta" id="dash-aprovadas-delta">Taxa: —%</div>
+                        </div>
+                        <div class="metric-card-dashboard cyan">
+                            <div class="metric-card-label">Usuários</div>
+                            <div class="metric-card-value" id="dash-usuarios">—</div>
+                            <div class="metric-card-delta" id="dash-usuarios-delta">↑ — novos</div>
+                        </div>
+                        <div class="metric-card-dashboard purple">
+                            <div class="metric-card-label">Vídeos</div>
+                            <div class="metric-card-value" id="dash-videos">—</div>
+                            <div class="metric-card-delta" id="dash-videos-delta">↑ — este mês</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="dashboard-row">
+                        <!-- Bar Chart -->
+                        <div class="dashboard-box">
+                            <div class="dashboard-box-title">Evolução Mensal de Pautas</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div style="display: flex; gap: 12px;">
+                                    <div class="legend-item">
+                                        <span class="legend-dot" style="background: #4ade80;"></span>
+                                        <span>Aprovadas</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-dot" style="background: #cfff04;"></span>
+                                        <span>Pendentes</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-dot" style="background: #f87171;"></span>
+                                        <span>Rejeitadas</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bar-chart" id="dashboard-bar-chart">
+                                <!-- Será preenchido por JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Progress Bars -->
+                        <div class="dashboard-box">
+                            <div class="dashboard-box-title">Situação Atual das Pautas</div>
+                            <div id="dashboard-progress-bars">
+                                <!-- Será preenchido por JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <div class="dashboard-box activity-section">
+                        <div class="dashboard-box-title">Atividade Recente</div>
+                        <div class="activity-grid" id="dashboard-activity">
+                            <!-- Será preenchido por JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Páginas Mais Acessadas -->
+                    <div class="dashboard-box activity-section">
+                        <div class="dashboard-box-title">Páginas Mais Acessadas</div>
+                        <div id="dashboard-pages-chart" style="display: flex; flex-direction: column; gap: 16px;">
+                            <!-- Será preenchido por JavaScript -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- STATS (só equipe/admin) -->
@@ -505,7 +863,173 @@
                 document.getElementById('stat-usuarios').textContent    = stats.totalUsuarios;
                 document.getElementById('stat-mensagens').textContent   = stats.totalMensagens;
                 document.getElementById('stat-videos').textContent      = stats.totalVideos;
+                atualizarDashboard(stats);
             } catch (e) {}
+        }
+
+        function getDataAtual() {
+            const agora = new Date();
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            return `${meses[agora.getMonth()]} ${agora.getFullYear()}`;
+        }
+
+        function atualizarDashboard(stats) {
+            const totalPautas = stats.pendentes + stats.em_analise + stats.aprovadas + stats.rejeitadas;
+            const taxaAprovadas = totalPautas > 0 ? Math.round((stats.aprovadas / totalPautas) * 100) : 0;
+            
+            // Atualizar cards de métricas
+            document.getElementById('dash-total-pautas').textContent = totalPautas;
+            document.getElementById('dash-total-delta').textContent = `↑ ${Math.max(0, Math.random() * 5 | 0)} este mês`;
+            
+            document.getElementById('dash-aprovadas').textContent = stats.aprovadas;
+            document.getElementById('dash-aprovadas-delta').textContent = `Taxa: ${taxaAprovadas}%`;
+            
+            document.getElementById('dash-usuarios').textContent = stats.totalUsuarios;
+            document.getElementById('dash-usuarios-delta').textContent = `↑ ${Math.max(0, Math.random() * 8 | 0)} novos`;
+            
+            document.getElementById('dash-videos').textContent = stats.totalVideos;
+            document.getElementById('dash-videos-delta').textContent = `↑ ${Math.max(0, Math.random() * 3 | 0)} este mês`;
+            
+            // Data
+            document.getElementById('dashboard-date').textContent = `Visão geral · ${getDataAtual()}`;
+            
+            // Bar chart (histórico simulado)
+            const historico = [
+                { mes: "Jan", aprovadas: 6,  pendentes: 4,  rejeitadas: 1 },
+                { mes: "Fev", aprovadas: 9,  pendentes: 5,  rejeitadas: 2 },
+                { mes: "Mar", aprovadas: 11, pendentes: 6,  rejeitadas: 1 },
+                { mes: "Abr", aprovadas: 10, pendentes: 7,  rejeitadas: 3 },
+                { mes: "Mai", aprovadas: stats.aprovadas, pendentes: stats.pendentes, rejeitadas: stats.rejeitadas },
+            ];
+            
+            const maxTotal = Math.max(...historico.map(h => h.aprovadas + h.pendentes + h.rejeitadas));
+            const chartHtml = historico.map((h, i) => {
+                const total = h.aprovadas + h.pendentes + h.rejeitadas;
+                const scale = (v) => (v / maxTotal) * 120;
+                const isLast = i === historico.length - 1;
+                const rejHeight = scale(h.rejeitadas);
+                const pendHeight = scale(h.pendentes);
+                const aprovHeight = scale(h.aprovadas);
+                
+                return `
+                <div class="bar-column">
+                    <div class="bar-stack" style="outline: ${isLast ? '1px solid rgba(207,255,4,0.4)' : 'none'};">
+                        <div class="bar-segment" style="background: #f87171; height: ${rejHeight}px;"></div>
+                        <div class="bar-segment" style="background: #cfff04; height: ${pendHeight}px;"></div>
+                        <div class="bar-segment" style="background: #4ade80; height: ${aprovHeight}px;"></div>
+                    </div>
+                    <span class="bar-label ${isLast ? 'active' : ''}">${h.mes}</span>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('dashboard-bar-chart').innerHTML = chartHtml;
+            
+            // Progress bars
+            const progressHtml = `
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Aprovadas</span>
+                        <span class="progress-value" style="color: #4ade80;">${stats.aprovadas}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #4ade80; width: ${(stats.aprovadas / totalPautas) * 100}%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Pendentes</span>
+                        <span class="progress-value" style="color: #cfff04;">${stats.pendentes}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #cfff04; width: ${(stats.pendentes / totalPautas) * 100}%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Em Análise</span>
+                        <span class="progress-value" style="color: #00ffff;">${stats.em_analise}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #00ffff; width: ${(stats.em_analise / totalPautas) * 100}%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Rejeitadas</span>
+                        <span class="progress-value" style="color: #f87171;">${stats.rejeitadas}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #f87171; width: ${(stats.rejeitadas / totalPautas) * 100}%;"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.07);">
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Mensagens recebidas</span>
+                            <span class="progress-value" style="color: #fb923c;">${stats.totalMensagens}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="background: #fb923c; width: ${Math.min((stats.totalMensagens / 50) * 100, 100)}%;"></div>
+                        </div>
+                    </div>
+                </div>`;
+            
+            document.getElementById('dashboard-progress-bars').innerHTML = progressHtml;
+            
+            // Activity feed simulada
+            const atividades = [
+                { tipo: "pauta", msg: "Ana Lima enviou uma nova pauta", tempo: "2 min atrás", cor: "#cfff04" },
+                { tipo: "video", msg: "Novo vídeo publicado: Semana Acadêmica", tempo: "18 min atrás", cor: "#00ffff" },
+                { tipo: "user", msg: "Carlos R. criou uma conta", tempo: "1h atrás", cor: "#a78bfa" },
+                { tipo: "pauta", msg: 'Pauta "Entrevista Reitor" aprovada', tempo: "2h atrás", cor: "#4ade80" },
+                { tipo: "msg", msg: "Nova mensagem de contato recebida", tempo: "3h atrás", cor: "#fb923c" },
+            ];
+            
+            const activityHtml = atividades.map((a) => `
+                <div class="activity-card">
+                    <div class="activity-dot" style="background: ${a.cor}22; border-color: ${a.cor};">
+                        <div class="activity-dot-inner" style="background: ${a.cor};"></div>
+                    </div>
+                    <div class="activity-text">${a.msg}</div>
+                    <div class="activity-time">${a.tempo}</div>
+                </div>`).join('');
+            
+            document.getElementById('dashboard-activity').innerHTML = activityHtml;
+        }
+
+        async function carregarPaginasMaisAcessadas() {
+            try {
+                const res = await fetch('/api/admin/acessos', { headers: authHeader() });
+                const acessos = await res.json();
+                if (!res.ok) throw new Error(acessos.erro);
+                
+                if (!acessos || acessos.length === 0) {
+                    document.getElementById('dashboard-pages-chart').innerHTML = '<div class="empty-state">Nenhum acesso registrado ainda.</div>';
+                    return;
+                }
+                
+                // Pegar apenas as top 6 páginas
+                const topPages = acessos.slice(0, 6);
+                const maxCliques = topPages[0].cliques || 1;
+                
+                const pagesHtml = topPages.map((page, i) => {
+                    const percentual = Math.round((page.cliques / maxCliques) * 100);
+                    const cor = i === 0 ? '#cfff04' : i === 1 ? '#4ade80' : '#00ffff';
+                    return `
+                    <div class="page-bar-item">
+                        <div class="page-bar-label">${page.pagina || 'Sem nome'}</div>
+                        <div class="page-bar-container">
+                            <div class="page-bar-fill" style="width: ${percentual}%; background: linear-gradient(90deg, ${cor}, ${cor}88);">
+                                <span class="page-bar-value">${page.cliques || 0}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+                
+                document.getElementById('dashboard-pages-chart').innerHTML = pagesHtml;
+            } catch (e) {
+                document.getElementById('dashboard-pages-chart').innerHTML = `<div class="empty-state">Erro ao carregar páginas: ${e.message}</div>`;
+            }
         }
 
         function getYoutubeThumbnail(url) {
@@ -669,8 +1193,20 @@
             document.getElementById('role-badge').textContent = roleName[usuario.role] || usuario.role;
             document.getElementById('painel-titulo').textContent = `Olá, ${usuario.nome.split(' ')[0]}`;
 
-            if (isEquipe) {
-                document.getElementById('painel-subtitulo').textContent = 'Gerencie as pautas, acompanhe as estatísticas e responda mensagens.';
+        } else {
+            const usuario = JSON.parse(usuarioRaw);
+            const isAdmin = usuario.role === 'admin';
+
+            document.getElementById('painel-conteudo').style.display = 'block';
+
+            // Badge de role
+            const roleName = { participante: 'Participante', editor: 'Equipe', admin: 'Admin' };
+            document.getElementById('role-badge').textContent = roleName[usuario.role] || usuario.role;
+            document.getElementById('painel-titulo').textContent = `Olá, ${usuario.nome.split(' ')[0]}`;
+
+            if (isAdmin) {
+                document.getElementById('painel-subtitulo').textContent = 'Gerencie as pautas, acompanhe as estatísticas, respostas mensagens e analise o acesso do site.';
+                document.getElementById('dashboard-section').style.display = 'block';
                 document.getElementById('stats-section').style.display = 'block';
                 document.getElementById('todas-pautas-section').style.display = 'block';
                 document.getElementById('mensagens-section').style.display = 'block';
@@ -681,6 +1217,16 @@
                 carregarTodasPautas();
                 carregarMensagens();
                 mostrarExportUrls();
+                carregarVideos();
+                carregarPaginasMaisAcessadas();
+            } else if (['editor'].includes(usuario.role)) {
+                // Para editors, mostrar apenas o básico
+                document.getElementById('todas-pautas-section').style.display = 'block';
+                document.getElementById('mensagens-section').style.display = 'block';
+                document.getElementById('videos-section').style.display = 'block';
+                
+                carregarTodasPautas();
+                carregarMensagens();
                 carregarVideos();
             } else {
                 document.getElementById('minhas-pautas-section').style.display = 'block';
