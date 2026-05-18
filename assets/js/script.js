@@ -1,3 +1,12 @@
+/* Menu Mobile */
+function toggleMenu() {
+    const nav = document.querySelector('nav');
+    if (nav) {
+        nav.classList.toggle('active');
+        document.body.classList.toggle('no-scroll');
+    }
+}
+
 // Função para abrir e fechar o Modal
 function toggleModal() {
     const modal = document.getElementById('loginModal');
@@ -161,6 +170,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // ── Fecha menu ao clicar em link (mobile) ──
+    document.querySelectorAll('nav a').forEach(link => {
+        link.addEventListener('click', () => {
+            const nav = document.querySelector('nav');
+            if (nav && nav.classList.contains('active')) {
+                toggleMenu();
+            }
+        });
+    });
 
     // ── Animação Hero ──
     const heroWrapper = document.getElementById('hero-title-wrapper');
