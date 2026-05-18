@@ -470,6 +470,8 @@
             }
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -506,14 +508,20 @@
             <!-- DASHBOARD (só equipe/admin) -->
             <div id="dashboard-section" style="display:none; grid-column: 1 / -1;">
                 <div class="dashboard-container">
-                    <div class="dashboard-header">
-                        <div>
-                            <div class="dashboard-title">
-                                <span>TV ELOS</span>
-                                <span>/ Painel de Métricas</span>
-                            </div>
-                            <div class="dashboard-date" id="dashboard-date">Visão geral · Maio 2026</div>
-                        </div>
+                    <div class="dashboard-header" id="dash-header-export">
+    <div>
+        <div class="dashboard-title">
+            <span>TV ELOS</span>
+            <span>/ Painel de Métricas</span>
+        </div>
+        <div class="dashboard-date" id="dashboard-date">Visão geral · Maio 2026</div>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn-mini" onclick="toggleTheme()">🌓 Tema Escuro/Claro</button>
+        <button class="btn-mini" onclick="exportarPDF()">📄 Exportar PDF</button>
+        <div class="dashboard-live">● Ao vivo (Auto-refresh)</div>
+    </div>
+</div>
                         <div class="dashboard-live">● Ao vivo</div>
                     </div>
 
@@ -563,7 +571,12 @@
                                 </div>
                             </div>
                             <div class="bar-chart" id="dashboard-bar-chart">
-                                <!-- Será preenchido por JavaScript -->
+                                <div class="dashboard-box">
+    <div class="dashboard-box-title">Evolução Mensal de Pautas</div>
+    <div class="chart-container" style="height: 250px; position: relative;">
+        <canvas id="meuGraficoEvolucao"></canvas>
+    </div>
+</div>
                             </div>
                         </div>
 
@@ -1233,6 +1246,115 @@
                 carregarMinhasPautas();
             }
         }
+        // ==========================================
+// NOVAS MELHORIAS IMPLEMENTADAS
+// ==========================================
+
+let chartEvolucao = null; // Variável para guardar a instância do gráfico
+
+// 1. Integração com Chart.js
+function renderizarGraficoChartJS(stats) {
+    const ctx = document.getElementById('meuGraficoEvolucao').getContext('2d');
+    
+    // Dados simulados (no futuro, você trará isso da sua API)
+    const dadosJan = [6, 4, 1];
+    const dadosFev = [9, 5, 2];
+    const dadosMar = [11, 6, 1];
+    const dadosAbr = [10, 7, 3];
+    const dadosMai = [stats.aprovadas, stats.pendentes, stats.rejeitadas];
+
+    if (chartEvolucao) {
+        chartEvolucao.destroy(); // Destrói o anterior antes de atualizar
+    }
+
+    chartEvolucao = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
+            datasets: [
+                {
+                    label: 'Aprovadas',
+                    data: [dadosJan[0], dadosFev[0], dadosMar[0], dadosAbr[0], dadosMai[0]],
+                    backgroundColor: '#4ade80'
+                },
+                {
+                    label: 'Pendentes',
+                    data: [dadosJan[1], dadosFev[1], dadosMar[1], dadosAbr[1], dadosMai[1]],
+                    backgroundColor: '#cfff04'
+                },
+                {
+                    label: 'Rejeitadas',
+                    data: [dadosJan[2], dadosFev[2], dadosMar[2], dadosAbr[2], dadosMai[2]],
+                    backgroundColor: '#f87171'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                y: { stacked: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+            },
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            }
+        }
+    });
+}
+
+// Sobrescrever a chamada original para usar o Chart.js em vez do gráfico de barras em HTML
+const originalAtualizarDashboard = atualizarDashboard;
+atualizarDashboard = function(stats) {
+    originalAtualizarDashboard(stats); // Mantém cards, barras de progresso e feed
+    document.getElementById('dashboard-bar-chart')?.remove(); // Remove gráfico antigo se existir
+    renderizarGraficoChartJS(stats); // Roda o novo gráfico Chart.js
+};
+
+// 2. Auto-refresh a cada 5 minutos (300000 ms)
+setInterval(() => {
+    console.log("Atualizando dados em tempo real...");
+    carregarStats();
+    // Se você quiser atualizar outras áreas:
+    // carregarTodasPautas(); 
+}, 300000);
+
+// 3. Toggle Dark/Light Mode
+let isLightMode = false;
+function toggleTheme() {
+    isLightMode = !isLightMode;
+    if (isLightMode) {
+        document.body.style.background = '#f3f4f6';
+        document.body.style.color = '#111827';
+        // Ajusta boxes para modo claro
+        document.querySelectorAll('.dashboard-box, .metric-card-dashboard').forEach(el => {
+            el.style.background = '#ffffff';
+            el.style.borderColor = '#e5e7eb';
+        });
+        document.querySelectorAll('.dashboard-box-title').forEach(el => el.style.color = '#374151');
+    } else {
+        document.body.style.background = '#000';
+        document.body.style.color = '#fff';
+        document.querySelectorAll('.dashboard-box, .metric-card-dashboard').forEach(el => {
+            el.style.background = '#111';
+            el.style.borderColor = 'rgba(255,255,255,0.07)';
+        });
+        document.querySelectorAll('.dashboard-box-title').forEach(el => el.style.color = 'rgba(255,255,255,0.6)');
+    }
+}
+
+// 4. Exportação em PDF (html2pdf)
+function exportarPDF() {
+    const elemento = document.querySelector('.dashboard-container');
+    const opt = {
+        margin:       1,
+        filename:     'TV_ELOS_Relatorio.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+    html2pdf().set(opt).from(elemento).save();
+}
     </script>
 </body>
 </html>
