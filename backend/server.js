@@ -1,6 +1,21 @@
+/**
+ * TV ELOS - Backend API
+ * =======================
+ * Node.js + Express + MongoDB Atlas
+ *
+ * Recursos:
+ *   • Auth JWT com roles (participante / editor / admin)
+ *   • CRUD de programas, pautas, usuários, mensagens
+ *   • Exportação protegida por token para Power BI
+ *   • Proteções: rate-limiting, helmet headers, mongo-sanitize
+ */
+
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
 const { MongoClient, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 
@@ -9,8 +24,31 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+/* =====================================================================
+   MIDDLEWARES DE SEGURANÇA
+   ===================================================================== */
+
+// Headers de segurança (CSP, HSTS, X-Frame-Options, etc.)
+app.use(helmet());
+
+// Rate-limiting: máx 100 req / 15 min por IP
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { erro: 'Muitas requisições. Tente novamente mais tarde.' }
+});
+app.use('/api/', limiter);
+
+// Sanitiza queries MongoDB contra NoSQL injection
+app.use(mongoSanitize());
+
+// Parsing JSON + CORS
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
+
+/* =====================================================================
+   CONEXÃO MONGODB ATLAS
+   ===================================================================== */
 
 let db;
 const client = new MongoClient(process.env.MONGODB_URI, {
@@ -23,17 +61,18 @@ async function connectDB() {
     try {
         await client.connect();
         db = client.db('tvelos');
-        console.log('✅ Conectado ao MongoDB');
+        console.log('✅ Conectado ao MongoDB Atlas');
     } catch (error) {
         console.error('❌ Erro ao conectar MongoDB:', error);
         process.exit(1);
     }
 }
 
-// ==========================================
-// AUTH MIDDLEWARE
-// ==========================================
+/* =====================================================================
+   MIDDLEWARES DE AUTENTICAÇÃO / AUTORIZAÇÃO
+   ===================================================================== */
 
+// Verifica JWT no header Authorization: Bearer <token>
 function authMiddleware(req, res, next) {
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith('Bearer ')) {
@@ -41,24 +80,40 @@ function authMiddleware(req, res, next) {
     }
     try {
         const decoded = jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET);
-        req.usuario = decoded;
+        req.usuario = decoded;               // { id, email, role }
         next();
     } catch {
         return res.status(401).json({ erro: 'Token inválido ou expirado' });
     }
 }
 
+// Só permite acesso a editor/admin
 function equipeMiddleware(req, res, next) {
-    if (!req.usuario || !['editor', 'admin'].includes(req.usuario.role)) {
+    const rolesPermitidos = ['editor', 'admin'];
+    if (!req.usuario || !rolesPermitidos.includes(req.usuario.role)) {
         return res.status(403).json({ erro: 'Acesso restrito à equipe' });
     }
     next();
 }
 
-// ==========================================
-// ROTAS - PROGRAMAS
-// ==========================================
+// Middleware para exportação (Power BI) via query token
+function exportMiddleware(req, res, next) {
+    const token = req.query.token;
+    const exportToken = process.env.EXPORT_TOKEN;
+    if (!exportToken) {
+        return res.status(503).json({ erro: 'EXPORT_TOKEN não configurado.' });
+    }
+    if (!token || token !== exportToken) {
+        return res.status(401).json({ erro: 'Token inválido.' });
+    }
+    next();
+}
 
+/* =====================================================================
+   ROTAS - PROGRAMAS (vídeos / episódios)
+   ===================================================================== */
+
+// GET todos os programas — público
 app.get('/api/programas', async (req, res) => {
     try {
         const programas = await db.collection('programas').find({}).toArray();
@@ -68,9 +123,12 @@ app.get('/api/programas', async (req, res) => {
     }
 });
 
+// GET programa por ID — público
 app.get('/api/programas/:id', async (req, res) => {
     try {
-        const programa = await db.collection('programas').findOne({ _id: new ObjectId(req.params.id) });
+        const programa = await db.collection('programas').findOne({
+            _id: new ObjectId(req.params.id)
+        });
         if (!programa) return res.status(404).json({ erro: 'Programa não encontrado' });
         res.json(programa);
     } catch (error) {
@@ -78,6 +136,7 @@ app.get('/api/programas/:id', async (req, res) => {
     }
 });
 
+// POST novo programa — equipe only
 app.post('/api/programas', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
         const { titulo, tag, descricao, categoria, videoUrl } = req.body;
@@ -97,21 +156,26 @@ app.post('/api/programas', authMiddleware, equipeMiddleware, async (req, res) =>
     }
 });
 
+// DELETE programa — equipe only
 app.delete('/api/programas/:id', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
-        const resultado = await db.collection('programas').deleteOne({ _id: new ObjectId(req.params.id) });
-        if (resultado.deletedCount === 0) return res.status(404).json({ erro: 'Vídeo não encontrado' });
+        const resultado = await db.collection('programas').deleteOne({
+            _id: new ObjectId(req.params.id)
+        });
+        if (resultado.deletedCount === 0) {
+            return res.status(404).json({ erro: 'Vídeo não encontrado' });
+        }
         res.json({ mensagem: 'Vídeo removido com sucesso' });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
 });
 
-// ==========================================
-// ROTAS - PAUTAS
-// ==========================================
+/* =====================================================================
+   ROTAS - PAUTAS
+   ===================================================================== */
 
-// GET pautas do usuário logado
+// GET pautas do usuário logado — protegido
 app.get('/api/pautas/minhas', authMiddleware, async (req, res) => {
     try {
         const pautas = await db.collection('pautas')
@@ -124,7 +188,7 @@ app.get('/api/pautas/minhas', authMiddleware, async (req, res) => {
     }
 });
 
-// PUT atualizar status de uma pauta (equipe only)
+// PUT atualizar status de pauta — equipe only
 app.put('/api/pautas/:id/status', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
         const { status, observacao } = req.body;
@@ -142,17 +206,20 @@ app.put('/api/pautas/:id/status', authMiddleware, equipeMiddleware, async (req, 
     }
 });
 
-// GET todas as pautas (equipe only)
+// GET todas as pautas — equipe only
 app.get('/api/pautas', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
-        const pautas = await db.collection('pautas').find({}).sort({ dataCriacao: -1 }).toArray();
+        const pautas = await db.collection('pautas')
+            .find({})
+            .sort({ dataCriacao: -1 })
+            .toArray();
         res.json(pautas);
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
 });
 
-// POST criar nova pauta (público)
+// POST enviar pauta — público (não precisa login)
 app.post('/api/pautas', async (req, res) => {
     try {
         const { titulo, descricao, autor, email } = req.body;
@@ -176,11 +243,11 @@ app.post('/api/pautas', async (req, res) => {
     }
 });
 
-// ==========================================
-// ROTAS - USUÁRIOS
-// ==========================================
+/* =====================================================================
+   ROTAS - USUÁRIOS (cadastro, login, dados atualizados)
+   ===================================================================== */
 
-// GET todos os usuários (admin only)
+// GET todos os usuários — equipe only (sem senha)
 app.get('/api/usuarios', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
         const usuarios = await db.collection('usuarios')
@@ -192,34 +259,34 @@ app.get('/api/usuarios', authMiddleware, equipeMiddleware, async (req, res) => {
     }
 });
 
-// POST registrar usuário (público)
+// POST cadastrar — público (senha hasheada com bcrypt)
 app.post('/api/usuarios/registro', async (req, res) => {
     try {
         const { nome, email, senha } = req.body;
         if (!nome || !email || !senha) {
             return res.status(400).json({ erro: 'Nome, email e senha são obrigatórios' });
         }
-        const usuarioExistente = await db.collection('usuarios').findOne({ email });
-        if (usuarioExistente) {
-            return res.status(400).json({ erro: 'Email já registrado' });
-        }
+        // Verifica duplicidade
+        const existente = await db.collection('usuarios').findOne({ email });
+        if (existente) return res.status(400).json({ erro: 'Email já registrado' });
+
         const bcrypt = require('bcryptjs');
-        const senhaHash = await bcrypt.hash(senha, 10);
-        const novoUsuario = {
+        const senhaHash = await bcrypt.hash(senha, 10);   // salt = 10
+        const novo = {
             nome,
             email,
             senha: senhaHash,
-            role: 'participante',
+            role: 'participante',   // role padrão; editor/admin só via DB
             dataCriacao: new Date()
         };
-        const resultado = await db.collection('usuarios').insertOne(novoUsuario);
+        const resultado = await db.collection('usuarios').insertOne(novo);
         res.status(201).json({ _id: resultado.insertedId, nome, email, role: 'participante' });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
 });
 
-// POST login
+// POST login — público (retorna JWT válido 7 dias)
 app.post('/api/usuarios/login', async (req, res) => {
     try {
         const { email, senha } = req.body;
@@ -227,14 +294,12 @@ app.post('/api/usuarios/login', async (req, res) => {
             return res.status(400).json({ erro: 'Email e senha são obrigatórios' });
         }
         const usuario = await db.collection('usuarios').findOne({ email });
-        if (!usuario) {
-            return res.status(401).json({ erro: 'Credenciais inválidas' });
-        }
+        if (!usuario) return res.status(401).json({ erro: 'Credenciais inválidas' });
+
         const bcrypt = require('bcryptjs');
-        const senhaValida = await bcrypt.compare(senha, usuario.senha);
-        if (!senhaValida) {
-            return res.status(401).json({ erro: 'Credenciais inválidas' });
-        }
+        const valida = await bcrypt.compare(senha, usuario.senha);
+        if (!valida) return res.status(401).json({ erro: 'Credenciais inválidas' });
+
         const token = jwt.sign(
             { id: usuario._id, email: usuario.email, role: usuario.role },
             process.env.JWT_SECRET,
@@ -254,7 +319,7 @@ app.post('/api/usuarios/login', async (req, res) => {
     }
 });
 
-// GET usuário atual (dados atualizados do banco)
+// GET usuário atual (busca role atualizada do banco)
 app.get('/api/usuarios/me', authMiddleware, async (req, res) => {
     try {
         const usuario = await db.collection('usuarios').findOne(
@@ -273,11 +338,11 @@ app.get('/api/usuarios/me', authMiddleware, async (req, res) => {
     }
 });
 
-// ==========================================
-// ROTAS - CONTATO
-// ==========================================
+/* =====================================================================
+   ROTAS - CONTATO (mensagens do formulário)
+   ===================================================================== */
 
-// POST mensagem de contato (público)
+// POST enviar mensagem — público
 app.post('/api/contato', async (req, res) => {
     try {
         const { nome, email, assunto, mensagem } = req.body;
@@ -299,7 +364,7 @@ app.post('/api/contato', async (req, res) => {
     }
 });
 
-// GET mensagens de contato (equipe only)
+// GET mensagens — equipe only
 app.get('/api/contato', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
         const mensagens = await db.collection('contato')
@@ -312,14 +377,14 @@ app.get('/api/contato', authMiddleware, equipeMiddleware, async (req, res) => {
     }
 });
 
-// ==========================================
-// ROTAS - ADMIN
-// ==========================================
+/* =====================================================================
+   ROTAS - ADMIN (dashboard / estatísticas)
+   ===================================================================== */
 
-// GET estatísticas gerais (equipe only)
 app.get('/api/admin/stats', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
-        const [totalPautas, pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens, totalVideos] = await Promise.all([
+        const [totalPautas, pendentes, em_analise, aprovadas, rejeitadas,
+               totalUsuarios, totalMensagens, totalVideos] = await Promise.all([
             db.collection('pautas').countDocuments(),
             db.collection('pautas').countDocuments({ status: 'pendente' }),
             db.collection('pautas').countDocuments({ status: 'em_analise' }),
@@ -329,35 +394,26 @@ app.get('/api/admin/stats', authMiddleware, equipeMiddleware, async (req, res) =
             db.collection('contato').countDocuments(),
             db.collection('programas').countDocuments()
         ]);
-        res.json({ totalPautas, pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens, totalVideos });
+        res.json({ totalPautas, pendentes, em_analise, aprovadas, rejeitadas,
+                   totalUsuarios, totalMensagens, totalVideos });
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
 });
 
-// ==========================================
-// ROTAS - EXPORT (Power BI / BI Tools)
-// ==========================================
+/* =====================================================================
+   ROTAS - EXPORT (Power BI / BI Tools)
+   ===================================================================== */
 
-function exportMiddleware(req, res, next) {
-    const token = req.query.token;
-    const exportToken = process.env.EXPORT_TOKEN;
-    if (!exportToken) {
-        return res.status(503).json({ erro: 'EXPORT_TOKEN não configurado no servidor.' });
-    }
-    if (!token || token !== exportToken) {
-        return res.status(401).json({ erro: 'Token inválido. Acesso negado.' });
-    }
-    next();
-}
+// Todos os endpoints abaixo são protegidos por EXPORT_TOKEN via query string
 
 app.get('/api/export/pautas', exportMiddleware, async (req, res) => {
     try {
-        const pautas = await db.collection('pautas')
+        const docs = await db.collection('pautas')
             .find({})
             .sort({ dataCriacao: -1 })
             .toArray();
-        const dados = pautas.map(p => ({
+        const dados = docs.map(p => ({
             id: p._id.toString(),
             titulo: p.titulo,
             descricao: p.descricao || '',
@@ -365,8 +421,7 @@ app.get('/api/export/pautas', exportMiddleware, async (req, res) => {
             email: p.email,
             status: p.status,
             observacao: p.observacao || '',
-            dataCriacao: p.dataCriacao ? new Date(p.dataCriacao).toISOString() : '',
-            dataAtualizacao: p.dataAtualizacao ? new Date(p.dataAtualizacao).toISOString() : ''
+            dataCriacao: p.dataCriacao ? new Date(p.dataCriacao).toISOString() : ''
         }));
         res.json(dados);
     } catch (error) {
@@ -376,14 +431,12 @@ app.get('/api/export/pautas', exportMiddleware, async (req, res) => {
 
 app.get('/api/export/usuarios', exportMiddleware, async (req, res) => {
     try {
-        const usuarios = await db.collection('usuarios')
+        const docs = await db.collection('usuarios')
             .find({}, { projection: { senha: 0 } })
             .sort({ dataCriacao: -1 })
             .toArray();
-        const dados = usuarios.map(u => ({
-            id: u._id.toString(),
-            nome: u.nome,
-            email: u.email,
+        const dados = docs.map(u => ({
+            id: u._id.toString(), nome: u.nome, email: u.email,
             role: u.role,
             dataCriacao: u.dataCriacao ? new Date(u.dataCriacao).toISOString() : ''
         }));
@@ -395,16 +448,13 @@ app.get('/api/export/usuarios', exportMiddleware, async (req, res) => {
 
 app.get('/api/export/contato', exportMiddleware, async (req, res) => {
     try {
-        const mensagens = await db.collection('contato')
+        const docs = await db.collection('contato')
             .find({})
             .sort({ dataCriacao: -1 })
             .toArray();
-        const dados = mensagens.map(m => ({
-            id: m._id.toString(),
-            nome: m.nome,
-            email: m.email,
-            assunto: m.assunto || '',
-            mensagem: m.mensagem,
+        const dados = docs.map(m => ({
+            id: m._id.toString(), nome: m.nome, email: m.email,
+            assunto: m.assunto || '', mensagem: m.mensagem,
             lida: m.lida ? 'Sim' : 'Não',
             dataCriacao: m.dataCriacao ? new Date(m.dataCriacao).toISOString() : ''
         }));
@@ -416,16 +466,13 @@ app.get('/api/export/contato', exportMiddleware, async (req, res) => {
 
 app.get('/api/export/videos', exportMiddleware, async (req, res) => {
     try {
-        const videos = await db.collection('programas')
+        const docs = await db.collection('programas')
             .find({})
             .sort({ dataCriacao: -1 })
             .toArray();
-        const dados = videos.map(v => ({
-            id: v._id.toString(),
-            titulo: v.titulo,
-            tag: v.tag || '',
-            categoria: v.categoria,
-            descricao: v.descricao || '',
+        const dados = docs.map(v => ({
+            id: v._id.toString(), titulo: v.titulo, tag: v.tag || '',
+            categoria: v.categoria, descricao: v.descricao || '',
             videoUrl: v.videoUrl || '',
             dataCriacao: v.dataCriacao ? new Date(v.dataCriacao).toISOString() : ''
         }));
@@ -437,7 +484,8 @@ app.get('/api/export/videos', exportMiddleware, async (req, res) => {
 
 app.get('/api/export/resumo', exportMiddleware, async (req, res) => {
     try {
-        const [totalPautas, pendentes, aprovadas, rejeitadas, em_analise, totalUsuarios, totalMensagens, totalVideos] = await Promise.all([
+        const [totalPautas, pendentes, aprovadas, rejeitadas, em_analise,
+               totalUsuarios, totalMensagens, totalVideos] = await Promise.all([
             db.collection('pautas').countDocuments(),
             db.collection('pautas').countDocuments({ status: 'pendente' }),
             db.collection('pautas').countDocuments({ status: 'aprovada' }),
@@ -457,16 +505,25 @@ app.get('/api/export/resumo', exportMiddleware, async (req, res) => {
     }
 });
 
-// ==========================================
-// HEALTH CHECK
-// ==========================================
+/* =====================================================================
+   HEALTH CHECK
+   ===================================================================== */
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', mensagem: 'API TV ELOS rodando!' });
 });
 
-connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`🚀 API rodando na porta ${PORT}`);
+/* =====================================================================
+   INICIALIZAÇÃO
+   ===================================================================== */
+
+module.exports = { app, connectDB, db: () => db };   // export para testes
+
+// Só inicia o servidor se rodado diretamente (não via require nos testes)
+if (require.main === module) {
+    connectDB().then(() => {
+        app.listen(PORT, () => {
+            console.log(`🚀 API rodando na porta ${PORT}`);
+        });
     });
-});
+}

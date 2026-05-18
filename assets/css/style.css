@@ -1,8 +1,25 @@
+/**
+ * TV ELOS - Estilos Globais
+ * ==========================
+ *
+ * Seções:
+ *   1. Variáveis CSS + Reset
+ *   2. Grid de 12 colunas
+ *   3. Header / Nav / Menu hambúrguer (mobile ≤ 768px)
+ *   4. Animação Hero (elastic + glitch)
+ *   5. Modal de login/cadastro
+ *   6. Seções de conteúdo
+ *   7. Grids de vídeo e estatísticas
+ *   8. Tabelas de pautas
+ *   9. Footer
+ *  10. Media Queries (mobile / tablet)
+ */
+
 :root {
     --bg-color: #000000;
     --text-color: #ffffff;
-    --accent-color: #cfff04; /* Verde Lima */
-    --cyan-accent: #00ffff; /* Ciano */
+    --accent-color: #cfff04;   /* Verde Lima */
+    --cyan-accent: #00ffff;      /* Ciano */
     --grid-gap: 20px;
 }
 

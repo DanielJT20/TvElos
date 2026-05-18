@@ -1,4 +1,18 @@
-/* Menu Mobile */
+/**
+ * TV ELOS - Scripts do Frontend
+ * ================================
+ * 
+ * Áreas principais:
+ *   • Menu mobile (hambúrguer) — toggleMenu()
+ *   • Modal de login/cadastro com abas
+ *   • Formulários: login, cadastro, pauta, contato
+ *   • Sincronização de role em tempo real (sincronizarRole)
+ *   • Detecção de estado logado + injeção do link "Painel"
+ *
+ * Auth: JWT salvo em localStorage (per-device, não compartilhável)
+ */
+
+/* Abre/fecha menu mobile (tela ≤ 768px) */
 function toggleMenu() {
     const nav = document.querySelector('nav');
     if (nav) {
@@ -7,13 +21,13 @@ function toggleMenu() {
     }
 }
 
-// Função para abrir e fechar o Modal
+/* Abre/fecha o modal de login */
 function toggleModal() {
     const modal = document.getElementById('loginModal');
     if (modal) modal.classList.toggle('active');
 }
 
-// Alterna entre as abas de Login e Cadastro
+/* Alterna entre as abas "Entrar" e "Criar Conta" no modal */
 function switchTab(tab) {
     const formLogin = document.getElementById('form-login');
     const formCadastro = document.getElementById('form-cadastro');
@@ -171,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ── Fecha menu ao clicar em link (mobile) ──
+    // ── Fecha menu ao clicar em link (mobile → fecha overlay) ──
     document.querySelectorAll('nav a').forEach(link => {
         link.addEventListener('click', () => {
             const nav = document.querySelector('nav');
@@ -182,6 +196,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ── Sincroniza role do banco em tempo real ──
+    // Sempre que a página carrega, consulta /api/usuarios/me e
+    // atualiza o localStorage se a role mudou no banco (ex: participante → editor)
     async function sincronizarRole() {
         const token = localStorage.getItem('tvelos_token');
         if (!token) return;
@@ -227,11 +243,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+/*
+ * Atualiza a interface quando o usuário está logado:
+ *  • Botão de login vira o primeiro nome do usuário
+ *  • Clique no nome = confirmação de logout
+ *  • Injeta link "Meu Painel" ou "Painel Admin" na nav
+ */
 function atualizarBotaoLogin(usuario) {
     const isEquipe = ['editor', 'admin'].includes(usuario.role);
     const primeiroNome = usuario.nome.split(' ')[0];
 
-    // Atualiza o botão de login em todos os headers
+    // Troca o botão "Entrar" pelo nome do usuário
     document.querySelectorAll('.login-btn').forEach(btn => {
         btn.textContent = primeiroNome;
         btn.onclick = function () {
