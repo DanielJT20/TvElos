@@ -181,6 +181,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // ── Sincroniza role do banco em tempo real ──
+    async function sincronizarRole() {
+        const token = localStorage.getItem('tvelos_token');
+        if (!token) return;
+        try {
+            const res = await fetch('/api/usuarios/me', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (!res.ok) return;
+            const atual = await res.json();
+            const salvo = JSON.parse(localStorage.getItem('tvelos_usuario') || '{}');
+            if (salvo.role !== atual.role) {
+                // Role mudou no banco → atualiza tudo
+                localStorage.setItem('tvelos_usuario', JSON.stringify(atual));
+                atualizarBotaoLogin(atual);
+            }
+        } catch (e) {}
+    }
+
     // ── Animação Hero ──
     const heroWrapper = document.getElementById('hero-title-wrapper');
     if (heroWrapper) {
@@ -196,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ── Restaura estado de login ──
+    // ── Restaura estado de login e sincroniza role ──
     const usuarioSalvo = localStorage.getItem('tvelos_usuario');
     if (usuarioSalvo) {
         try { atualizarBotaoLogin(JSON.parse(usuarioSalvo)); }
@@ -204,6 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
             localStorage.removeItem('tvelos_usuario');
             localStorage.removeItem('tvelos_token');
         }
+        sincronizarRole();
     }
 });
 

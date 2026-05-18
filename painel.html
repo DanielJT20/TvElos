@@ -358,6 +358,15 @@
     </div>
 
     <script>
+        /* Menu Mobile (painel não carrega script.js compartilhado) */
+        function toggleMenu() {
+            const nav = document.querySelector('nav');
+            if (nav) {
+                nav.classList.toggle('active');
+                document.body.classList.toggle('no-scroll');
+            }
+        }
+
         const token = localStorage.getItem('tvelos_token');
         const usuarioRaw = localStorage.getItem('tvelos_usuario');
 

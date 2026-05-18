@@ -254,6 +254,25 @@ app.post('/api/usuarios/login', async (req, res) => {
     }
 });
 
+// GET usuário atual (dados atualizados do banco)
+app.get('/api/usuarios/me', authMiddleware, async (req, res) => {
+    try {
+        const usuario = await db.collection('usuarios').findOne(
+            { _id: new ObjectId(req.usuario.id) },
+            { projection: { senha: 0 } }
+        );
+        if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado' });
+        res.json({
+            _id: usuario._id,
+            nome: usuario.nome,
+            email: usuario.email,
+            role: usuario.role
+        });
+    } catch (error) {
+        res.status(500).json({ erro: error.message });
+    }
+});
+
 // ==========================================
 // ROTAS - CONTATO
 // ==========================================
