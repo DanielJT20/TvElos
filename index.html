@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV ELOS | Plataforma Audiovisual Universitária</title>
-    <meta name="description" content="TV ELOS é uma plataforma audiovisual universitária focada em conexões comunitárias, pautas sociais e experimentação estética. Conheça nossos programas e projetos.">
+    <title>TV ELOS | Audiovisual Universitário</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -12,6 +11,7 @@
     <div class="container">
         <header>
             <a href="index.html" class="logo">TV ELOS</a>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
             <nav>
                 <ul>
                     <li><a href="programas.html">Programas</a></li>
@@ -20,91 +20,59 @@
                     <li><a href="processo.html">Processo</a></li>
                     <li><a href="contato.html">Contato</a></li>
                     <li><a href="transparencia.html">Transparência</a></li>
-                    <li><button class="login-btn" onclick="toggleModal()">Login</button></li>
+                    <li><button class="theme-toggle-btn" onclick="alternarTemaGlobal()">☀️</button></li>
+                    <li><button class="login-btn" onclick="toggleModal()">Entrar</button></li>
                 </ul>
             </nav>
-            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menu">☰</button>
         </header>
 
         <section class="hero">
-            <div id="hero-title-wrapper">
-                <h1 class="title-layer anim-elastic">TV ELOS</h1>
-                <h1 class="title-layer anim-glitch">TV ELOS</h1>
-            </div>
+            <h1>Conectando Ideias,<br>Amplificando Vozes</h1>
+            <p>A plataforma audiovisual integrada de submissão de pautas e inteligência corporativa de audiência universitária.</p>
+            <a href="projetos.html"><button class="submit-btn">Enviar uma Pauta</button></a>
         </section>
 
-        <p class="hero-sub">
-            Plataforma audiovisual universitária focada em conexões, pautas sociais e experimentação estética. Passe o mouse no título para interagir.
-        </p>
+        <div class="modal" id="loginModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="toggleModal()">×</button>
+                <div class="modal-tabs">
+                    <button class="modal-tab active" data-tab="login">LOGIN</button>
+                    <button class="modal-tab" data-tab="cadastro">NOVA CONTA</button>
+                </div>
 
-        <div class="section-title">Programas em destaque</div>
-        
-        <div class="program-list">
-            <div class="program-item"><a href="programas.html#oquerolou">O Que Rolou?</a></div>
-            <div class="program-item"><a href="programas.html#conexaoelos">Conexão Elos</a></div>
-            <div class="program-item"><a href="programas.html#cortessemana">Cortes da Semana</a></div>
+                <form id="form-login">
+                    <div class="form-group">
+                        <label for="login-email">E-mail</label>
+                        <input type="email" id="login-email" required placeholder="seuemail@ufrj.br">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Senha</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="submit-btn" style="width: 100%; margin-top: 10px;">Entrar na Plataforma</button>
+                </form>
+
+                <form id="form-cadastro" style="display: none;">
+                    <div class="form-group">
+                        <label for="cadastro-nome">Nome Completo</label>
+                        <input type="text" id="cadastro-nome" placeholder="Seu Nome">
+                    </div>
+                    <div class="form-group">
+                        <label for="cadastro-email">E-mail Corporativo</label>
+                        <input type="email" id="cadastro-email" placeholder="nome@ufrj.br">
+                    </div>
+                    <div class="form-group">
+                        <label for="cadastro-senha">Senha de Acesso</label>
+                        <input type="password" id="cadastro-senha" placeholder="Mínimo 6 dígitos">
+                    </div>
+                    <button type="submit" class="submit-btn" style="width: 100%; margin-top: 10px;">Criar Conta</button>
+                </form>
+            </div>
         </div>
 
         <footer>
-            <div class="footer-links">
-                <a href="programas.html">Programas</a>
-                <a href="projetos.html">Projetos</a>
-                <a href="sobre.html">TV ELOS</a>
-                <a href="processo.html">Processo</a>
-                <a href="contato.html">Contato</a>
-                <a href="transparencia.html">Transparência</a>
-            </div>
             <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
         </footer>
-    </div>
-
-    <div class="modal-overlay" id="loginModal">
-        <div class="login-box">
-            <button class="close-modal" onclick="toggleModal()">&times;</button>
-
-            <div class="modal-tabs">
-                <button class="modal-tab active" data-tab="login">Entrar</button>
-                <button class="modal-tab" data-tab="cadastro">Cadastrar</button>
-            </div>
-
-            <form id="form-login">
-                <div class="form-group">
-                    <label for="login-email">E-mail Institucional</label>
-                    <input type="email" id="login-email" required placeholder="nome@tvelos.com.br">
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Senha de Acesso</label>
-                    <input type="password" id="login-password" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="submit-btn">Entrar na Plataforma</button>
-                <div class="login-options">
-                    <a href="#" onclick="switchTab('cadastro'); return false;">Criar conta</a>
-                </div>
-            </form>
-
-            <form id="form-cadastro" style="display:none">
-                <div class="form-group">
-                    <label for="cadastro-nome">Nome Completo</label>
-                    <input type="text" id="cadastro-nome" required placeholder="Seu nome completo">
-                </div>
-                <div class="form-group">
-                    <label for="cadastro-email">E-mail</label>
-                    <input type="email" id="cadastro-email" required placeholder="nome@tvelos.com.br">
-                </div>
-                <div class="form-group">
-                    <label for="cadastro-senha">Senha</label>
-                    <input type="password" id="cadastro-senha" required placeholder="••••••••">
-                </div>
-                <div class="form-group">
-                    <label for="cadastro-confirmar">Confirmar Senha</label>
-                    <input type="password" id="cadastro-confirmar" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="submit-btn">Criar Conta</button>
-                <div class="login-options">
-                    <a href="#" onclick="switchTab('login'); return false;">Já tenho uma conta</a>
-                </div>
-            </form>
-        </div>
     </div>
 
     <script src="assets/js/script.js"></script>
