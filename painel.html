@@ -381,18 +381,12 @@
             const a = document.createElement('a'); a.href = url; a.download = 'tvelos_acessos.csv'; document.body.appendChild(a); a.click(); a.remove();
         }
 
-        // ── INICIALIZADOR BINÁRIO DE ROLES PROTEGIDOContra TRAVAMENTOS ──
+        // ── INICIALIZADOR BINÁRIO DE ROLES (ADMIN / PARTICIPANTE) ──
         try {
-            if (!token || !usuarioRaw || usuarioRaw === "undefined") {
-                localStorage.clear();
+            if (!token || !usuarioRaw) {
                 document.getElementById('acesso-negado').style.display = 'block';
             } else {
                 const usuario = JSON.parse(usuarioRaw);
-                
-                if (!usuario || !usuario.role) {
-                    throw new Error("Dados corrompidos");
-                }
-
                 document.getElementById('painel-conteudo').style.display = 'block';
                 
                 if (usuario.role === 'admin') {
@@ -404,6 +398,7 @@
                     carregarTodasPautas();
                     carregarMetricasAudiencia();
                     
+                    // Sincroniza atualização em tempo real a cada 5 minutos
                     setInterval(() => { carregarStats(); carregarMetricasAudiencia(); carregarTodasPautas(); }, 300000);
                 } else {
                     document.getElementById('role-badge').textContent = "Visitante Cadastrado";
@@ -414,13 +409,7 @@
                 }
             }
         } catch (err) {
-            console.error("Erro na inicialização:", err);
-            localStorage.clear();
             document.getElementById('acesso-negado').style.display = 'block';
-            document.getElementById('acesso-negado').innerHTML = `
-                <p style="font-size:1.1rem; color:#ef4444; margin-bottom:15px;">Sua sessão continha dados antigos ou inválidos.</p>
-                <a href="index.html" class="btn-clean-save" style="text-decoration:none; display:inline-block;">Voltar para Home e Fazer Login</a>
-            `;
         }
     </script>
 </body>
