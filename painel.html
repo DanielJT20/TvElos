@@ -677,11 +677,11 @@ body.light-theme .progress-bar { background: #e5e7eb; }
             if (res.ok) { carregarTodasPautas(); carregarStats(); }
         }
 
-async function carregarTodasPautas() {
+        async function carregarTodasPautas() {
             const el = document.getElementById('todas-pautas-conteudo');
             try {
                 el.style.overflowX = 'visible'; 
-                el.innerHTML = '<div class="loading-msg">A carregar pautas...</div>';
+                el.innerHTML = '<div class="loading-msg">Carregando pautas...</div>';
 
                 const res = await fetch('/api/pautas', { headers: authHeader() });
                 const pautas = await res.json();
@@ -703,10 +703,6 @@ async function carregarTodasPautas() {
                     card.innerHTML = `
                         <div class="card-left-section">
                             <div class="row-number">${index + 1}</div>
-                            <div class="video-thumbnail-placeholder">
-                                <div class="placeholder-icon">▶</div>
-                                <span>Em breve</span>
-                            </div>
                         </div>
 
                         <div class="card-right-section">
@@ -714,22 +710,28 @@ async function carregarTodasPautas() {
                                 <div class="pauta-title-meta">
                                     <strong class="pauta-title">${p.titulo}</strong>
                                     <small class="pauta-author-email">${p.autor} · ${p.email}</small>
-                                    ${p.descricao ? `<small style="color: var(--text-muted); font-style:italic; margin-top:4px;">${p.descricao.substring(0,80)}${p.descricao.length > 80 ? '…' : ''}</small>` : ''}
+                                    ${p.descricao ? `<small class="pauta-desc-text">${p.descricao}</small>` : ''}
                                 </div>
                                 <div class="status-tag ${p.status}">${p.status.replace('_', ' ')}</div>
                             </div>
 
                             <div class="actions-bottom-row">
-                                <input type="text" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Adicionar observação..." class="obs-input-modern">
+                                <div class="input-wrapper-modern">
+                                    <label class="field-label-modern">Observações Internas</label>
+                                    <input type="text" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Adicione notas sobre o andamento..." class="obs-input-modern">
+                                </div>
                                 
-                                <select class="status-select-modern" id="sel-${p._id}">
-                                    <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
-                                    <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
-                                    <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
-                                    <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
-                                </select>
+                                <div class="select-wrapper-modern">
+                                    <label class="field-label-modern">Alterar Status</label>
+                                    <select class="status-select-modern" id="sel-${p._id}">
+                                        <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
+                                        <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
+                                        <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
+                                        <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
+                                    </select>
+                                </div>
 
-                                <button class="btn-mini btn-save-modern" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">SALVAR</button>
+                                <button class="btn-save-modern" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">SALVAR</button>
                             </div>
                         </div>
                     `;

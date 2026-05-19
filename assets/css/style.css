@@ -138,22 +138,134 @@ nav a:hover {
 }
 
 /* --- SEÇÃO ESQUERDA: Número e Miniatura --- */
+/* =====================================================================
+   REESTRUTURAÇÃO DO LAYOUT DE CARDS SEM VÍDEO E SELETORES PREMIUM
+   ===================================================================== */
+
+/* Ajuste da ala esquerda: Minimalista focado no índice */
 .card-left-section {
+    min-width: 45px !important;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 16px;
-    min-width: 180px; /* Garante tamanho mínimo para a miniatura */
 }
 
-/* Número da Linha */
+/* Número da pauta estilizado em círculo moderno */
 .row-number {
     font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-muted); /* Cor secundária padrão */
-    width: 24px;
-    text-align: right;
+    font-weight: 900;
+    color: var(--accent-color);
+    background: rgba(207, 255, 4, 0.04);
+    border: 1px solid rgba(207, 255, 4, 0.15);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+body.light-theme .row-number {
+    background: rgba(207, 255, 4, 0.08);
+    border-color: rgba(207, 255, 4, 0.3);
 }
 
+/* Descrição interna da pauta */
+.pauta-desc-text {
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Alinhamento dos inputs na base do card */
+.actions-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-top: 6px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 14px;
+}
+
+.input-wrapper-modern, .select-wrapper-modern {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-wrapper-modern { flex: 2; }
+.select-wrapper-modern { flex: 1; min-width: 170px; }
+
+/* Subtítulos discretos acima das caixas de texto */
+.field-label-modern {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+/* O SELETOR DE STATUS COMPLETAMENTE REDESENHADO (PREMIUM) */
+.status-select-modern {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* Remove a seta cinza padrão feia do navegador */
+    appearance: none; 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    /* Injeta uma seta elegante em formato de vetor SVG */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cfff04' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
+    padding-right: 40px;
+}
+
+/* Seta customizada escura para se adaptar perfeitamente ao Modo Claro */
+body.light-theme .status-select-modern {
+    background: #ffffff;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.status-select-modern:focus {
+    border-color: var(--accent-color);
+}
+
+/* Customização das opções internas da lista suspensa */
+.status-select-modern option {
+    background: #111111;
+    color: #ffffff;
+    padding: 12px;
+}
+body.light-theme .status-select-modern option {
+    background: #ffffff;
+    color: #111827;
+}
+
+/* Alinhamento do botão com a altura do seletor */
+.btn-save-modern {
+    height: 38px;
+    padding: 0 24px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 /* Placeholder da Miniatura do Vídeo */
 .video-thumbnail-placeholder {
     width: 140px;
@@ -265,14 +377,6 @@ nav a:hover {
     border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-/* --- LINHA INFERIOR: Campo de Observação e Botão --- */
-.actions-bottom-row {
-    display: flex;
-    justify-content: flex-end; /* Alinha as ações à direita */
-    gap: 12px;
-    align-items: center;
-}
-
 /* Campo de Input Modernizado */
 .obs-input-modern {
     flex: 1; /* Ocupa o espaço disponível à esquerda do botão */
@@ -291,19 +395,6 @@ nav a:hover {
     background: rgba(255, 255, 255, 0.01);
 }
 
-/* Botão SALVAR Modernizado */
-.btn-save-modern {
-    background: var(--accent-color); /* Lime original da TV ELOS */
-    color: #000; /* Texto preto para contraste */
-    border: none;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 1px;
-    padding: 12px 24px;
-    border-radius: 8px; /* Cantos arredondados */
-    min-width: 100px;
-}
 
 .btn-save-modern:hover {
     transform: scale(1.03);
