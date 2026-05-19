@@ -232,8 +232,8 @@ nav a:hover {
 }
 
 .select-clean-status option {
-    background: var(--container-bg);
-    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.01);
+    color: rgba(white);
 }
 
 /* Botão Compacto e Discreto */
