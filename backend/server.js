@@ -2,6 +2,7 @@
  * TV ELOS - Backend API
  * =======================
  * Node.js + Express + MongoDB Atlas
+ * Permissões: Visitantes não-logados (Leitura apenas), Participantes (Ações), Admin (Gerenciamento)
  */
 
 const express = require('express');
@@ -25,7 +26,7 @@ app.use(helmet());
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 150, // Aumentado um pouco para acomodar pings de telemetria de acessos
+    max: 150,
     message: { erro: 'Muitas requisições. Tente novamente mais tarde.' }
 });
 app.use('/api/', limiter);
@@ -61,21 +62,21 @@ async function connectDB() {
 function authMiddleware(req, res, next) {
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith('Bearer ')) {
-        return res.status(401).json({ erro: 'Token necessário' });
+        return res.status(401).json({ erro: 'Você precisa estar logado para realizar esta ação.' });
     }
     try {
         const decoded = jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET);
         req.usuario = decoded;
         next();
     } catch {
-        return res.status(401).json({ erro: 'Token inválido ou expirado' });
+        return res.status(401).json({ erro: 'Sua sessão expirou. Faça login novamente.' });
     }
 }
 
-function equipeMiddleware(req, res, next) {
-    const rolesPermitidos = ['editor', 'admin'];
-    if (!req.usuario || !rolesPermitidos.includes(req.usuario.role)) {
-        return res.status(403).json({ erro: 'Acesso restrito à equipe' });
+// ALTERADO: Apenas o Administrador agora gerencia o sistema
+function adminMiddleware(req, res, next) {
+    if (!req.usuario || req.usuario.role !== 'admin') {
+        return res.status(403).json({ erro: 'Acesso restrito apenas ao Administrador Gerente.' });
     }
     next();
 }
@@ -93,7 +94,7 @@ function exportMiddleware(req, res, next) {
 }
 
 /* =====================================================================
-   ROTAS - PROGRAMAS (vídeos / episódios)
+   ROTAS - PROGRAMAS (VÍDEOS) - ACESSO PÚBLICO MANTIDO
    ===================================================================== */
 app.get('/api/programas', async (req, res) => {
     try {
@@ -104,7 +105,8 @@ app.get('/api/programas', async (req, res) => {
     }
 });
 
-app.post('/api/programas', authMiddleware, equipeMiddleware, async (req, res) => {
+// Apenas admin cria vídeos
+app.post('/api/programas', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const { titulo, tag, descricao, categoria, videoUrl } = req.body;
         if (!titulo) return res.status(400).json({ erro: 'Título obrigatório' });
@@ -114,7 +116,7 @@ app.post('/api/programas', authMiddleware, equipeMiddleware, async (req, res) =>
             descricao: descricao || '',
             categoria: categoria || 'Geral',
             videoUrl: videoUrl || '',
-            visualizacoes: 0, // Inicializado seguro para contagem de cliques
+            visualizacoes: 0,
             dataCriacao: new Date()
         };
         const resultado = await db.collection('programas').insertOne(novo);
@@ -124,7 +126,6 @@ app.post('/api/programas', authMiddleware, equipeMiddleware, async (req, res) =>
     }
 });
 
-// POST Incrementar cliques/views de um vídeo de forma pública
 app.post('/api/programas/:id/clique', async (req, res) => {
     try {
         await db.collection('programas').updateOne(
@@ -137,7 +138,7 @@ app.post('/api/programas/:id/clique', async (req, res) => {
     }
 });
 
-app.delete('/api/programas/:id', authMiddleware, equipeMiddleware, async (req, res) => {
+app.delete('/api/programas/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const resultado = await db.collection('programas').deleteOne({
             _id: new ObjectId(req.params.id)
@@ -150,7 +151,7 @@ app.delete('/api/programas/:id', authMiddleware, equipeMiddleware, async (req, r
 });
 
 /* =====================================================================
-   ROTAS - PAUTAS
+   ROTAS - PAUTAS (RESTRITO A USUÁRIOS LOGADOS)
    ===================================================================== */
 app.get('/api/pautas/minhas', authMiddleware, async (req, res) => {
     try {
@@ -159,7 +160,7 @@ app.get('/api/pautas/minhas', authMiddleware, async (req, res) => {
     } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
-app.put('/api/pautas/:id/status', authMiddleware, equipeMiddleware, async (req, res) => {
+app.put('/api/pautas/:id/status', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const { status, observacao } = req.body;
         const validos = ['pendente', 'em_analise', 'aprovada', 'rejeitada'];
@@ -168,22 +169,34 @@ app.put('/api/pautas/:id/status', authMiddleware, equipeMiddleware, async (req, 
             { _id: new ObjectId(req.params.id) },
             { $set: { status, observacao: observacao || '', dataAtualizacao: new Date() } }
         );
-        res.json({ mensagem: 'Status updated' });
+        res.json({ mensagem: 'Status atualizado pelo gerente admin' });
     } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
-app.get('/api/pautas', authMiddleware, equipeMiddleware, async (req, res) => {
+app.get('/api/pautas', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const pautas = await db.collection('pautas').find({}).sort({ dataCriacao: -1 }).toArray();
         res.json(pautas);
     } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
-app.post('/api/pautas', async (req, res) => {
+// ALTERADO: Adicionado authMiddleware para bloquear envios anônimos de pauta
+app.post('/api/pautas', authMiddleware, async (req, res) => {
     try {
-        const { titulo, descricao, autor, email } = req.body;
-        if (!titulo || !autor || !email) return res.status(400).json({ erro: 'Campos obrigatórios ausentes' });
-        const novaPauta = { titulo, descricao: descricao || '', autor, email, status: 'pendente', observacao: '', dataCriacao: new Date(), dataAtualizacao: new Date() };
+        const { titulo, descricao } = req.body;
+        if (!titulo) return res.status(400).json({ erro: 'O título da pauta é obrigatório.' });
+        
+        // Coleta os metadados do token de autenticação seguro do usuário logado
+        const novaPauta = { 
+            titulo, 
+            descricao: descricao || '', 
+            autor: req.usuario.nome || 'Usuário Cadastrado', 
+            email: req.usuario.email, 
+            status: 'pendente', 
+            observacao: '', 
+            dataCriacao: new Date(), 
+            dataAtualizacao: new Date() 
+        };
         const resultado = await db.collection('pautas').insertOne(novaPauta);
         res.status(201).json({ _id: resultado.insertedId, ...novaPauta });
     } catch (error) { res.status(500).json({ erro: error.message }); }
@@ -192,7 +205,7 @@ app.post('/api/pautas', async (req, res) => {
 /* =====================================================================
    ROTAS - USUÁRIOS
    ===================================================================== */
-app.get('/api/usuarios', authMiddleware, equipeMiddleware, async (req, res) => {
+app.get('/api/usuarios', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const usuarios = await db.collection('usuarios').find({}, { projection: { senha: 0 } }).toArray();
         res.json(usuarios);
@@ -204,7 +217,7 @@ app.post('/api/usuarios/registro', async (req, res) => {
         const { nome, email, senha } = req.body;
         if (!nome || !email || !senha) return res.status(400).json({ erro: 'Campos obrigatórios ausentes' });
         const existente = await db.collection('usuarios').findOne({ email });
-        if (existente) return res.status(400).json({ erro: 'Email já registrado' });
+        if (existente) return res.status(400).json({ erro: 'Este email já está cadastrado.' });
 
         const bcrypt = require('bcryptjs');
         const senhaHash = await bcrypt.hash(senha, 10);
@@ -218,38 +231,43 @@ app.post('/api/usuarios/login', async (req, res) => {
     try {
         const { email, senha } = req.body;
         const usuario = await db.collection('usuarios').findOne({ email });
-        if (!usuario) return res.status(401).json({ erro: 'Credenciais inválidas' });
+        if (!usuario) return res.status(401).json({ erro: 'Usuário ou senha incorretos.' });
 
         const bcrypt = require('bcryptjs');
         const valida = await bcrypt.compare(senha, usuario.senha);
-        if (!valida) return res.status(401).json({ erro: 'Credenciais inválidas' });
+        if (!valida) return res.status(401).json({ erro: 'Usuário ou senha incorretos.' });
 
-        const token = jwt.sign({ id: usuario._id, email: usuario.email, role: usuario.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.json({ token, usuario: { _id: usuario._id, nome: usuario.nome, email: usuario.email, role: usuario.role } });
-    } catch (error) { res.status(500).json({ erro: error.message }); }
-});
+        // Se por ventura um usuário antigo estivesse com o role 'editor', ele age de forma segura como participante
+        const roleFinal = usuario.role === 'admin' ? 'admin' : 'participante';
 
-app.get('/api/usuarios/me', authMiddleware, async (req, res) => {
-    try {
-        const usuario = await db.collection('usuarios').findOne({ _id: new ObjectId(req.usuario.id) }, { projection: { senha: 0 } });
-        if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado' });
-        res.json({ _id: usuario._id, nome: usuario.nome, email: usuario.email, role: usuario.role });
+        const token = jwt.sign({ id: usuario._id, email: usuario.email, role: roleFinal, nome: usuario.nome }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        res.json({ token, usuario: { _id: usuario._id, nome: usuario.nome, email: usuario.email, role: roleFinal } });
     } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
 /* =====================================================================
-   ROTAS - CONTATO
+   ROTAS - CONTATO (RESTRITO A USUÁRIOS LOGADOS)
    ===================================================================== */
-app.post('/api/contato', async (req, res) => {
+// ALTERADO: Adicionado authMiddleware para impedir envios anônimos de mensagens de contato
+app.post('/api/contato', authMiddleware, async (req, res) => {
     try {
-        const { nome, email, assunto, mensagem } = req.body;
-        const novaMsg = { nome, email, assunto: assunto || '', mensagem, dataCriacao: new Date(), lida: false };
+        const { assunto, mensagem } = req.body;
+        if (!mensagem) return res.status(400).json({ erro: 'A mensagem não pode estar vazia.' });
+
+        const novaMsg = { 
+            nome: req.usuario.nome || 'Usuário Cadastrado', 
+            email: req.usuario.email, 
+            assunto: assunto || 'Geral', 
+            mensagem, 
+            dataCriacao: new Date(), 
+            lida: false 
+        };
         const resultado = await db.collection('contato').insertOne(novaMsg);
         res.status(201).json({ mensagem: 'Sucesso', _id: resultado.insertedId });
     } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
-app.get('/api/contato', authMiddleware, equipeMiddleware, async (req, res) => {
+app.get('/api/contato', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const mensagens = await db.collection('contato').find({}).sort({ dataCriacao: -1 }).toArray();
         res.json(mensagens);
@@ -257,10 +275,8 @@ app.get('/api/contato', authMiddleware, equipeMiddleware, async (req, res) => {
 });
 
 /* =====================================================================
-   NOVA SEÇÃO DE ROTAS - TELEMETRIA DE ACESSOS E COMPORTAMENTO
+   TELEMETRIA DE ACESSOS E COMPORTAMENTO
    ===================================================================== */
-
-// POST Salvar log de acesso de página do site — público
 app.post('/api/acessos', async (req, res) => {
     try {
         const { pagina, url, email, nome } = req.body;
@@ -273,13 +289,10 @@ app.post('/api/acessos', async (req, res) => {
         };
         await db.collection('acessos').insertOne(novoLog);
         res.status(201).json({ status: 'OK' });
-    } catch (error) {
-        res.status(500).json({ erro: error.message });
-    }
+    } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
-// GET Consolidação de métricas completas de acessos e cliques — equipe only
-app.get('/api/admin/acessos', authMiddleware, equipeMiddleware, async (req, res) => {
+app.get('/api/admin/acessos', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const topPaginas = await db.collection('acessos').aggregate([
             { $group: { _id: "$pagina", cliques: { $sum: 1 } } },
@@ -288,62 +301,34 @@ app.get('/api/admin/acessos', authMiddleware, equipeMiddleware, async (req, res)
             { $project: { pagina: "$_id", cliques: 1, _id: 0 } }
         ]).toArray();
 
-        const topVideos = await db.collection('programas')
-            .find({})
-            .sort({ visualizacoes: -1 })
-            .limit(6)
-            .toArray();
-
-        const ultimosAcessos = await db.collection('acessos')
-            .find({})
-            .sort({ dataAcesso: -1 })
-            .limit(8)
-            .toArray();
+        const topVideos = await db.collection('programas').find({}).sort({ visualizacoes: -1 }).limit(6).toArray();
+        const ultimosAcessos = await db.collection('acessos').find({}).sort({ dataAcesso: -1 }).limit(8).toArray();
 
         res.json({ topPaginas, topVideos, ultimosAcessos });
-    } catch (error) {
-        res.status(500).json({ erro: error.message });
-    }
-}); // <-- AGORA A ROTA DE ACESSOS FECHA AQUI CORRETAMENTE
+    } catch (error) { res.status(500).json({ erro: error.message }); }
+});
 
-// GET Exportar todo o histórico de tráfego e acessos em formato CSV
-app.get('/api/admin/acessos/csv', authMiddleware, equipeMiddleware, async (req, res) => {
+app.get('/api/admin/acessos/csv', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const logs = await db.collection('acessos')
-            .find({})
-            .sort({ dataAcesso: -1 })
-            .toArray();
-        
+        const logs = await db.collection('acessos').find({}).sort({ dataAcesso: -1 }).toArray();
         let csvContent = "Data,Horario,Pagina,URL_Completa,Usuario_Nome,Usuario_Email\n";
-        
         logs.forEach(log => {
             const dataObj = new Date(log.dataAcesso);
-            const dataStr = dataObj.toLocaleDateString('pt-BR');
-            const horaStr = dataObj.toLocaleTimeString('pt-BR');
-            
-            const pagina = `"${(log.pagina || '').replace(/"/g, '""')}"`;
-            const url    = `"${(log.url || '').replace(/"/g, '""')}"`;
-            const nome   = `"${(log.usuarioNome || '').replace(/"/g, '""')}"`;
-            const email  = `"${(log.usuarioEmail || '').replace(/"/g, '""')}"`;
-            
-            csvContent += `${dataStr},${horaStr},${pagina},${url},${nome},${email}\n`;
+            csvContent += `${dataObj.toLocaleDateString('pt-BR')},${dataObj.toLocaleTimeString('pt-BR')},"${(log.pagina || '').replace(/"/g, '""')}"` +
+                          `,"${(log.url || '').replace(/"/g, '""')}","${(log.usuarioNome || '').replace(/"/g, '""')}","${(log.usuarioEmail || '').replace(/"/g, '""')}"\n`;
         });
-        
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
         res.setHeader('Content-Disposition', 'attachment; filename=tvelos_audiencia_logs.csv');
         res.status(200).send('\uFEFF' + csvContent);
-    } catch (error) {
-        res.status(500).json({ erro: error.message });
-    }
+    } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
 /* =====================================================================
-   ROTAS - ADMIN & EXPORT
+   MÉTRICAS DO CONSOLE MANAGER
    ===================================================================== */
-app.get('/api/admin/stats', authMiddleware, equipeMiddleware, async (req, res) => {
+app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const [totalPautas, pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens, totalVideos] = await Promise.all([
-            db.collection('pautas').countDocuments(),
+        const [pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens, totalVideos] = await Promise.all([
             db.collection('pautas').countDocuments({ status: 'pendente' }),
             db.collection('pautas').countDocuments({ status: 'em_analise' }),
             db.collection('pautas').countDocuments({ status: 'aprovada' }),
@@ -352,7 +337,7 @@ app.get('/api/admin/stats', authMiddleware, equipeMiddleware, async (req, res) =
             db.collection('contato').countDocuments(),
             db.collection('programas').countDocuments()
         ]);
-        res.json({ totalPautas, pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens, totalVideos });
+        res.json({ pendentes, em_analise, aprovadas, rejeitadas, totalUsuarios, totalMensagens, totalVideos });
     } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
@@ -363,11 +348,9 @@ app.get('/api/export/pautas', exportMiddleware, async (req, res) => {
     } catch (error) { res.status(500).json({ erro: error.message }); }
 });
 
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', mensagem: 'API TV ELOS rodando!' });
-});
+app.get('/api/health', (req, res) => { res.json({ status: 'OK' }); });
 
-module.exports = { app, connectDB, db: () => db };
+module.exports = { app, connectDB };
 
 if (require.main === module) {
     connectDB().then(() => {

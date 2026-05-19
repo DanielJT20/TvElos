@@ -4,453 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel | TV ELOS</title>
-    <meta name="description" content="Painel de usuário da TV ELOS. Acompanhe suas pautas enviadas, veja o status e gerencie conteúdos da plataforma.">
-    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="assets/css/style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        .painel-header {
-            grid-column: 1 / -1;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 30px;
-            margin-bottom: 10px;
-        }
-        .painel-role {
-            display: inline-block;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-color);
-            border: 1px solid var(--accent-color);
-            padding: 4px 12px;
-            margin-bottom: 16px;
-        }
-        .stats-grid {
-            grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 20px;
-            margin-bottom: 50px;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 24px 20px;
-            text-align: center;
-        }
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--accent-color);
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-        .stat-label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: rgba(255,255,255,0.4);
-        }
-        .pauta-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-        .pauta-table th {
-            text-align: left;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: rgba(255,255,255,0.4);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 14px;
-        }
-        .pauta-table td {
-            padding: 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            vertical-align: top;
-        }
-        .pauta-table tr:hover td {
-            background: rgba(255,255,255,0.02);
-        }
-        .badge {
-            display: inline-block;
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 3px 10px;
-            font-weight: 700;
-        }
-        .badge-pendente   { color: #f59e0b; border: 1px solid #f59e0b; }
-        .badge-em_analise { color: #3b82f6; border: 1px solid #3b82f6; }
-        .badge-aprovada   { color: var(--accent-color); border: 1px solid var(--accent-color); }
-        .badge-rejeitada  { color: #ef4444; border: 1px solid #ef4444; }
-
-        .status-select {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            cursor: pointer;
-            outline: none;
-        }
-        .status-select option { background: #111; }
-
-        .painel-section {
-            grid-column: 1 / -1;
-            margin-bottom: 60px;
-        }
-        .painel-section .section-title {
-            margin-bottom: 20px;
-        }
-        .mensagem-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 20px 24px;
-            margin-bottom: 12px;
-        }
-        .mensagem-card-meta {
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.35);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .mensagem-card-nome {
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-        }
-        .mensagem-card-texto {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.6);
-            line-height: 1.5;
-        }
-        .empty-state {
-            color: rgba(255,255,255,0.3);
-            font-size: 0.85rem;
-            text-align: center;
-            padding: 40px 20px;
-            border: 1px dashed rgba(255,255,255,0.1);
-        }
-        #acesso-negado {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 100px 20px;
-        }
-        .loading-msg {
-            color: rgba(255,255,255,0.3);
-            font-size: 0.8rem;
-            text-align: center;
-            padding: 30px;
-        }
-        .obs-input {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.15);
-            color: #fff;
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            width: 180px;
-            outline: none;
-        }
-        .btn-mini {
-            background: transparent;
-            border: 1px solid var(--accent-color);
-            color: var(--accent-color);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 4px 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-mini:hover {
-            background: var(--accent-color);
-            color: #000;
-        }
-        .btn-danger {
-            background: transparent;
-            border: 1px solid rgba(239,68,68,0.5);
-            color: rgba(239,68,68,0.7);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 4px 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-danger:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
-        .video-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .video-row-thumb {
-            width: 80px;
-            height: 45px;
-            background: #111;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-        .video-row-thumb img { width:100%; height:100%; object-fit:cover; }
-        .video-row-info { flex: 1; min-width: 0; }
-        .video-row-info strong { font-size:0.9rem; display:block; }
-        .video-row-info small { color:rgba(255,255,255,0.4); font-size:0.75rem; }
+        .painel-header { grid-column: 1 / -1; border-bottom: 1px solid var(--border-color); padding-bottom: 30px; margin-bottom: 10px; }
+        .painel-role { display: inline-block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 4px 12px; margin-bottom: 16px; font-weight: 700; }
+        .stats-grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 16px; margin-bottom: 40px; }
+        .stat-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 22px 16px; text-align: center; }
+        .stat-number { font-size: 2.2rem; font-weight: 900; color: var(--accent-color); margin-bottom: 4px; line-height: 1; }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .pauta-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .pauta-table th { text-align: left; font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding: 10px 14px; }
+        .pauta-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+        .badge { display: inline-block; font-size: 0.6rem; text-transform: uppercase; padding: 3px 9px; font-weight: 700; border-radius: 4px; }
+        .badge-pendente { color: #a3e635; border: 1px solid rgba(163, 230, 53, 0.3); background: rgba(163, 230, 53, 0.02); }
+        .badge-em_analise { color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.02); }
+        .badge-aprovada { color: var(--accent-color); border: 1px solid rgba(207, 255, 4, 0.3); background: rgba(207, 255, 4, 0.02); }
+        .badge-rejeitada { color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.02); }
         
-        /* Dashboard Styles */
-        .dashboard-container {
-            grid-column: 1 / -1;
-        }
-        .dashboard-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 28px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .dashboard-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .dashboard-title span:first-child {
-            color: #cfff04;
-            font-weight: 900;
-            font-size: 20px;
-            letter-spacing: 2px;
-        }
-        .dashboard-title span:last-child {
-            color: rgba(255,255,255,0.3);
-            font-size: 14px;
-        }
-        .dashboard-date {
-            color: rgba(255,255,255,0.4);
-            font-size: 13px;
-        }
-        .dashboard-live {
-            background: rgba(207,255,4,0.08);
-            border: 1px solid rgba(207,255,4,0.2);
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 12px;
-            color: #cfff04;
-        }
-        .metric-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 14px;
-            margin-bottom: 24px;
-        }
-        .metric-card-dashboard {
-            background: #111;
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 12px;
-            padding: 18px 22px;
-            border-left: 3px solid;
-            transition: background 0.3s, border-color 0.3s;
-        }
-        .metric-card-dashboard.yellow { border-left-color: #cfff04; }
-        .metric-card-dashboard.green { border-left-color: #4ade80; }
-        .metric-card-dashboard.cyan { border-left-color: #00ffff; }
-        .metric-card-dashboard.purple { border-left-color: #a78bfa; }
-        .metric-card-dashboard.orange { border-left-color: #fb923c; }
+        .painel-section { grid-column: 1 / -1; margin-bottom: 50px; }
+        .loading-msg { color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 40px; }
+        .dashboard-container { grid-column: 1 / -1; }
+        .dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .dashboard-title span:first-child { color: var(--accent-color); font-weight: 900; font-size: 20px; }
+        .dashboard-title span:last-child { color: var(--text-muted); font-size: 14px; margin-left: 8px; }
+        .dashboard-date { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+        .dashboard-live { background: rgba(207,255,4,0.06); border: 1px solid rgba(207,255,4,0.15); padding: 6px 14px; font-size: 11px; color: var(--accent-color); text-transform: uppercase; font-weight: 700; }
+        .metric-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .metric-card-dashboard { background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; border-left: 4px solid var(--accent-color); }
+        .metric-card-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .metric-card-value { font-size: 2.2rem; font-weight: 900; line-height: 1; }
+        .dashboard-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .dashboard-box { background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; }
+        .dashboard-box-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .chart-container { height: 220px; position: relative; }
         
-        .metric-card-label {
-            font-size: 11px;
-            color: rgba(255,255,255,0.4);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        .metric-card-value {
-            font-size: 36px;
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-        .metric-card-delta {
-            font-size: 12px;
-            color: rgba(255,255,255,0.35);
-        }
-        .dashboard-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        .dashboard-box {
-            background: #111;
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 12px;
-            padding: 24px;
-            transition: background 0.3s, border-color 0.3s;
-        }
-        .dashboard-box-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.6);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-        .chart-container {
-            height: 200px;
-            position: relative;
-        }
-        .progress-item {
-            margin-bottom: 14px;
-        }
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-        .progress-label {
-            font-size: 13px;
-            color: rgba(255,255,255,0.65);
-        }
-        .progress-value {
-            font-size: 13px;
-            font-weight: 700;
-        }
-        .progress-bar {
-            height: 6px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.4s;
-        }
-        .activity-section {
-            grid-column: 1 / -1;
-        }
-        .activity-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-        }
-        .activity-card {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 14px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-        .activity-dot {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1.5px solid;
-        }
-        .activity-dot-inner {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-        .activity-text {
-            font-size: 12px;
-            color: rgba(255,255,255,0.8);
-            line-height: 1.4;
-        }
-        .activity-time {
-            font-size: 11px;
-            color: rgba(255,255,255,0.3);
-            margin-top: auto;
-        }
-        .page-bar-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .page-bar-label {
-            font-size: 11px;
-            color: rgba(255,255,255,0.7);
-            min-width: 140px;
-            text-align: left;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .page-bar-container {
-            flex: 1;
-            height: 20px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 6px;
-            overflow: hidden;
-            position: relative;
-        }
-        .page-bar-fill {
-            height: 100%;
-            border-radius: 6px;
-            transition: width 0.4s ease;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 8px;
-        }
-        .page-bar-value {
-            font-size: 10px;
-            font-weight: 700;
-            color: #000;
-        }
-        
-        body.light-theme {
-            background: #f3f4f6 !important;
-            color: #111827 !important;
-        }
-        body.light-theme .dashboard-box,
-        body.light-theme .metric-card-dashboard,
-        body.light-theme .stat-card,
-        body.light-theme .mensagem-card {
-            background: #ffffff !important;
-            border-color: #e5e7eb !important;
-            color: #111827 !important;
-        }
-        body.light-theme .dashboard-box-title,
-        body.light-theme .progress-label,
-        body.light-theme .page-bar-label {
-            color: #4b5563 !important;
-        }
-        body.light-theme .metric-card-label { color: #6b7280 !important; }
-        body.light-theme .metric-card-value { color: #111827 !important; }
-        body.light-theme .activity-card {
-            background: #f9fafb !important;
-            border-color: #f3f4f6 !important;
-            color: #111827 !important;
-        }
-        body.light-theme .activity-text { color: #374151 !important; }
+        .page-bar-item { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+        .page-bar-label { font-size: 12px; min-width: 150px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; color: var(--text-color); }
+        .page-bar-container { flex: 1; height: 18px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+        .page-bar-fill { height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; border-radius: 4px; transition: width 0.5s ease; }
+        .page-bar-value { font-size: 10px; font-weight: 700; color: #000; }
 
-        @media (max-width: 1024px) {
-            .dashboard-row { grid-template-columns: 1fr; }
-            .activity-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-        @media (max-width: 640px) {
-            .metric-cards-grid { grid-template-columns: repeat(2, 1fr); }
-            .activity-grid { grid-template-columns: 1fr; }
-        }
-        /* --- BARRAS DE PROGRESSO (Situação Atual) --- */
-.progress-item { margin-bottom: 14px; }
-.progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center; }
-.progress-label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-.progress-value { font-size: 13px; font-weight: 900; }
-.progress-bar { height: 8px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease-out; }
-body.light-theme .progress-bar { background: #e5e7eb; }
+        /* Estilos Otimizados de Cartões Ultra-Clean */
+        .pautas-cards-container { display: flex; flex-direction: column; gap: 12px; padding: 10px 0; }
+        .pauta-card-clean { background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+        .card-clean-header { display: flex; justify-content: space-between; align-items: center; }
+        .pauta-clean-main { display: flex; align-items: center; gap: 10px; }
+        .pauta-clean-index { font-size: 0.85rem; font-weight: 700; color: var(--accent-color); background: rgba(207, 255, 4, 0.05); padding: 2px 6px; border-radius: 4px; }
+        .pauta-clean-title { font-size: 1.05rem; font-weight: 600; color: var(--text-color); }
+        .status-badge-clean { font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; border: 1px solid; }
+        .status-badge-clean.pendente { color: #a3e635; background: rgba(163, 230, 53, 0.03); border-color: rgba(163, 230, 53, 0.2); }
+        .status-badge-clean.em_analise { color: #fbbf24; background: rgba(251, 191, 36, 0.03); border-color: rgba(251, 191, 36, 0.2); }
+        .status-badge-clean.aprovada { color: var(--accent-color); background: rgba(207, 255, 4, 0.05); border-color: rgba(207, 255, 4, 0.2); }
+        .status-badge-clean.rejeitada { color: #ef4444; background: rgba(239, 68, 68, 0.03); border-color: rgba(239, 68, 68, 0.2); }
+        .pauta-clean-meta { font-size: 0.8rem; color: var(--text-muted); }
+        .pauta-clean-desc { margin-top: 6px; font-size: 0.85rem; color: var(--text-color); opacity: 0.85; line-height: 1.4; font-style: italic; }
+        .card-clean-actions { display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 2px; }
+        .input-clean-text { flex: 2; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); color: var(--text-color); font-size: 0.8rem; padding: 8px 12px; border-radius: 6px; outline: none; }
+        .select-clean-status { flex: 1; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); color: var(--text-color); font-size: 0.8rem; font-weight: 500; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer; }
+        .btn-clean-save { background: var(--accent-color); color: #000; border: none; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; padding: 9px 20px; border-radius: 6px; cursor: pointer; }
+        
+        /* Progress bars */
+        .progress-item { margin-bottom: 14px; }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center; }
+        .progress-label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .progress-value { font-size: 13px; font-weight: 900; }
+        .progress-bar { height: 8px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease-out; }
+        body.light-theme .progress-bar { background: #e5e7eb; }
+        
+        .video-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .video-row-thumb { width: 70px; height: 40px; background: #000; overflow: hidden; border-radius: 4px; }
+        .video-row-thumb img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
@@ -463,232 +91,150 @@ body.light-theme .progress-bar { background: #e5e7eb; }
                     <li><a href="programas.html">Programas</a></li>
                     <li><a href="projetos.html">Projetos</a></li>
                     <li><a href="sobre.html">TV ELOS</a></li>
-                    <li><a href="processo.html">Processo</a></li>
-                    <li><a href="contato.html">Contato</a></li>
-                    <li><a href="transparencia.html">Transparência</a></li>
+                    <li><button class="theme-toggle-btn" onclick="alternarTemaGlobal()">☀️</button></li>
                     <li><button class="login-btn" onclick="sair()">Sair</button></li>
                 </ul>
             </nav>
-            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menu">☰</button>
         </header>
 
-        <div id="acesso-negado" style="display:none">
-            <p style="font-size:1.2rem; margin-bottom:20px;">Você precisa estar logado para acessar o painel.</p>
-            <a href="index.html"><button class="submit-btn">Voltar ao Início</button></a>
-        </div>
+        <div id="acesso-negado" style="display:none" class="loading-msg">Sua sessão expirou. É necessário fazer login novamente na página inicial.</div>
 
         <div id="painel-conteudo" style="display:none; grid-column: 1 / -1;">
-
             <div class="painel-header">
                 <div class="painel-role" id="role-badge">Participante</div>
-                <h1 class="page-title" style="margin-bottom: 8px;" id="painel-titulo">Meu Painel</h1>
-                <p class="page-subtitle" id="painel-subtitulo">Acompanhe suas pautas enviadas e o status de cada uma.</p>
+                <h1 class="page-title" id="painel-titulo">Carregando painel de usuário...</h1>
+                <p class="page-subtitle" id="painel-subtitulo">Acompanhe suas pautas ou gerencie o tráfego da TV ELOS.</p>
             </div>
 
             <div id="dashboard-section" style="display:none; grid-column: 1 / -1;">
-                <div class="dashboard-container">
+                <div class="dashboard-container" id="printable-dashboard-area">
                     <div class="dashboard-header">
                         <div>
-                            <div class="dashboard-title">
-                                <span>TV ELOS</span>
-                                <span>/ Painel de Métricas</span>
-                            </div>
-                            <div class="dashboard-date" id="dashboard-date">Visão geral · Maio 2026</div>
+                            <div class="dashboard-title"><span>TV ELOS</span> <span>/ Console de Gerenciamento</span></div>
+                            <div class="dashboard-date" id="dashboard-date">Visão consolidada</div>
                         </div>
                         <div style="display: flex; gap: 8px; align-items: center;">
-                            <button class="btn-mini" onclick="toggleTheme()">🌓 Alternar Tema</button>
                             <button class="btn-mini" onclick="exportarPDF()">📄 Exportar PDF</button>
-                            <div class="dashboard-live">● Ao vivo</div>
+                            <div class="dashboard-live">● Gerente Admin</div>
                         </div>
                     </div>
 
                     <div class="metric-cards-grid">
-                        <div class="metric-card-dashboard yellow">
-                            <div class="metric-card-label">Total de Pautas</div>
-                            <div class="metric-card-value" id="dash-total-pautas">—</div>
-                            <div class="metric-card-delta" id="dash-total-delta">↑ — este mês</div>
-                        </div>
-                        <div class="metric-card-dashboard green">
-                            <div class="metric-card-label">Aprovadas</div>
-                            <div class="metric-card-value" id="dash-aprovadas">—</div>
-                            <div class="metric-card-delta" id="dash-aprovadas-delta">Taxa: —%</div>
-                        </div>
-                        <div class="metric-card-dashboard cyan">
-                            <div class="metric-card-label">Usuários</div>
-                            <div class="metric-card-value" id="dash-usuarios">—</div>
-                            <div class="metric-card-delta" id="dash-usuarios-delta">↑ — novos</div>
-                        </div>
-                        <div class="metric-card-dashboard purple">
-                            <div class="metric-card-label">Vídeos</div>
-                            <div class="metric-card-value" id="dash-videos">—</div>
-                            <div class="metric-card-delta" id="dash-videos-delta">↑ — este mês</div>
-                        </div>
+                        <div class="metric-card-dashboard"><div class="metric-card-label">Total de Pautas</div><div class="metric-card-value" id="dash-total-pautas">0</div></div>
+                        <div class="metric-card-dashboard" style="border-left-color:var(--accent-cyan)"><div class="metric-card-label">Pautas Aprovadas</div><div class="metric-card-value" id="dash-aprovadas">0</div></div>
+                        <div class="metric-card-dashboard" style="border-left-color:var(--accent-purple)"><div class="metric-card-label">Usuários Ativos</div><div class="metric-card-value" id="dash-usuarios">0</div></div>
+                        <div class="metric-card-dashboard" style="border-left-color:var(--accent-orange)"><div class="metric-card-label">Acervo de Vídeos</div><div class="metric-card-value" id="dash-videos">0</div></div>
                     </div>
 
                     <div class="dashboard-row">
                         <div class="dashboard-box">
-                            <div class="dashboard-box-title">Evolução Mensal de Pautas</div>
-                            <div class="chart-container">
-                                <canvas id="chartEvolucaoPautas"></canvas>
-                            </div>
+                            <div class="dashboard-box-title">Histórico de Produção Mensal</div>
+                            <div class="chart-container"><canvas id="chartEvolucaoPautas"></canvas></div>
                         </div>
                         <div class="dashboard-box">
-                            <div class="dashboard-box-title">Situação Atual das Pautas</div>
+                            <div class="dashboard-box-title">Status Situacional das Demandas</div>
                             <div id="dashboard-progress-bars"></div>
                         </div>
                     </div>
 
-                    <div class="dashboard-box activity-section">
-                        <div class="dashboard-box-title">Atividade Recente</div>
-                        <div class="activity-grid" id="dashboard-activity"></div>
-                    </div>
-
                     <div class="dashboard-row">
                         <div class="dashboard-box">
-                            <div class="dashboard-box-title">Páginas Mais Acessadas</div>
-                            <div id="dashboard-pages-chart" style="display: flex; flex-direction: column; gap: 14px;">
-                                <div class="loading-msg">Carregando acessos de páginas...</div>
-                            </div>
+                            <div class="dashboard-box-title">Páginas Mais Acessadas (Audiência)</div>
+                            <div id="dashboard-pages-chart" style="display: flex; flex-direction: column; gap: 14px;"></div>
                         </div>
-
                         <div class="dashboard-box">
-                            <div class="dashboard-box-title">Cliques em Vídeos (Engajamento)</div>
-                            <div id="dashboard-videos-engagement" style="display: flex; flex-direction: column; gap: 14px;">
-                                <div class="loading-msg">Carregando cliques de vídeos...</div>
-                            </div>
+                            <div class="dashboard-box-title">Cliques em Vídeos (Engajamento Real)</div>
+                            <div id="dashboard-videos-engagement" style="display: flex; flex-direction: column; gap: 14px;"></div>
                         </div>
                     </div>
 
-                    <div class="dashboard-box activity-section" style="margin-top: 16px;">
-                        <div class="dashboard-box activity-section" style="margin-top: 16px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div class="dashboard-box-title" style="margin: 0;">Monitor de Tráfego de Usuários (Últimos Acessos)</div>
-        <button class="btn-mini" onclick="baixarLogsCSV()">📥 Baixar Relatório CSV</button>
-    </div>
-    <div id="dashboard-users-access" style="max-height: 280px; overflow-y: auto;">
-        <div class="loading-msg">Carregando histórico de auditoria...</div>
-    </div>
-</div>
-                        <div id="dashboard-users-access" style="max-height: 280px; overflow-y: auto;">
-                            <div class="loading-msg">Carregando histórico de auditoria...</div>
-                        </div>
+                    <div id="todas-pautas-section" class="painel-section" style="margin-top: 24px;">
+                        <div class="dashboard-box-title">Fila de Triagem de Pautas Enviadas</div>
+                        <div id="todas-pautas-conteudo" class="loading-msg">Carregando pautas…</div>
                     </div>
 
+                    <div class="dashboard-box" style="margin-top:16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div class="dashboard-box-title" style="margin:0;">Histórico Cronológico de Tráfego</div>
+                            <button class="btn-mini" onclick="baixarLogsCSV()">📥 Exportar Banco em CSV</button>
+                        </div>
+                        <div id="dashboard-users-access" style="max-height: 300px; overflow-y: auto;"></div>
+                    </div>
                 </div>
             </div>
-
-            <div id="stats-section" style="display:none; grid-column: 1 / -1;">
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-number" id="stat-pendentes">—</div><div class="stat-label">Pendentes</div></div>
-                    <div class="stat-card"><div class="stat-number" id="stat-em-analise">—</div><div class="stat-label">Em Análise</div></div>
-                    <div class="stat-card"><div class="stat-number" id="stat-aprovadas">—</div><div class="stat-label">Aprovadas</div></div>
-                    <div class="stat-card"><div class="stat-number" id="stat-rejeitadas">—</div><div class="stat-label">Rejeitadas</div></div>
-                    <div class="stat-card"><div class="stat-number" id="stat-usuarios">—</div><div class="stat-label">Usuários</div></div>
-                    <div class="stat-card"><div class="stat-number" id="stat-mensagens">—</div><div class="stat-label">Mensagens</div></div>
-                    <div class="stat-card"><div class="stat-number" id="stat-videos">—</div><div class="stat-label">Vídeos</div></div>
-                </div>
-            </div>
-
+            
             <div id="minhas-pautas-section" class="painel-section" style="display:none;">
-                <div class="section-title">Minhas Pautas</div><div id="minhas-pautas-conteudo" class="loading-msg">Carregando...</div>
-            </div>
-            <div id="todas-pautas-section" class="painel-section" style="display:none;">
-                <div class="section-title">Gerenciar Pautas</div><div id="todas-pautas-conteudo" class="loading-msg">Carregando...</div>
-            </div>
-            <div id="mensagens-section" class="painel-section" style="display:none;">
-                <div class="section-title">Mensagens de Contato</div><div id="mensagens-conteudo" class="loading-msg">Carregando...</div>
-            </div>
-            <div id="export-section" class="painel-section" style="display:none;">
-                <div class="section-title">Exportação para Power BI</div>
-                <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:28px;">
-                    <div id="export-urls-lista"></div>
-                </div>
+                <div class="dashboard-box-title">Minhas Propostas de Pauta Enviadas</div>
+                <div id="minhas-pautas-conteudo" class="loading-msg">Carregando histórico pessoal...</div>
             </div>
 
-            <div id="videos-section" class="painel-section" style="display:none;">
-                <div class="section-title">Gerenciar Vídeos</div>
-                <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:28px 28px 20px; margin-bottom:30px;">
-                    <p style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,0.4); margin-bottom:20px;">Adicionar novo vídeo</p>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                        <div class="form-group" style="margin:0"><label for="v-titulo">Título *</label><input type="text" id="v-titulo"></div>
-                        <div class="form-group" style="margin:0"><label for="v-tag">Tag</label><input type="text" id="v-tag"></div>
-                        <div class="form-group" style="margin:0"><label for="v-categoria">Programa *</label>
-                            <select id="v-categoria" class="status-select" style="width:100%;">
-                                <option value="O Que Rolou?">O Que Rolou?</option>
-                                <option value="Conexão Elos">Conexão Elos</option>
-                                <option value="Cortes da Semana">Cortes da Semana</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin:0"><label for="v-url">URL YouTube *</label><input type="text" id="v-url"></div>
-                        <div class="form-group" style="margin:0; grid-column:1/-1"><label for="v-descricao">Descrição</label><input type="text" id="v-descricao"></div>
-                    </div>
-                    <button class="btn-mini" style="margin-top:20px;" onclick="adicionarVideo()">+ Publicar Vídeo</button>
-                    <div id="video-success" style="display:none; color:var(--accent-color);">✓ Vídeo publicado!</div>
-                </div>
-                <div id="videos-lista" class="loading-msg">Carregando...</div>
-            </div>
         </div>
 
-        <footer><p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p></footer>
+        <footer><p>&copy; 2026 TV ELOS. Painel Unificado de Gerenciamento.</p></footer>
     </div>
 
+    <script src="assets/js/script.js"></script>
     <script>
-        function toggleMenu() {
-            const nav = document.querySelector('nav');
-            if (nav) nav.classList.toggle('active');
-        }
-
         const token = localStorage.getItem('tvelos_token');
         const usuarioRaw = localStorage.getItem('tvelos_usuario');
-        let meuGrafico = null; 
+        let meuGrafico = null;
 
-        function sair() {
-            localStorage.removeItem('tvelos_token');
-            localStorage.removeItem('tvelos_usuario');
-            window.location.href = 'index.html';
-        }
-
+        function sair() { localStorage.clear(); window.location.href = 'index.html'; }
         function statusBadge(status) { return `<span class="badge badge-${status}">${status.replace('_', ' ')}</span>`; }
         function formatData(d) { return d ? new Date(d).toLocaleDateString('pt-BR') : '—'; }
         function authHeader() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
 
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            if (window.statsCache) { atualizarDashboard(window.statsCache); }
-        }
-
         function exportarPDF() {
-            const element = document.getElementById('panel-capture-area');
-            html2pdf().set({ margin: 0.2, filename: 'TV_ELOS_Metrics.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { format: 'a4', orientation: 'landscape' }}).from(element).save();
+            const target = document.getElementById('printable-dashboard-area');
+            if (!target) return;
+            const originalClass = document.body.className;
+            document.body.classList.add('light-theme');
+            if (window.statsCache) renderizarGraficoChartJS(window.statsCache);
+
+            html2pdf().set({
+                margin: [0.4, 0.4, 0.4, 0.4],
+                filename: `TV_ELOS_Relatorio_Gerencial.pdf`,
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: { scale: 3, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+            }).from(target).save().then(() => {
+                document.body.className = originalClass;
+                if (window.statsCache) renderizarGraficoChartJS(window.statsCache);
+            });
         }
 
+        window.addEventListener('tvelosThemeChanged', () => {
+            if (window.statsCache) renderizarGraficoChartJS(window.statsCache);
+        });
+
+        // ── HISTÓRICO INDIVIDUAL DO PARTICIPANTE LOGADO ──
         async function carregarMinhasPautas() {
             const el = document.getElementById('minhas-pautas-conteudo');
             try {
                 const res = await fetch('/api/pautas/minhas', { headers: authHeader() });
                 const pautas = await res.json();
-                if (!pautas.length) { el.innerHTML = '<div class="empty-state">Nenhuma pauta enviada.</div>'; return; }
-                el.innerHTML = `<table class="pauta-table"><thead><tr><th>Título</th><th>Data</th><th>Status</th><th>Observação</th></tr></thead><tbody>${pautas.map(p => `<tr><td><strong>${p.titulo}</strong></td><td>${formatData(p.dataCriacao)}</td><td>${statusBadge(p.status)}</td><td>${p.observacao || '—'}</td></tr>`).join('')}</tbody></table>`;
-            } catch (e) { el.innerHTML = 'Erro.'; }
+                if (!pautas.length) { 
+                    el.innerHTML = '<div class="empty-state" style="color:var(--text-muted); padding:30px; border:1px dashed var(--border-color); text-align:center;">Você ainda não enviou nenhuma pauta para a TV ELOS. Vá na aba "Projetos" para enviar!</div>'; 
+                    return; 
+                }
+                el.innerHTML = `
+                    <table class="pauta-table">
+                        <thead><tr><th>Título da Ideia</th><th>Submetido em</th><th>Status Operacional</th><th>Retorno do Admin (Gerente)</th></tr></thead>
+                        <tbody>${pautas.map(p => `<tr><td><strong>${p.titulo}</strong><br><small style="color:var(--text-muted);">${p.descricao || ''}</small></td><td>${formatData(p.dataCriacao)}</td><td>${statusBadge(p.status)}</td><td style="color:var(--accent-color); font-weight:500;">${p.observacao || 'Aguardando avaliação...'}</td></tr>`).join('')}</tbody>
+                    </table>`;
+            } catch (e) { el.innerHTML = 'Erro ao carregar histórico.'; }
         }
 
-        async function atualizarStatus(id, novoStatus, obs) {
-            const res = await fetch(`/api/pautas/${id}/status`, { method: 'PUT', headers: authHeader(), body: JSON.stringify({ status: novoStatus, observacao: obs }) });
-            if (res.ok) { carregarTodasPautas(); carregarStats(); }
-        }
-
+        // ── FILA DE TRIAGEM EXCLUSIVA DO GERENTE ADMIN (CARDS ULTRA CLEAN) ──
         async function carregarTodasPautas() {
             const el = document.getElementById('todas-pautas-conteudo');
             try {
-                el.style.overflowX = 'visible'; 
-                el.innerHTML = '<div class="loading-msg">Carregando pautas...</div>';
-
                 const res = await fetch('/api/pautas', { headers: authHeader() });
                 const pautas = await res.json();
                 
                 if (!res.ok) throw new Error(pautas.erro);
                 if (!pautas.length) {
-                    el.innerHTML = '<div class="empty-state">Nenhuma pauta enviada ainda.</div>';
+                    el.innerHTML = '<div class="empty-state" style="color:var(--text-muted); padding:30px; text-align:center;">Nenhuma pauta na fila de triagem.</div>';
                     return;
                 }
 
@@ -708,31 +254,33 @@ body.light-theme .progress-bar { background: #e5e7eb; }
                             </div>
                             <div class="status-badge-clean ${p.status}">${p.status.replace('_', ' ')}</div>
                         </div>
-
                         <div class="pauta-clean-meta">
-                            <span><strong>Autor:</strong> ${p.autor} (${p.email})</span>
+                            <span><strong>Remetente:</strong> ${p.autor} (${p.email})</span>
                             ${p.descricao ? `<p class="pauta-clean-desc">${p.descricao}</p>` : ''}
                         </div>
-
                         <div class="card-clean-actions">
                             <input type="text" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Adicionar observação interna..." class="input-clean-text">
-                            
                             <select class="select-clean-status" id="sel-${p._id}">
                                 <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
                                 <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
                                 <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
                                 <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
                             </select>
-
                             <button class="btn-clean-save" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">Salvar</button>
                         </div>
                     `;
                     containerCards.appendChild(card);
                 });
+            } catch (e) { el.innerHTML = 'Erro ao montar triagem.'; }
+        }
 
-            } catch (e) {
-                el.innerHTML = `<div class="empty-state">Erro ao carregar pautas: ${e.message}</div>`;
-            }
+        async function atualizarStatus(id, novoStatus, obs) {
+            const res = await fetch(`/api/pautas/${id}/status`, { 
+                method: 'PUT', 
+                headers: authHeader(), 
+                body: JSON.stringify({ status: novoStatus, observacao: obs }) 
+            });
+            if (res.ok) { carregarTodasPautas(); carregarStats(); }
         }
 
         async function carregarStats() {
@@ -740,18 +288,11 @@ body.light-theme .progress-bar { background: #e5e7eb; }
                 const res = await fetch('/api/admin/stats', { headers: authHeader() });
                 const stats = await res.json();
                 window.statsCache = stats;
-                document.getElementById('stat-pendentes').textContent   = stats.pendentes;
-                document.getElementById('stat-em-analise').textContent  = stats.em_analise;
-                document.getElementById('stat-aprovadas').textContent   = stats.aprovadas;
-                document.getElementById('stat-rejeitadas').textContent  = stats.rejeitadas;
-                document.getElementById('stat-usuarios').textContent    = stats.totalUsuarios;
-                document.getElementById('stat-mensagens').textContent   = stats.totalMensagens;
-                document.getElementById('stat-videos').textContent      = stats.totalVideos;
                 atualizarDashboard(stats);
             } catch (e) {}
         }
 
-       function renderizarGraficoChartJS(stats) {
+        function renderizarGraficoChartJS(stats) {
             const canvasEl = document.getElementById('chartEvolucaoPautas');
             if (!canvasEl) return;
             const ctx = canvasEl.getContext('2d');
@@ -759,9 +300,6 @@ body.light-theme .progress-bar { background: #e5e7eb; }
             const textColor = isLight ? '#111827' : 'rgba(255,255,255,0.6)';
 
             if (meuGrafico) meuGrafico.destroy();
-            
-            // O gráfico usa dados simulados para o histórico (Jan-Abr) 
-            // e os dados REAIS do seu banco de dados no último mês
             meuGrafico = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -776,240 +314,103 @@ body.light-theme .progress-bar { background: #e5e7eb; }
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: true, ticks: { color: textColor } },
-                        y: { stacked: true, ticks: { color: textColor } }
-                    },
+                    scales: { x: { stacked: true, ticks: { color: textColor } }, y: { stacked: true, ticks: { color: textColor } } },
                     plugins: { legend: { labels: { color: textColor } } }
                 }
             });
         }
 
         function atualizarDashboard(stats) {
-            // Garante que não existem valores nulos (fallback para 0)
             const pendentes = stats.pendentes || 0;
             const em_analise = stats.em_analise || 0;
             const aprovadas = stats.aprovadas || 0;
             const rejeitadas = stats.rejeitadas || 0;
-            
-            // Calcula o total
             const total = pendentes + em_analise + aprovadas + rejeitadas;
             
-            // Atualiza os Cards Superiores
             document.getElementById('dash-total-pautas').textContent = total;
             document.getElementById('dash-aprovadas').textContent = aprovadas;
             document.getElementById('dash-usuarios').textContent = stats.totalUsuarios || 0;
             document.getElementById('dash-videos').textContent = stats.totalVideos || 0;
             
-            // Chama a função para desenhar o gráfico
             renderizarGraficoChartJS(stats);
-
-            // Calcula a percentagem de cada barra
             const calcWidth = (val) => total > 0 ? (val / total) * 100 : 0;
             
-            // Injeta o HTML das Barras de Progresso de volta na tela
-            const progressHtml = `
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Aprovadas</span>
-                        <span class="progress-value" style="color: var(--accent-color);">${aprovadas}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="background: var(--accent-color); width: ${calcWidth(aprovadas)}%;"></div>
-                    </div>
-                </div>
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Pendentes</span>
-                        <span class="progress-value" style="color: #a3e635;">${pendentes}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="background: #a3e635; width: ${calcWidth(pendentes)}%;"></div>
-                    </div>
-                </div>
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Em Análise</span>
-                        <span class="progress-value" style="color: #fbbf24;">${em_analise}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="background: #fbbf24; width: ${calcWidth(em_analise)}%;"></div>
-                    </div>
-                </div>
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span class="progress-label">Rejeitadas</span>
-                        <span class="progress-value" style="color: #ef4444;">${rejeitadas}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="background: #ef4444; width: ${calcWidth(rejeitadas)}%;"></div>
-                    </div>
-                </div>
+            document.getElementById('dashboard-progress-bars').innerHTML = `
+                <div class="progress-item"><div class="progress-header"><span class="progress-label">Aprovadas</span><span class="progress-value" style="color:var(--accent-color);">${aprovadas}</span></div><div class="progress-bar"><div class="progress-fill" style="background:var(--accent-color); width:${calcWidth(aprovadas)}%;"></div></div></div>
+                <div class="progress-item"><div class="progress-header"><span class="progress-label">Pendentes</span><span class="progress-value" style="color:#a3e635;">${pendentes}</span></div><div class="progress-bar"><div class="progress-fill" style="background:#a3e635; width:${calcWidth(pendentes)}%;"></div></div></div>
+                <div class="progress-item"><div class="progress-header"><span class="progress-label">Em Análise</span><span class="progress-value" style="color:#fbbf24;">${em_analise}</span></div><div class="progress-bar"><div class="progress-fill" style="background:#fbbf24; width:${calcWidth(em_analise)}%;"></div></div></div>
+                <div class="progress-item"><div class="progress-header"><span class="progress-label">Rejeitadas</span><span class="progress-value" style="color:#ef4444;">${rejeitadas}</span></div><div class="progress-bar"><div class="progress-fill" style="background:#ef4444; width:${calcWidth(rejeitadas)}%;"></div></div></div>
             `;
-            
-            const pbContainer = document.getElementById('dashboard-progress-bars');
-            if (pbContainer) {
-                pbContainer.innerHTML = progressHtml;
-            }
         }
 
-        // NOVO: Renderizar simultaneamente Páginas, Cliques em Vídeos e Auditoria de Acessos
         async function carregarMetricasAudiencia() {
             try {
                 const res = await fetch('/api/admin/acessos', { headers: authHeader() });
                 if (!res.ok) return;
                 const data = await res.json();
 
-                // A. Renderizar Gráfico de Páginas
                 const pagesContainer = document.getElementById('dashboard-pages-chart');
                 if (pagesContainer && data.topPaginas) {
-                    if(data.topPaginas.length === 0) { pagesContainer.innerHTML = '<div class="empty-state">Sem dados.</div>'; }
-                    else {
-                        const maxCliques = data.topPaginas[0].cliques || 1;
-                        pagesContainer.innerHTML = data.topPaginas.map((p, i) => {
-                            const pct = Math.round((p.cliques / maxCliques) * 100);
-                            const cor = i === 0 ? '#cfff04' : '#4ade80';
-                            return `<div class="page-bar-item"><div class="page-bar-label">${p.pagina}</div><div class="page-bar-container"><div class="page-bar-fill" style="width:${pct}%; background:${cor};"><span class="page-bar-value">${p.cliques}</span></div></div></div>`;
-                        }).join('');
-                    }
+                    const max = data.topPaginas[0]?.cliques || 1;
+                    pagesContainer.innerHTML = data.topPaginas.map(p => {
+                        const pct = Math.round((p.cliques / max) * 100);
+                        return `<div class="page-bar-item"><div class="page-bar-label">${p.pagina}</div><div class="page-bar-container"><div class="page-bar-fill" style="width:${pct}%; background:#cfff04;"><span class="page-bar-value">${p.cliques}</span></div></div></div>`;
+                    }).join('');
                 }
 
-                // B. Renderizar Engajamento de Vídeos
                 const vContainer = document.getElementById('dashboard-videos-engagement');
                 if (vContainer && data.topVideos) {
-                    const videosComCliques = data.topVideos.filter(v => (v.visualizacoes || 0) > 0);
-                    if(videosComCliques.length === 0) { vContainer.innerHTML = '<div class="empty-state">Nenhum clique em vídeo computado ainda.</div>'; }
-                    else {
-                        const maxVCliques = data.topVideos[0].visualizacoes || 1;
-                        vContainer.innerHTML = videosComCliques.map(v => {
-                            const pct = Math.round(((v.visualizacoes || 0) / maxVCliques) * 100);
-                            return `<div class="page-bar-item"><div class="page-bar-label">${v.titulo}</div><div class="page-bar-container"><div class="page-bar-fill" style="width:${pct}%; background:#a78bfa;"><span class="page-bar-value">${v.visualizacoes}</span></div></div></div>`;
-                        }).join('');
-                    }
+                    const maxV = data.topVideos[0]?.visualizacoes || 1;
+                    vContainer.innerHTML = data.topVideos.map(v => {
+                        const pct = Math.round((v.visualizacoes / maxV) * 100);
+                        return `<div class="page-bar-item"><div class="page-bar-label">${v.titulo}</div><div class="page-bar-container"><div class="page-bar-fill" style="width:${pct}%; background:#a78bfa;"><span class="page-bar-value">${v.visualizacoes}</span></div></div></div>`;
+                    }).join('');
                 }
 
-                // C. Renderizar Monitor Real-Time de Logs de Usuários
                 const uContainer = document.getElementById('dashboard-users-access');
                 if (uContainer && data.ultimosAcessos) {
-                    if(data.ultimosAcessos.length === 0) { uContainer.innerHTML = '<div class="empty-state">Nenhum rastro de atividade.</div>'; }
-                    else {
-                        uContainer.innerHTML = `<table class="pauta-table" style="font-size:0.75rem;"><thead><tr><th>Usuário</th><th>Página Visualizada</th><th>Horário</th></tr></thead><tbody>${data.ultimosAcessos.map(a => `<tr><td><strong>${a.usuarioNome}</strong><br><small style="color:rgba(255,255,255,0.4)">${a.usuarioEmail}</small></td><td style="color:var(--accent-color);">${a.pagina}</td><td>${new Date(a.dataAcesso).toLocaleTimeString('pt-BR')}</td></tr>`).join('')}</tbody></table>`;
-                    }
+                    uContainer.innerHTML = `<table class="pauta-table"><thead><tr><th>Usuário</th><th>Página</th><th>Horário</th></tr></thead><tbody>${data.ultimosAcessos.map(a => `<tr><td><strong>${a.usuarioNome}</strong><br><small style="color:var(--text-muted)">${a.usuarioEmail}</small></td><td>${a.pagina}</td><td>${new Date(a.dataAcesso).toLocaleTimeString('pt-BR')}</td></tr>`).join('')}</tbody></table>`;
                 }
-            } catch (err) { console.error(err); }
-        }
-
-        function getYoutubeThumbnail(url) {
-            const match = url.match(/[?&]v=([^&]+)/);
-            return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : null;
-        }
-
-        async function carregarVideos() {
-            const el = document.getElementById('videos-lista');
-            try {
-                const res = await fetch('/api/programas');
-                const videos = await res.json();
-                el.innerHTML = videos.map(v => {
-                    const thumb = getYoutubeThumbnail(v.videoUrl);
-                    return `<div class="video-row"><div class="video-row-thumb">${thumb?`<img src="${thumb}">`:''}</div><div class="video-row-info"><strong>${v.titulo}</strong><small>${v.categoria} · <span style="color:var(--accent-color); font-weight:700;">${v.visualizacoes || 0} cliques</span> · <a href="${v.videoUrl}" target="_blank" onclick="registrarCliqueVideo('${v._id}')" style="color:var(--accent-color)">Assistir ↗</a></small></div><button class="btn-danger" onclick="excluirVideo('${v._id}')">Remover</button></div>`;
-                }).join('');
             } catch (e) {}
         }
 
-        async function adicionarVideo() {
-            const titulo = document.getElementById('v-titulo').value.trim();
-            const videoUrl = document.getElementById('v-url').value.trim();
-            const categoria = document.getElementById('v-categoria').value;
-            const res = await fetch('/api/programas', { method: 'POST', headers: authHeader(), body: JSON.stringify({ titulo, videoUrl, categoria }) });
-            if (res.ok) { carregarVideos(); carregarStats(); }
+        async function baixarLogsCSV() {
+            const res = await fetch('/api/admin/acessos/csv', { headers: { 'Authorization': `Bearer ${token}` } });
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'tvelos_acessos.csv'; document.body.appendChild(a); a.click(); a.remove();
         }
 
-        async function excluirVideo(id) {
-            if(confirm('Remover?')) { await fetch(`/api/programas/${id}`, { method: 'DELETE', headers: authHeader() }); carregarVideos(); carregarStats(); }
-        }
-
-        function mostrarExportUrls() {
-            const base = window.location.origin;
-            document.getElementById('export-urls-lista').innerHTML = `<code style="color:var(--accent-color); font-size:0.75rem;">${base}/api/export/pautas?token=SEU_TOKEN</code>`;
-        }
-
-        async function carregarMensagens() {
-            const el = document.getElementById('mensagens-conteudo');
-            try {
-                const res = await fetch('/api/contato', { headers: authHeader() });
-                const msgs = await res.json();
-                el.innerHTML = msgs.map(m => `<div class="mensagem-card"><div class="mensagem-card-nome">${m.nome}</div><div class="mensagem-card-texto">${m.mensagem}</div></div>`).join('');
-            } catch (e) {}
-        }
-
-        // Auto-refresh a cada 5 minutos
-        setInterval(() => {
-            if (token && usuarioRaw) {
-                const u = JSON.parse(usuarioRaw);
-                if (u.role === 'admin') { carregarStats(); carregarMetricasAudiencia(); }
-            }
-        }, 300000);
-
-        // Bootstrap Inicializador Seguro
+        // ── INICIALIZADOR BINÁRIO DE ROLES (ADMIN / PARTICIPANTE) ──
         try {
             if (!token || !usuarioRaw) {
                 document.getElementById('acesso-negado').style.display = 'block';
             } else {
                 const usuario = JSON.parse(usuarioRaw);
                 document.getElementById('painel-conteudo').style.display = 'block';
-                document.getElementById('role-badge').textContent = usuario.role;
-                document.getElementById('painel-titulo').textContent = `Olá, ${usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário'}`;
-
+                
                 if (usuario.role === 'admin') {
+                    document.getElementById('role-badge').textContent = "Gerente Geral";
+                    document.getElementById('painel-titulo').textContent = `Console Admin`;
                     document.getElementById('dashboard-section').style.display = 'block';
-                    document.getElementById('stats-section').style.display = 'block';
-                    document.getElementById('todas-pautas-section').style.display = 'block';
-                    document.getElementById('mensagens-section').style.display = 'block';
-                    document.getElementById('export-section').style.display = 'block';
-                    document.getElementById('videos-section').style.display = 'block';
 
                     carregarStats();
                     carregarTodasPautas();
-                    carregarMensagens();
-                    mostrarExportUrls();
-                    carregarVideos();
                     carregarMetricasAudiencia();
+                    
+                    // Sincroniza atualização em tempo real a cada 5 minutos
+                    setInterval(() => { carregarStats(); carregarMetricasAudiencia(); carregarTodasPautas(); }, 300000);
                 } else {
+                    document.getElementById('role-badge').textContent = "Visitante Cadastrado";
+                    document.getElementById('painel-titulo').textContent = `Olá, ${usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário'}`;
                     document.getElementById('minhas-pautas-section').style.display = 'block';
+                    
                     carregarMinhasPautas();
                 }
             }
         } catch (err) {
             document.getElementById('acesso-negado').style.display = 'block';
         }
-        // Função para requisitar o arquivo CSV passando o Token de Autenticação com segurança
-async function baixarLogsCSV() {
-    try {
-        const res = await fetch('/api/admin/acessos/csv', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (!res.ok) throw new Error('Falha ao gerar o arquivo.');
-        
-        // Transforma a resposta em um arquivo binário (blob)
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        
-        // Cria um link temporário oculto na tela para disparar o download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `tvelos_acessos_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        
-        // Limpa os elementos da memória
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    } catch (err) {
-        alert('Erro ao exportar logs: ' + err.message);
-    }
-}
     </script>
-    
 </body>
 </html>
