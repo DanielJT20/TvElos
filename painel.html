@@ -378,14 +378,17 @@
             gap: 12px;
         }
         .page-bar-label {
-            font-size: 12px;
+            font-size: 11px;
             color: rgba(255,255,255,0.7);
-            min-width: 120px;
-            text-align: right;
+            min-width: 140px;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .page-bar-container {
             flex: 1;
-            height: 24px;
+            height: 20px;
             background: rgba(255,255,255,0.08);
             border-radius: 6px;
             overflow: hidden;
@@ -393,7 +396,6 @@
         }
         .page-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #cfff04, #4ade80);
             border-radius: 6px;
             transition: width 0.4s ease;
             display: flex;
@@ -402,13 +404,11 @@
             padding-right: 8px;
         }
         .page-bar-value {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             color: #000;
-            mix-blend-mode: screen;
         }
         
-        /* Ajustes do Modo Claro Dinâmico */
         body.light-theme {
             background: #f3f4f6 !important;
             color: #111827 !important;
@@ -426,20 +426,14 @@
         body.light-theme .page-bar-label {
             color: #4b5563 !important;
         }
-        body.light-theme .metric-card-label {
-            color: #6b7280 !important;
-        }
-        body.light-theme .metric-card-value {
-            color: #111827 !important;
-        }
+        body.light-theme .metric-card-label { color: #6b7280 !important; }
+        body.light-theme .metric-card-value { color: #111827 !important; }
         body.light-theme .activity-card {
             background: #f9fafb !important;
             border-color: #f3f4f6 !important;
             color: #111827 !important;
         }
-        body.light-theme .activity-text {
-            color: #374151 !important;
-        }
+        body.light-theme .activity-text { color: #374151 !important; }
 
         @media (max-width: 1024px) {
             .dashboard-row { grid-template-columns: 1fr; }
@@ -530,202 +524,126 @@
                                 <canvas id="chartEvolucaoPautas"></canvas>
                             </div>
                         </div>
-
                         <div class="dashboard-box">
                             <div class="dashboard-box-title">Situação Atual das Pautas</div>
-                            <div id="dashboard-progress-bars">
-                                </div>
+                            <div id="dashboard-progress-bars"></div>
                         </div>
                     </div>
 
                     <div class="dashboard-box activity-section">
                         <div class="dashboard-box-title">Atividade Recente</div>
-                        <div class="activity-grid" id="dashboard-activity">
-                            </div>
+                        <div class="activity-grid" id="dashboard-activity"></div>
                     </div>
 
-                    <div class="dashboard-box activity-section">
-                        <div class="dashboard-box-title">Páginas Mais Acessadas</div>
-                        <div id="dashboard-pages-chart" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="dashboard-row">
+                        <div class="dashboard-box">
+                            <div class="dashboard-box-title">Páginas Mais Acessadas</div>
+                            <div id="dashboard-pages-chart" style="display: flex; flex-direction: column; gap: 14px;">
+                                <div class="loading-msg">Carregando acessos de páginas...</div>
                             </div>
+                        </div>
+
+                        <div class="dashboard-box">
+                            <div class="dashboard-box-title">Cliques em Vídeos (Engajamento)</div>
+                            <div id="dashboard-videos-engagement" style="display: flex; flex-direction: column; gap: 14px;">
+                                <div class="loading-msg">Carregando cliques de vídeos...</div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="dashboard-box activity-section" style="margin-top: 16px;">
+                        <div class="dashboard-box-title">Monitor de Tráfego de Usuários (Últimos Acessos)</div>
+                        <div id="dashboard-users-access" style="max-height: 280px; overflow-y: auto;">
+                            <div class="loading-msg">Carregando histórico de auditoria...</div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
             <div id="stats-section" style="display:none; grid-column: 1 / -1;">
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-pendentes">—</div>
-                        <div class="stat-label">Pendentes</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-em-analise">—</div>
-                        <div class="stat-label">Em Análise</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-aprovadas">—</div>
-                        <div class="stat-label">Aprovadas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-rejeitadas">—</div>
-                        <div class="stat-label">Rejeitadas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-usuarios">—</div>
-                        <div class="stat-label">Usuários</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-mensagens">—</div>
-                        <div class="stat-label">Mensagens</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="stat-videos">—</div>
-                        <div class="stat-label">Vídeos</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-number" id="stat-pendentes">—</div><div class="stat-label">Pendentes</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-em-analise">—</div><div class="stat-label">Em Análise</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-aprovadas">—</div><div class="stat-label">Aprovadas</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-rejeitadas">—</div><div class="stat-label">Rejeitadas</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-usuarios">—</div><div class="stat-label">Usuários</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-mensagens">—</div><div class="stat-label">Mensagens</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-videos">—</div><div class="stat-label">Vídeos</div></div>
                 </div>
             </div>
 
             <div id="minhas-pautas-section" class="painel-section" style="display:none;">
-                <div class="section-title">Minhas Pautas</div>
-                <div id="minhas-pautas-conteudo" class="loading-msg">Carregando...</div>
+                <div class="section-title">Minhas Pautas</div><div id="minhas-pautas-conteudo" class="loading-msg">Carregando...</div>
             </div>
-
             <div id="todas-pautas-section" class="painel-section" style="display:none;">
-                <div class="section-title">Gerenciar Pautas</div>
-                <div id="todas-pautas-conteudo" class="loading-msg">Carregando...</div>
+                <div class="section-title">Gerenciar Pautas</div><div id="todas-pautas-conteudo" class="loading-msg">Carregando...</div>
             </div>
-
             <div id="mensagens-section" class="painel-section" style="display:none;">
-                <div class="section-title">Mensagens de Contato</div>
-                <div id="mensagens-conteudo" class="loading-msg">Carregando...</div>
+                <div class="section-title">Mensagens de Contato</div><div id="mensagens-conteudo" class="loading-msg">Carregando...</div>
             </div>
-
             <div id="export-section" class="painel-section" style="display:none;">
                 <div class="section-title">Exportação para Power BI</div>
                 <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:28px;">
-                    <p style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-bottom:24px; line-height:1.6;">
-                        Use as URLs abaixo no Power BI: <strong>Obter Dados → Web</strong> → cole a URL. Os dados são atualizados em tempo real sempre que o Power BI atualizar.
-                    </p>
                     <div id="export-urls-lista"></div>
-                    <p style="font-size:0.7rem; color:rgba(255,255,255,0.3); margin-top:20px; text-transform:uppercase; letter-spacing:1px;">
-                        Mantenha essas URLs em sigilo — elas dão acesso de leitura aos dados.
-                    </p>
                 </div>
             </div>
 
             <div id="videos-section" class="painel-section" style="display:none;">
                 <div class="section-title">Gerenciar Vídeos</div>
-
                 <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:28px 28px 20px; margin-bottom:30px;">
                     <p style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,0.4); margin-bottom:20px;">Adicionar novo vídeo</p>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                        <div class="form-group" style="margin:0">
-                            <label for="v-titulo">Título *</label>
-                            <input type="text" id="v-titulo" placeholder="Ex: Transformação Digital">
-                        </div>
-                        <div class="form-group" style="margin:0">
-                            <label for="v-tag">Tag / Episódio</label>
-                            <input type="text" id="v-tag" placeholder="Ex: Episódio 03">
-                        </div>
-                        <div class="form-group" style="margin:0">
-                            <label for="v-categoria">Programa *</label>
-                            <select id="v-categoria" class="status-select" style="width:100%; padding:10px 0; font-size:1rem; border:none; border-bottom:2px solid rgba(255,255,255,0.3);">
+                        <div class="form-group" style="margin:0"><label for="v-titulo">Título *</label><input type="text" id="v-titulo"></div>
+                        <div class="form-group" style="margin:0"><label for="v-tag">Tag</label><input type="text" id="v-tag"></div>
+                        <div class="form-group" style="margin:0"><label for="v-categoria">Programa *</label>
+                            <select id="v-categoria" class="status-select" style="width:100%;">
                                 <option value="O Que Rolou?">O Que Rolou?</option>
                                 <option value="Conexão Elos">Conexão Elos</option>
                                 <option value="Cortes da Semana">Cortes da Semana</option>
-                                <option value="Outros">Outros</option>
                             </select>
                         </div>
-                        <div class="form-group" style="margin:0">
-                            <label for="v-url">URL do YouTube *</label>
-                            <input type="text" id="v-url" placeholder="https://www.youtube.com/watch?v=...">
-                        </div>
-                        <div class="form-group" style="margin:0; grid-column:1/-1">
-                            <label for="v-descricao">Descrição</label>
-                            <input type="text" id="v-descricao" placeholder="Breve descrição do episódio">
-                        </div>
+                        <div class="form-group" style="margin:0"><label for="v-url">URL YouTube *</label><input type="text" id="v-url"></div>
+                        <div class="form-group" style="margin:0; grid-column:1/-1"><label for="v-descricao">Descrição</label><input type="text" id="v-descricao"></div>
                     </div>
-                    <button class="btn-mini" style="margin-top:20px; padding:8px 24px; font-size:0.75rem;" onclick="adicionarVideo()">+ Publicar Vídeo</button>
-                    <div id="video-success" style="display:none; color:var(--accent-color); font-size:0.8rem; margin-top:12px; text-transform:uppercase; letter-spacing:1px;">✓ Vídeo publicado com sucesso!</div>
+                    <button class="btn-mini" style="margin-top:20px;" onclick="adicionarVideo()">+ Publicar Vídeo</button>
+                    <div id="video-success" style="display:none; color:var(--accent-color);">✓ Vídeo publicado!</div>
                 </div>
-
                 <div id="videos-lista" class="loading-msg">Carregando...</div>
             </div>
-
         </div>
 
-        <footer>
-            <div class="footer-links">
-                <a href="programas.html">Programas</a>
-                <a href="projetos.html">Projetos</a>
-                <a href="sobre.html">TV ELOS</a>
-                <a href="processo.html">Processo</a>
-                <a href="contato.html">Contato</a>
-                <a href="transparencia.html">Transparência</a>
-            </div>
-            <p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p>
-        </footer>
+        <footer><p>&copy; 2026 TV ELOS. Todos os direitos reservados.</p></footer>
     </div>
 
     <script>
-        /* Menu Mobile */
         function toggleMenu() {
             const nav = document.querySelector('nav');
-            if (nav) {
-                nav.classList.toggle('active');
-                document.body.classList.toggle('no-scroll');
-            }
+            if (nav) nav.classList.toggle('active');
         }
 
         const token = localStorage.getItem('tvelos_token');
         const usuarioRaw = localStorage.getItem('tvelos_usuario');
         let meuGrafico = null; 
 
-        // Função global de logout resiliente
         function sair() {
-            try {
-                localStorage.removeItem('tvelos_token');
-                localStorage.removeItem('tvelos_usuario');
-            } catch (err) {
-                console.error(err);
-            }
+            localStorage.removeItem('tvelos_token');
+            localStorage.removeItem('tvelos_usuario');
             window.location.href = 'index.html';
         }
 
-        function statusBadge(status) {
-            return `<span class="badge badge-${status}">${status.replace('_', ' ')}</span>`;
-        }
-
-        function formatData(d) {
-            if (!d) return '—';
-            return new Date(d).toLocaleDateString('pt-BR');
-        }
-
-        function authHeader() {
-            return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-        }
+        function statusBadge(status) { return `<span class="badge badge-${status}">${status.replace('_', ' ')}</span>`; }
+        function formatData(d) { return d ? new Date(d).toLocaleDateString('pt-BR') : '—'; }
+        function authHeader() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
 
         function toggleTheme() {
             document.body.classList.toggle('light-theme');
-            if (window.statsCache) {
-                renderizarGraficoChartJS(window.statsCache);
-            }
+            if (window.statsCache) { atualizarDashboard(window.statsCache); }
         }
 
         function exportarPDF() {
             const element = document.getElementById('panel-capture-area');
-            const opt = {
-                margin:       0.2,
-                filename:     'TV_ELOS_Dashboard_Report.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, logging: false, backgroundColor: document.body.classList.contains('light-theme') ? '#f3f4f6' : '#000000' },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
-            };
-            if (typeof html2pdf !== 'undefined') {
-                html2pdf().set(opt).from(element).save();
-            } else {
-                alert('A biblioteca de PDF ainda está carregando. Por favor, tente novamente em instantes.');
-            }
+            html2pdf().set({ margin: 0.2, filename: 'TV_ELOS_Metrics.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { format: 'a4', orientation: 'landscape' }}).from(element).save();
         }
 
         async function carregarMinhasPautas() {
@@ -733,54 +651,14 @@
             try {
                 const res = await fetch('/api/pautas/minhas', { headers: authHeader() });
                 const pautas = await res.json();
-                if (!res.ok) throw new Error(pautas.erro);
-                if (!pautas.length) {
-                    el.innerHTML = '<div class="empty-state">Você ainda não enviou nenhuma pauta.<br><a href="projetos.html" style="color:var(--accent-color)">Enviar pauta</a></div>';
-                    return;
-                }
-                el.innerHTML = `
-                    <table class="pauta-table">
-                        <thead>
-                            <tr>
-                                <th>Título</th>
-                                <th>Data</th>
-                                <th>Status</th>
-                                <th>Observação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${pautas.map(p => `
-                                <tr>
-                                    <td><strong>${p.titulo}</strong><br><small style="color:rgba(255,255,255,0.4)">${p.descricao ? p.descricao.substring(0,80) + (p.descricao.length > 80 ? '…' : '') : ''}</small></td>
-                                    <td style="color:rgba(255,255,255,0.4); white-space:nowrap">${formatData(p.dataCriacao)}</td>
-                                    <td>${statusBadge(p.status)}</td>
-                                    <td style="color:rgba(255,255,255,0.5); font-size:0.8rem">${p.observacao || '—'}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>`;
-            } catch (e) {
-                el.innerHTML = `<div class="empty-state">Erro ao carregar pautas: ${e.message}</div>`;
-            }
+                if (!pautas.length) { el.innerHTML = '<div class="empty-state">Nenhuma pauta enviada.</div>'; return; }
+                el.innerHTML = `<table class="pauta-table"><thead><tr><th>Título</th><th>Data</th><th>Status</th><th>Observação</th></tr></thead><tbody>${pautas.map(p => `<tr><td><strong>${p.titulo}</strong></td><td>${formatData(p.dataCriacao)}</td><td>${statusBadge(p.status)}</td><td>${p.observacao || '—'}</td></tr>`).join('')}</tbody></table>`;
+            } catch (e) { el.innerHTML = 'Erro.'; }
         }
 
         async function atualizarStatus(id, novoStatus, obs) {
-            try {
-                const res = await fetch(`/api/pautas/${id}/status`, {
-                    method: 'PUT',
-                    headers: authHeader(),
-                    body: JSON.stringify({ status: novoStatus, observacao: obs })
-                });
-                if (res.ok) {
-                    await carregarTodasPautas();
-                    await carregarStats();
-                } else {
-                    const d = await res.json();
-                    alert(d.erro || 'Erro ao atualizar status');
-                }
-            } catch (err) {
-                console.error(err);
-            }
+            const res = await fetch(`/api/pautas/${id}/status`, { method: 'PUT', headers: authHeader(), body: JSON.stringify({ status: novoStatus, observacao: obs }) });
+            if (res.ok) { carregarTodasPautas(); carregarStats(); }
         }
 
         async function carregarTodasPautas() {
@@ -788,461 +666,158 @@
             try {
                 const res = await fetch('/api/pautas', { headers: authHeader() });
                 const pautas = await res.json();
-                if (!res.ok) throw new Error(pautas.erro);
-                if (!pautas.length) {
-                    el.innerHTML = '<div class="empty-state">Nenhuma pauta enviada ainda.</div>';
-                    return;
-                }
-                el.innerHTML = `
-                    <table class="pauta-table">
-                        <thead>
-                            <tr>
-                                <th>Título / Autor</th>
-                                <th>Data</th>
-                                <th>Status</th>
-                                <th>Observação</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pautas-tbody">
-                            ${pautas.map(p => `
-                                <tr id="row-${p._id}">
-                                    <td>
-                                        <strong>${p.titulo}</strong><br>
-                                        <small style="color:rgba(255,255,255,0.4)">${p.autor} · ${p.email}</small>
-                                        ${p.descricao ? `<br><small style="color:rgba(255,255,255,0.3); font-style:italic">${p.descricao.substring(0,100)}${p.descricao.length > 100 ? '…' : ''}</small>` : ''}
-                                    </td>
-                                    <td style="color:rgba(255,255,255,0.4); white-space:nowrap">${formatData(p.dataCriacao)}</td>
-                                    <td>${statusBadge(p.status)}</td>
-                                    <td><input class="obs-input" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Observação..."></td>
-                                    <td>
-                                        <select class="status-select" id="sel-${p._id}">
-                                            <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
-                                            <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
-                                            <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
-                                            <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
-                                        </select>
-                                        <br><br>
-                                        <button class="btn-mini" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">Salvar</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>`;
-            } catch (e) {
-                el.innerHTML = `<div class="empty-state">Erro: ${e.message}</div>`;
-            }
+                el.innerHTML = `<table class="pauta-table"><thead><tr><th>Título / Autor</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead><tbody>${pautas.map(p => `<tr><td><strong>${p.titulo}</strong><br><small>${p.autor}</small></td><td>${formatData(p.dataCriacao)}</td><td>${statusBadge(p.status)}</td><td><select class="status-select" id="sel-${p._id}"><option value="pendente" ${p.status==='pendente'?'selected':''}>Pendente</option><option value="aprovada" ${p.status==='aprovada'?'selected':''}>Aprovada</option></select><button class="btn-mini" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, '')">OK</button></td></tr>`).join('')}</tbody></table>`;
+            } catch (e) {}
         }
 
         async function carregarStats() {
             try {
                 const res = await fetch('/api/admin/stats', { headers: authHeader() });
-                if (!res.ok) return;
                 const stats = await res.json();
-                
                 window.statsCache = stats;
-
-                if (document.getElementById('stat-pendentes')) document.getElementById('stat-pendentes').textContent   = stats.pendentes;
-                if (document.getElementById('stat-em-analise')) document.getElementById('stat-em-analise').textContent  = stats.em_analise;
-                if (document.getElementById('stat-aprovadas')) document.getElementById('stat-aprovadas').textContent   = stats.aprovadas;
-                if (document.getElementById('stat-rejeitadas')) document.getElementById('stat-rejeitadas').textContent  = stats.rejeitadas;
-                if (document.getElementById('stat-usuarios')) document.getElementById('stat-usuarios').textContent    = stats.totalUsuarios;
-                if (document.getElementById('stat-mensagens')) document.getElementById('stat-mensagens').textContent   = stats.totalMensagens;
-                if (document.getElementById('stat-videos')) document.getElementById('stat-videos').textContent      = stats.totalVideos;
-                
+                document.getElementById('stat-pendentes').textContent   = stats.pendentes;
+                document.getElementById('stat-em-analise').textContent  = stats.em_analise;
+                document.getElementById('stat-aprovadas').textContent   = stats.aprovadas;
+                document.getElementById('stat-rejeitadas').textContent  = stats.rejeitadas;
+                document.getElementById('stat-usuarios').textContent    = stats.totalUsuarios;
+                document.getElementById('stat-mensagens').textContent   = stats.totalMensagens;
+                document.getElementById('stat-videos').textContent      = stats.totalVideos;
                 atualizarDashboard(stats);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        function getDataAtual() {
-            const agora = new Date();
-            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-            return `${meses[agora.getMonth()]} ${agora.getFullYear()}`;
+            } catch (e) {}
         }
 
         function renderizarGraficoChartJS(stats) {
             const canvasEl = document.getElementById('chartEvolucaoPautas');
-            if (!canvasEl || typeof Chart === 'undefined') return;
-
+            if (!canvasEl) return;
             const ctx = canvasEl.getContext('2d');
             const isLight = document.body.classList.contains('light-theme');
             const textColor = isLight ? '#374151' : 'rgba(255,255,255,0.6)';
-            const gridColor = isLight ? '#e5e7eb' : 'rgba(255,255,255,0.07)';
-
-            const dadosHistoricos = {
-                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
-                aprovadas: [6, 9, 11, 10, stats.aprovadas || 0],
-                pendentes: [4, 5, 6, 7, stats.pendentes || 0],
-                rejeitadas: [1, 2, 1, 3, stats.rejeitadas || 0]
-            };
-
-            if (meuGrafico) {
-                meuGrafico.destroy();
-            }
-
+            
+            if (meuGrafico) meuGrafico.destroy();
             meuGrafico = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: dadosHistoricos.labels,
-                    datasets: [
-                        { label: 'Aprovadas', data: dadosHistoricos.aprovadas, backgroundColor: '#4ade80' },
-                        { label: 'Pendentes', data: dadosHistoricos.pendentes, backgroundColor: '#cfff04' },
-                        { label: 'Rejeitadas', data: dadosHistoricos.rejeitadas, backgroundColor: '#f87171' }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor } },
-                        y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor } }
-                    },
-                    plugins: {
-                        legend: { position: 'top', labels: { color: textColor, font: { family: 'Inter, sans-serif', size: 11 } } }
-                    }
-                }
+                data: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'], datasets: [{ label: 'Aprovadas', data: [6, 9, 11, 10, stats.aprovadas], backgroundColor: '#4ade80' },{ label: 'Pendentes', data: [4, 5, 6, 7, stats.pendentes], backgroundColor: '#cfff04' }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, ticks: { color: textColor } }, y: { stacked: true, ticks: { color: textColor } } }, plugins: { legend: { labels: { color: textColor } } } }
             });
         }
 
         function atualizarDashboard(stats) {
-            try {
-                const totalPautas = (stats.pendentes || 0) + (stats.em_analise || 0) + (stats.aprovadas || 0) + (stats.rejeitadas || 0);
-                const taxaAprovadas = totalPautas > 0 ? Math.round((stats.aprovadas / totalPautas) * 100) : 0;
-                
-                if(document.getElementById('dash-total-pautas')) document.getElementById('dash-total-pautas').textContent = totalPautas;
-                if(document.getElementById('dash-total-delta')) document.getElementById('dash-total-delta').textContent = `↑ 4 este mês`;
-                
-                if(document.getElementById('dash-aprovadas')) document.getElementById('dash-aprovadas').textContent = stats.aprovadas;
-                if(document.getElementById('dash-aprovadas-delta')) document.getElementById('dash-aprovadas-delta').textContent = `Taxa: ${taxaAprovadas}%`;
-                
-                if(document.getElementById('dash-usuarios')) document.getElementById('dash-usuarios').textContent = stats.totalUsuarios;
-                if(document.getElementById('dash-usuarios-delta')) document.getElementById('dash-usuarios-delta').textContent = `↑ 6 novos`;
-                
-                if(document.getElementById('dash-videos')) document.getElementById('dash-videos').textContent = stats.totalVideos;
-                if(document.getElementById('dash-videos-delta')) document.getElementById('dash-videos-delta').textContent = `↑ 2 este mês`;
-                
-                if(document.getElementById('dashboard-date')) document.getElementById('dashboard-date').textContent = `Visão geral · ${getDataAtual()}`;
-                
-                renderizarGraficoChartJS(stats);
-                
-                const progressHtml = `
-                    <div class="progress-item">
-                        <div class="progress-header">
-                            <span class="progress-label">Aprovadas</span>
-                            <span class="progress-value" style="color: #4ade80;">${stats.aprovadas}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="background: #4ade80; width: ${totalPautas > 0 ? (stats.aprovadas / totalPautas) * 100 : 0}%;"></div>
-                        </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-header">
-                            <span class="progress-label">Pendentes</span>
-                            <span class="progress-value" style="color: #cfff04;">${stats.pendentes}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="background: #cfff04; width: ${totalPautas > 0 ? (stats.pendentes / totalPautas) * 100 : 0}%;"></div>
-                        </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-header">
-                            <span class="progress-label">Em Análise</span>
-                            <span class="progress-value" style="color: #00ffff;">${stats.em_analise}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="background: #00ffff; width: ${totalPautas > 0 ? (stats.em_analise / totalPautas) * 100 : 0}%;"></div>
-                        </div>
-                    </div>
-                    <div class="progress-item">
-                        <div class="progress-header">
-                            <span class="progress-label">Rejeitadas</span>
-                            <span class="progress-value" style="color: #f87171;">${stats.rejeitadas}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="background: #f87171; width: ${totalPautas > 0 ? (stats.rejeitadas / totalPautas) * 100 : 0}%;"></div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.07);">
-                        <div class="progress-item">
-                            <div class="progress-header">
-                                <span class="progress-label">Mensagens recebidas</span>
-                                <span class="progress-value" style="color: #fb923c;">${stats.totalMensagens}</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="background: #fb923c; width: ${Math.min((stats.totalMensagens / 50) * 100, 100)}%;"></div>
-                            </div>
-                        </div>
-                    </div>`;
-                
-                if(document.getElementById('dashboard-progress-bars')) document.getElementById('dashboard-progress-bars').innerHTML = progressHtml;
-                
-                const atividades = [
-                    { tipo: "pauta", msg: "Ana Lima enviou uma nova pauta", tempo: "2 min atrás", cor: "#cfff04" },
-                    { tipo: "video", msg: "Novo vídeo publicado: Semana Acadêmica", tempo: "18 min atrás", cor: "#00ffff" },
-                    { tipo: "user", msg: "Carlos R. criou uma conta", tempo: "1h atrás", cor: "#a78bfa" },
-                    { tipo: "pauta", msg: 'Pauta "Entrevista Reitor" aprovada', tempo: "2h atrás", cor: "#4ade80" },
-                    { tipo: "msg", msg: "Nova mensagem de contato recebida", tempo: "3h atrás", cor: "#fb923c" },
-                ];
-                
-                const activityHtml = atividades.map((a) => `
-                    <div class="activity-card">
-                        <div class="activity-dot" style="background: ${a.cor}22; border-color: ${a.cor};">
-                            <div class="activity-dot-inner" style="background: ${a.cor};"></div>
-                        </div>
-                        <div class="activity-text">${a.msg}</div>
-                        <div class="activity-time">${a.tempo}</div>
-                    </div>`).join('');
-                
-                if(document.getElementById('dashboard-activity')) document.getElementById('dashboard-activity').innerHTML = activityHtml;
-            } catch (err) {
-                console.error(err);
-            }
+            const totalPautas = stats.pendentes + stats.em_analise + stats.aprovadas + stats.rejeitadas;
+            document.getElementById('dash-total-pautas').textContent = totalPautas;
+            document.getElementById('dash-aprovadas').textContent = stats.aprovadas;
+            document.getElementById('dash-usuarios').textContent = stats.totalUsuarios;
+            document.getElementById('dash-videos').textContent = stats.totalVideos;
+            renderizarGraficoChartJS(stats);
         }
 
-        async function carregarPaginasMaisAcessadas() {
+        // NOVO: Renderizar simultaneamente Páginas, Cliques em Vídeos e Auditoria de Acessos
+        async function carregarMetricasAudiencia() {
             try {
                 const res = await fetch('/api/admin/acessos', { headers: authHeader() });
                 if (!res.ok) return;
-                const acessos = await res.json();
-                
-                const displayContainer = document.getElementById('dashboard-pages-chart');
-                if (!displayContainer) return;
+                const data = await res.json();
 
-                if (!acessos || acessos.length === 0) {
-                    displayContainer.innerHTML = '<div class="empty-state">Nenhum acesso registrado ainda.</div>';
-                    return;
+                // A. Renderizar Gráfico de Páginas
+                const pagesContainer = document.getElementById('dashboard-pages-chart');
+                if (pagesContainer && data.topPaginas) {
+                    if(data.topPaginas.length === 0) { pagesContainer.innerHTML = '<div class="empty-state">Sem dados.</div>'; }
+                    else {
+                        const maxCliques = data.topPaginas[0].cliques || 1;
+                        pagesContainer.innerHTML = data.topPaginas.map((p, i) => {
+                            const pct = Math.round((p.cliques / maxCliques) * 100);
+                            const cor = i === 0 ? '#cfff04' : '#4ade80';
+                            return `<div class="page-bar-item"><div class="page-bar-label">${p.pagina}</div><div class="page-bar-container"><div class="page-bar-fill" style="width:${pct}%; background:${cor};"><span class="page-bar-value">${p.cliques}</span></div></div></div>`;
+                        }).join('');
+                    }
                 }
-                
-                const topPages = acessos.slice(0, 6);
-                const maxCliques = topPages[0].cliques || 1;
-                
-                const pagesHtml = topPages.map((page, i) => {
-                    const percentual = Math.round((page.cliques / maxCliques) * 100);
-                    const cor = i === 0 ? '#cfff04' : i === 1 ? '#4ade80' : '#00ffff';
-                    return `
-                    <div class="page-bar-item">
-                        <div class="page-bar-label">${page.pagina || 'Sem nome'}</div>
-                        <div class="page-bar-container">
-                            <div class="page-bar-fill" style="width: ${percentual}%; background: linear-gradient(90deg, ${cor}, ${cor}88);">
-                                <span class="page-bar-value">${page.cliques || 0}</span>
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('');
-                
-                displayContainer.innerHTML = pagesHtml;
-            } catch (e) {
-                if(document.getElementById('dashboard-pages-chart')) {
-                    document.getElementById('dashboard-pages-chart').innerHTML = `<div class="empty-state">Erro ao carregar páginas: ${e.message}</div>`;
+
+                // B. Renderizar Engajamento de Vídeos
+                const vContainer = document.getElementById('dashboard-videos-engagement');
+                if (vContainer && data.topVideos) {
+                    const videosComCliques = data.topVideos.filter(v => (v.visualizacoes || 0) > 0);
+                    if(videosComCliques.length === 0) { vContainer.innerHTML = '<div class="empty-state">Nenhum clique em vídeo computado ainda.</div>'; }
+                    else {
+                        const maxVCliques = data.topVideos[0].visualizacoes || 1;
+                        vContainer.innerHTML = videosComCliques.map(v => {
+                            const pct = Math.round(((v.visualizacoes || 0) / maxVCliques) * 100);
+                            return `<div class="page-bar-item"><div class="page-bar-label">${v.titulo}</div><div class="page-bar-container"><div class="page-bar-fill" style="width:${pct}%; background:#a78bfa;"><span class="page-bar-value">${v.visualizacoes}</span></div></div></div>`;
+                        }).join('');
+                    }
                 }
-            }
+
+                // C. Renderizar Monitor Real-Time de Logs de Usuários
+                const uContainer = document.getElementById('dashboard-users-access');
+                if (uContainer && data.ultimosAcessos) {
+                    if(data.ultimosAcessos.length === 0) { uContainer.innerHTML = '<div class="empty-state">Nenhum rastro de atividade.</div>'; }
+                    else {
+                        uContainer.innerHTML = `<table class="pauta-table" style="font-size:0.75rem;"><thead><tr><th>Usuário</th><th>Página Visualizada</th><th>Horário</th></tr></thead><tbody>${data.ultimosAcessos.map(a => `<tr><td><strong>${a.usuarioNome}</strong><br><small style="color:rgba(255,255,255,0.4)">${a.usuarioEmail}</small></td><td style="color:var(--accent-color);">${a.pagina}</td><td>${new Date(a.dataAcesso).toLocaleTimeString('pt-BR')}</td></tr>`).join('')}</tbody></table>`;
+                    }
+                }
+            } catch (err) { console.error(err); }
         }
 
         function getYoutubeThumbnail(url) {
-            if (!url) return null;
-            const short = url.match(/youtu\.be\/([^?&]+)/);
-            if (short) return `https://img.youtube.com/vi/${short[1]}/mqdefault.jpg`;
-            const watch = url.match(/[?&]v=([^&]+)/);
-            if (watch) return `https://img.youtube.com/vi/${watch[1]}/mqdefault.jpg`;
-            const embed = url.match(/\/embed\/([^?&]+)/);
-            if (embed) return `https://img.youtube.com/vi/${embed[1]}/mqdefault.jpg`;
-            return null;
-        }
-
-        function mostrarExportUrls() {
-            const base = window.location.origin;
-            const el = document.getElementById('export-urls-lista');
-            if (!el) return;
-
-            const endpoints = [
-                { label: 'Pautas',   path: 'pautas',   desc: 'Todas as pautas enviadas com status' },
-                { label: 'Usuários', path: 'usuarios', desc: 'Usuários cadastrados na plataforma' },
-                { label: 'Contato',  path: 'contato',  desc: 'Mensagens recebidas pelo formulário' },
-                { label: 'Vídeos',   path: 'videos',   desc: 'Vídeos publicados nos programas' },
-                { label: 'Resumo',   path: 'resumo',   desc: 'Totais e estatísticas gerais' }
-            ];
-            el.innerHTML = endpoints.map(e => {
-                const url = `${base}/api/export/${e.path}?token=SEU_EXPORT_TOKEN`;
-                return `
-                <div style="margin-bottom:16px; padding:16px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--accent-color); font-weight:700">${e.label}</span>
-                        <span style="font-size:0.7rem; color:rgba(255,255,255,0.35)">${e.desc}</span>
-                    </div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <code style="flex:1; font-size:0.72rem; color:rgba(255,255,255,0.6); word-break:break-all; font-family:monospace; background:rgba(255,255,255,0.04); padding:8px 12px;">${url}</code>
-                        <button class="btn-mini" onclick="navigator.clipboard.writeText('${url}').then(()=>{ alert('URL Copiada!'); })">Copiar</button>
-                    </div>
-                </div>`;
-            }).join('') + `
-            <div style="margin-top:20px; padding:14px 16px; border:1px solid rgba(207,255,4,0.2); background:rgba(207,255,4,0.04);">
-                <p style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-bottom:6px;"><strong style="color:var(--accent-color)">Como usar no Power BI:</strong></p>
-                <p style="font-size:0.75rem; color:rgba(255,255,255,0.4); line-height:1.6;">
-                    1. Abra o Power BI Desktop<br>
-                    2. Clique em <strong>Obter Dados → Web</strong><br>
-                    3. Cole a URL acima (substituindo SEU_EXPORT_TOKEN pelo token real)<br>
-                    4. Clique em OK → o Power BI detecta a tabela automaticamente<br>
-                    5. Clique em <strong>Carregar</strong> ou <strong>Transformar Dados</strong>
-                </p>
-            </div>`;
+            const match = url.match(/[?&]v=([^&]+)/);
+            return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : null;
         }
 
         async function carregarVideos() {
             const el = document.getElementById('videos-lista');
-            if (!el) return;
             try {
                 const res = await fetch('/api/programas');
                 const videos = await res.json();
-                if (!videos.length) {
-                    el.innerHTML = '<div class="empty-state">Nenhum vídeo publicado ainda. Use o formulário acima para adicionar o primeiro.</div>';
-                    return;
-                }
                 el.innerHTML = videos.map(v => {
                     const thumb = getYoutubeThumbnail(v.videoUrl);
-                    return `
-                    <div class="video-row" id="vrow-${v._id}">
-                        <div class="video-row-thumb">
-                            ${thumb ? `<img src="${thumb}" alt="${v.titulo}">` : ''}
-                        </div>
-                        <div class="video-row-info">
-                            <strong>${v.titulo}</strong>
-                            <small>${v.categoria}${v.tag ? ' · ' + v.tag : ''} ${v.videoUrl ? '· <a href="' + v.videoUrl + '" target="_blank" style="color:var(--accent-color)">Ver no YouTube ↗</a>' : ''}</small>
-                        </div>
-                        <button class="btn-danger" onclick="excluirVideo('${v._id}')">Remover</button>
-                    </div>`;
+                    return `<div class="video-row"><div class="video-row-thumb">${thumb?`<img src="${thumb}">`:''}</div><div class="video-row-info"><strong>${v.titulo}</strong><small>${v.categoria} · <span style="color:var(--accent-color); font-weight:700;">${v.visualizacoes || 0} cliques</span> · <a href="${v.videoUrl}" target="_blank" onclick="registrarCliqueVideo('${v._id}')" style="color:var(--accent-color)">Assistir ↗</a></small></div><button class="btn-danger" onclick="excluirVideo('${v._id}')">Remover</button></div>`;
                 }).join('');
-            } catch (e) {
-                el.innerHTML = `<div class="empty-state">Erro ao carregar vídeos: ${e.message}</div>`;
-            }
+            } catch (e) {}
         }
 
         async function adicionarVideo() {
             const titulo = document.getElementById('v-titulo').value.trim();
-            const tag = document.getElementById('v-tag').value.trim();
-            const categoria = document.getElementById('v-categoria').value;
             const videoUrl = document.getElementById('v-url').value.trim();
-            const descricao = document.getElementById('v-descricao').value.trim();
-            if (!titulo || !videoUrl) { alert('Título e URL do YouTube são obrigatórios.'); return; }
-            const btn = document.querySelector('#videos-section .btn-mini');
-            if(btn) {
-                btn.textContent = 'Publicando...';
-                btn.disabled = true;
-            }
-            try {
-                const res = await fetch('/api/programas', {
-                    method: 'POST',
-                    headers: authHeader(),
-                    body: JSON.stringify({ titulo, tag, categoria, videoUrl, descricao })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    ['v-titulo','v-tag','v-url','v-descricao'].forEach(id => {
-                        if(document.getElementById(id)) document.getElementById(id).value = '';
-                    });
-                    if(document.getElementById('video-success')) document.getElementById('video-success').style.display = 'block';
-                    setTimeout(() => { if(document.getElementById('video-success')) document.getElementById('video-success').style.display = 'none'; }, 4000);
-                    await carregarVideos();
-                    await carregarStats();
-                } else {
-                    alert(data.erro || 'Erro ao publicar vídeo.');
-                }
-            } catch (e) {
-                alert('Não foi possível conectar ao servidor.');
-            } finally {
-                if(btn) {
-                    btn.textContent = '+ Publicar Vídeo';
-                    btn.disabled = false;
-                }
-            }
+            const categoria = document.getElementById('v-categoria').value;
+            const res = await fetch('/api/programas', { method: 'POST', headers: authHeader(), body: JSON.stringify({ titulo, videoUrl, categoria }) });
+            if (res.ok) { carregarVideos(); carregarStats(); }
         }
 
         async function excluirVideo(id) {
-            if (!confirm('Remover este vídeo da plataforma?')) return;
-            try {
-                const res = await fetch(`/api/programas/${id}`, { method: 'DELETE', headers: authHeader() });
-                if (res.ok) {
-                    await carregarVideos();
-                    await carregarStats();
-                } else {
-                    const d = await res.json();
-                    alert(d.erro || 'Erro ao remover vídeo.');
-                }
-            } catch (e) {
-                alert('Não foi possível conectar ao servidor.');
-            }
+            if(confirm('Remover?')) { await fetch(`/api/programas/${id}`, { method: 'DELETE', headers: authHeader() }); carregarVideos(); carregarStats(); }
+        }
+
+        function mostrarExportUrls() {
+            const base = window.location.origin;
+            document.getElementById('export-urls-lista').innerHTML = `<code style="color:var(--accent-color); font-size:0.75rem;">${base}/api/export/pautas?token=SEU_TOKEN</code>`;
         }
 
         async function carregarMensagens() {
             const el = document.getElementById('mensagens-conteudo');
-            if (!el) return;
             try {
                 const res = await fetch('/api/contato', { headers: authHeader() });
                 const msgs = await res.json();
-                if (!res.ok) throw new Error(msgs.erro);
-                if (!msgs.length) {
-                    el.innerHTML = '<div class="empty-state">Nenhuma mensagem recebida ainda.</div>';
-                    return;
-                }
-                el.innerHTML = msgs.map(m => `
-                    <div class="mensagem-card">
-                        <div class="mensagem-card-meta">${formatData(m.dataCriacao)} · ${m.email} ${m.assunto ? '· ' + m.assunto : ''}</div>
-                        <div class="mensagem-card-nome">${m.nome}</div>
-                        <div class="mensagem-card-texto">${m.mensagem}</div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                el.innerHTML = `<div class="empty-state">Erro: ${e.message}</div>`;
-            }
+                el.innerHTML = msgs.map(m => `<div class="mensagem-card"><div class="mensagem-card-nome">${m.nome}</div><div class="mensagem-card-texto">${m.mensagem}</div></div>`).join('');
+            } catch (e) {}
         }
 
-        // Auto-refresh a cada 5 minutos protegido
+        // Auto-refresh a cada 5 minutos
         setInterval(() => {
-            try {
-                if (token && usuarioRaw) {
-                    const usuario = JSON.parse(usuarioRaw);
-                    if (usuario && usuario.role === 'admin') {
-                        carregarStats();
-                        carregarTodasPautas();
-                        carregarMensagens();
-                        carregarVideos();
-                        carregarPaginasMaisAcessadas();
-                    } else if (usuario && usuario.role === 'editor') {
-                        carregarTodasPautas();
-                        carregarMensagens();
-                        carregarVideos();
-                    } else if (usuario) {
-                        carregarMinhasPautas();
-                    }
-                }
-            } catch (err) {
-                console.error("Erro no Auto-refresh:", err);
+            if (token && usuarioRaw) {
+                const u = JSON.parse(usuarioRaw);
+                if (u.role === 'admin') { carregarStats(); carregarMetricasAudiencia(); }
             }
         }, 300000);
 
-        // ── Bootstrap Inicializador Protegido contra Quebras ──
+        // Bootstrap Inicializador Seguro
         try {
             if (!token || !usuarioRaw) {
                 document.getElementById('acesso-negado').style.display = 'block';
             } else {
                 const usuario = JSON.parse(usuarioRaw);
-                
-                if (!usuario || !usuario.role) {
-                    throw new Error("Dados de usuário inválidos no armazenamento local.");
-                }
-
                 document.getElementById('painel-conteudo').style.display = 'block';
-
-                // Tratamento seguro para nomes ausentes ou sem sobrenome
-                const nomeExibicao = usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário';
-                const roleName = { participante: 'Participante', editor: 'Equipe', admin: 'Admin' };
-                
-                document.getElementById('role-badge').textContent = roleName[usuario.role] || usuario.role;
-                document.getElementById('painel-titulo').textContent = `Olá, ${nomeExibicao}`;
+                document.getElementById('role-badge').textContent = usuario.role;
+                document.getElementById('painel-titulo').textContent = `Olá, ${usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário'}`;
 
                 if (usuario.role === 'admin') {
-                    document.getElementById('painel-subtitulo').textContent = 'Gerencie as pautas, acompanhe as estatísticas, responda mensagens e analise o acesso do site.';
                     document.getElementById('dashboard-section').style.display = 'block';
                     document.getElementById('stats-section').style.display = 'block';
                     document.getElementById('todas-pautas-section').style.display = 'block';
@@ -1255,29 +830,14 @@
                     carregarMensagens();
                     mostrarExportUrls();
                     carregarVideos();
-                    carregarPaginasMaisAcessadas();
-                } else if (usuario.role === 'editor') {
-                    document.getElementById('painel-subtitulo').textContent = 'Acompanhe e gerencie os conteúdos ativos da plataforma.';
-                    document.getElementById('todas-pautas-section').style.display = 'block';
-                    document.getElementById('mensagens-section').style.display = 'block';
-                    document.getElementById('videos-section').style.display = 'block';
-                    
-                    carregarTodasPautas();
-                    carregarMensagens();
-                    carregarVideos();
+                    carregarMetricasAudiencia();
                 } else {
                     document.getElementById('minhas-pautas-section').style.display = 'block';
                     carregarMinhasPautas();
                 }
             }
-        } catch (error) {
-            console.error("Falha crítica na inicialização do painel:", error);
-            // Fallback de contingência caso o JSON interno do navegador esteja corrompido
+        } catch (err) {
             document.getElementById('acesso-negado').style.display = 'block';
-            document.getElementById('acesso-negado').innerHTML = `
-                <p style="font-size:1.1rem; color:#ef4444; margin-bottom:15px;">Sua sessão expirou ou os dados locais estão corrompidos.</p>
-                <button class="btn-mini" onclick="sair()" style="padding:8px 20px;">Forçar Logout e Limpar Cache</button>
-            `;
         }
     </script>
 </body>
