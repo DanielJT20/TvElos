@@ -281,7 +281,6 @@ app.post('/api/acessos', async (req, res) => {
 // GET Consolidação de métricas completas de acessos e cliques — equipe only
 app.get('/api/admin/acessos', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
-        // A. Ranking de páginas mais acessadas
         const topPaginas = await db.collection('acessos').aggregate([
             { $group: { _id: "$pagina", cliques: { $sum: 1 } } },
             { $sort: { cliques: -1 } },
@@ -289,14 +288,12 @@ app.get('/api/admin/acessos', authMiddleware, equipeMiddleware, async (req, res)
             { $project: { pagina: "$_id", cliques: 1, _id: 0 } }
         ]).toArray();
 
-        // B. Ranking de vídeos mais engajados (com base nos cliques salvos)
         const topVideos = await db.collection('programas')
             .find({})
             .sort({ visualizacoes: -1 })
             .limit(6)
             .toArray();
 
-        // C. Feed cronológico em tempo real de quem andou acessando o site
         const ultimosAcessos = await db.collection('acessos')
             .find({})
             .sort({ dataAcesso: -1 })
@@ -307,26 +304,23 @@ app.get('/api/admin/acessos', authMiddleware, equipeMiddleware, async (req, res)
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
-    // GET Exportar todo o histórico de tráfego e acessos em formato CSV (Data Science Ready)
+}); // <-- AGORA A ROTA DE ACESSOS FECHA AQUI CORRETAMENTE
+
+// GET Exportar todo o histórico de tráfego e acessos em formato CSV
 app.get('/api/admin/acessos/csv', authMiddleware, equipeMiddleware, async (req, res) => {
     try {
-        // Busca todos os logs de acesso ordenados do mais recente para o mais antigo
         const logs = await db.collection('acessos')
             .find({})
             .sort({ dataAcesso: -1 })
             .toArray();
         
-        // Cabeçalhos das colunas no CSV
         let csvContent = "Data,Horario,Pagina,URL_Completa,Usuario_Nome,Usuario_Email\n";
         
-        // Preenche o conteúdo linha por linha
         logs.forEach(log => {
             const dataObj = new Date(log.dataAcesso);
-            // Formata data e hora no padrão brasileiro
             const dataStr = dataObj.toLocaleDateString('pt-BR');
             const horaStr = dataObj.toLocaleTimeString('pt-BR');
             
-            // Sanitiza os textos para evitar que vírgulas ou aspas quebrem as colunas do CSV
             const pagina = `"${(log.pagina || '').replace(/"/g, '""')}"`;
             const url    = `"${(log.url || '').replace(/"/g, '""')}"`;
             const nome   = `"${(log.usuarioNome || '').replace(/"/g, '""')}"`;
@@ -335,16 +329,12 @@ app.get('/api/admin/acessos/csv', authMiddleware, equipeMiddleware, async (req, 
             csvContent += `${dataStr},${horaStr},${pagina},${url},${nome},${email}\n`;
         });
         
-        // Define os headers HTTP informando ao navegador que se trata de um arquivo para download
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
         res.setHeader('Content-Disposition', 'attachment; filename=tvelos_audiencia_logs.csv');
-        
-        // Envia o caractere BOM (\uFEFF) para forçar o Excel a reconhecer caracteres especiais (ã, ç, é)
         res.status(200).send('\uFEFF' + csvContent);
     } catch (error) {
         res.status(500).json({ erro: error.message });
     }
-});
 });
 
 /* =====================================================================

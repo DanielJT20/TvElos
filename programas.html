@@ -92,35 +92,27 @@
         </div>
     </div>
 
-    <script src="assets/js/script.js"></script>
+<script src="assets/js/script.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
         const CATEGORIAS_ORDEM = ['O Que Rolou?', 'Conexão Elos', 'Cortes da Semana'];
 
-        function toEmbedUrl(url) {
+        // ==========================================
+        // 1. Função Inteligente para Extrair o ID
+        // ==========================================
+        function extrairIdYoutube(url) {
             if (!url) return null;
-            const short = url.match(/youtu\.be\/([^?&]+)/);
-            if (short) return `https://www.youtube.com/embed/${short[1]}`;
-            const watch = url.match(/[?&]v=([^&]+)/);
-            if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
-            if (url.includes('/embed/')) return url;
-            return null;
+            const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        function renderVideoCard(v) {
-            const embedUrl = toEmbedUrl(v.videoUrl);
-            const embedHtml = embedUrl
-                ? `<iframe src="${embedUrl}" title="${v.titulo}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
-                : `<div class="video-placeholder"><div class="video-placeholder-icon">▶</div>Em breve</div>`;
-            return `
-                <div class="video-card">
-                    <div class="video-embed">${embedHtml}</div>
-                    <div class="video-info">
-                        ${v.tag ? `<span class="video-tag">${v.tag}</span>` : ''}
-                        <h3>${v.titulo}</h3>
-                        ${v.descricao ? `<p>${v.descricao}</p>` : ''}
-                    </div>
-                </div>`;
-        }
+        // ==========================================
+        // 2. Lógica do Player e Contador de Cliques
+        // ==========================================
+        let ytPlayers = {}; 
+        let playsComputados = {}; 
 
         async function carregarProgramas() {
             const el = document.getElementById('programas-conteudo');
@@ -144,128 +136,90 @@
                     grupos[cat].push(v);
                 });
 
-                // Ordena: categorias conhecidas primeiro, depois o resto
+                // Ordena as categorias
                 const cats = [
                     ...CATEGORIAS_ORDEM.filter(c => grupos[c]),
                     ...Object.keys(grupos).filter(c => !CATEGORIAS_ORDEM.includes(c))
                 ];
 
+                // Monta o HTML injetando a Div vazia do YouTube
                 el.innerHTML = cats.map(cat => `
                     <div class="section-title">${cat}</div>
                     <div class="video-grid">
-                        ${grupos[cat].map(renderVideoCard).join('')}
+                        ${grupos[cat].map(v => {
+                            const videoIdYoutube = extrairIdYoutube(v.videoUrl);
+                            
+                            // Se não tiver URL válida, mostra o placeholder
+                            if (!videoIdYoutube) {
+                                return `
+                                <div class="video-card">
+                                    <div class="video-embed"><div class="video-placeholder"><div class="video-placeholder-icon">▶</div>Em breve</div></div>
+                                    <div class="video-info"><h3>${v.titulo}</h3></div>
+                                </div>`;
+                            }
+
+                            return `
+                            <div class="video-card">
+                                <div class="video-embed">
+                                    <div id="player-${v._id}" data-ytid="${videoIdYoutube}" data-dbid="${v._id}"></div>
+                                </div>
+                                <div class="video-info">
+                                    ${v.tag ? `<span class="video-tag">${v.tag}</span>` : ''}
+                                    <h3>${v.titulo}</h3>
+                                    ${v.descricao ? `<p>${v.descricao}</p>` : ''}
+                                </div>
+                            </div>`;
+                        }).join('')}
                     </div>
                 `).join('');
+
+                // Manda a API do YouTube construir os iframes nas divs
+                if (window.YT && window.YT.Player) {
+                    construirIframes();
+                }
 
             } catch (e) {
                 el.innerHTML = `<div style="color:rgba(255,255,255,0.4); text-align:center; padding:60px;">Erro ao carregar programas.</div>`;
             }
         }
 
+        // Função padrão da API do YouTube
+        function onYouTubeIframeAPIReady() {
+            construirIframes();
+        }
+
+        function construirIframes() {
+            const divsDeVideo = document.querySelectorAll('[id^="player-"]');
+            
+            divsDeVideo.forEach(div => {
+                const ytId = div.getAttribute('data-ytid'); 
+                const dbId = div.getAttribute('data-dbid'); 
+
+                if (!ytPlayers[dbId] && ytId) {
+                    ytPlayers[dbId] = new YT.Player(div.id, {
+                        height: '100%',
+                        width: '100%',
+                        videoId: ytId,
+                        events: {
+                            'onStateChange': (event) => onPlayerStateChange(event, dbId)
+                        }
+                    });
+                }
+            });
+        }
+
+        function onPlayerStateChange(event, dbId) {
+            // Conta o clique apenas quando o status muda para PLAYING (1) e se ainda não foi contado
+            if (event.data === YT.PlayerState.PLAYING && !playsComputados[dbId]) {
+                playsComputados[dbId] = true; 
+                fetch(`/api/programas/${dbId}/clique`, { method: 'POST' })
+                    .then(() => console.log(`✓ Engajamento registrado para o vídeo: ${dbId}`))
+                    .catch(err => console.error("Falha ao registrar clique", err));
+            }
+        }
+
         carregarProgramas();
     </script>
-    <script src="https://www.youtube.com/iframe_api"></script>
-
-<script>
-    // ==========================================
-    // 1. Função Inteligente para Extrair o ID
-    // ==========================================
-    // Esta função aceita URLs completas, encurtadas (youtu.be), com parâmetros soltos, etc.
-    function extrairIdYoutube(url) {
-        if (!url) return null;
-        // Regex poderoso para cobrir 99% dos formatos de link do YouTube
-        const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        
-        // O ID do YouTube sempre tem exatamente 11 caracteres
-        return (match && match[2].length === 11) ? match[2] : null;
-    }
-
-    // ==========================================
-    // 2. Lógica do Player e Contador de Cliques
-    // ==========================================
-    let ytPlayers = {}; // Guarda os players ativos na tela
-    let playsComputados = {}; // Impede que a pessoa pause e dê play, contando 2x
-
-    // Função que busca os vídeos do seu Banco de Dados e desenha na tela
-    async function carregarVideosPublicos() {
-        try {
-            const res = await fetch('/api/programas');
-            const videos = await res.json();
-            
-            // Substitua 'container-videos' pelo ID da Div onde você lista os vídeos no HTML
-            const container = document.getElementById('container-videos');
-            if (!container) return; // Se não achar a div, cancela
-
-            container.innerHTML = videos.map(v => {
-                // Aqui usamos sua nova função para pegar APENAS o ID da URL inteira!
-                const videoIdYoutube = extrairIdYoutube(v.videoUrl);
-                
-                if (!videoIdYoutube) return ''; // Se o link estiver quebrado, pula o vídeo
-
-                return `
-                    <div class="video-card" style="margin-bottom: 30px;">
-                        <h3>${v.titulo}</h3>
-                        <p>${v.descricao || ''}</p>
-                        <div id="player-${v._id}" data-ytid="${videoIdYoutube}" data-dbid="${v._id}"></div>
-                    </div>
-                `;
-            }).join('');
-
-            // Se a API do YouTube carregou super rápido, já mandamos renderizar
-            if (window.YT && window.YT.Player) {
-                construirIframes();
-            }
-        } catch (e) {
-            console.error("Erro ao carregar vídeos:", e);
-        }
-    }
-
-    // Função padrão exigida pelo Google: Dispara quando o script do YT termina de baixar
-    function onYouTubeIframeAPIReady() {
-        construirIframes();
-    }
-
-    function construirIframes() {
-        // Pega todas as divs que preparamos acima
-        const divsDeVideo = document.querySelectorAll('[id^="player-"]');
-        
-        divsDeVideo.forEach(div => {
-            const ytId = div.getAttribute('data-ytid'); // O ID de 11 letras do YT
-            const dbId = div.getAttribute('data-dbid'); // O ID real no seu MongoDB
-
-            // Transforma a Div num Iframe do YouTube
-            if (!ytPlayers[dbId]) {
-                ytPlayers[dbId] = new YT.Player(div.id, {
-                    height: '360',
-                    width: '100%',
-                    videoId: ytId,
-                    events: {
-                        // Quando o vídeo mudar de estado (Pausado, Tocando, Acabou...)
-                        'onStateChange': (event) => onPlayerStateChange(event, dbId)
-                    }
-                });
-            }
-        });
-    }
-
-    // Função que "escuta" o que está acontecendo dentro do Iframe
-    function onPlayerStateChange(event, dbId) {
-        // YT.PlayerState.PLAYING (Código 1) significa que o usuário deu o PLAY
-        if (event.data === YT.PlayerState.PLAYING && !playsComputados[dbId]) {
-            
-            // Marca no navegador que o clique já foi contado, pra evitar spam
-            playsComputados[dbId] = true; 
-            
-            // Dispara silenciosamente pro seu Backend adicionar +1 no Engajamento!
-            fetch(`/api/programas/${dbId}/clique`, { method: 'POST' })
-                .then(() => console.log(`✓ Engajamento registrado para o vídeo: ${dbId}`))
-                .catch(err => console.error("Falha ao registrar clique", err));
-        }
-    }
-
-    // Roda tudo assim que a página carregar
-    document.addEventListener('DOMContentLoaded', carregarVideosPublicos);
-</script>
 </body>
 </html>
+
