@@ -107,34 +107,162 @@ nav a:hover {
     padding: 4px;
 }
 /* =====================================================================
-   ESTÉTICA DE CARTÕES PARA PAUTAS (MODERNO/PRO)
+   ESTILIZAÇÃO DE CARTÕES ULTRA-SIMPLIFICADA E ULTRA-ORGANIZADA
    ===================================================================== */
 
-/* Container Principal para os Cartões */
 .pautas-cards-container {
     display: flex;
     flex-direction: column;
-    gap: 16px; /* Espaçamento vertical entre os cartões */
+    gap: 12px;
     padding: 10px 0;
 }
 
-/* O Cartão Individual (Pauta Card) */
-.pauta-card {
-    background: rgba(255, 255, 255, 0.02); /* Fundo sutil */
-    border: 1px solid var(--border-color); /* Borda padrão da TV ELOS */
-    border-radius: 12px; /* Cantos arredondados modernos */
-    padding: 16px;
+/* Estrutura do Cartão Limpo */
+.pauta-card-clean {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
     display: flex;
-    gap: 20px; /* Espaço entre a seção esquerda e direita */
-    transition: all 0.2s ease;
-    align-items: center; /* Alinha o conteúdo verticalmente ao centro */
+    flex-direction: column;
+    gap: 14px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Efeito de destaque ao passar o mouse */
-.pauta-card:hover {
+.pauta-card-clean:hover {
     background: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px); /* Efeito sutil de flutuação */
+}
+
+/* Alinhamento Superior: Índice, Título e Tag de Status */
+.card-clean-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pauta-clean-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pauta-clean-index {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    background: rgba(207, 255, 4, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.pauta-clean-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* Badges de Status Minimalistas */
+.status-badge-clean {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid;
+}
+
+.status-badge-clean.pendente   { color: #a3e635; background: rgba(163, 230, 53, 0.03); border-color: rgba(163, 230, 53, 0.2); }
+.status-badge-clean.em_analise { color: #fbbf24; background: rgba(251, 191, 36, 0.03); border-color: rgba(251, 191, 36, 0.2); }
+.status-badge-clean.aprovada   { color: var(--accent-color); background: rgba(207, 255, 4, 0.05); border-color: rgba(207, 255, 4, 0.2); }
+.status-badge-clean.rejeitada  { color: #ef4444; background: rgba(239, 68, 68, 0.03); border-color: rgba(239, 68, 68, 0.2); }
+
+/* Metadados e Descrição */
+.pauta-clean-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.pauta-clean-desc {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    line-height: 1.4;
+}
+
+/* Linha de Ações: Totalmente Horizontal e Simétrica */
+.card-clean-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 14px;
+    margin-top: 2px;
+}
+
+/* Inputs e Dropdowns Alinhados */
+.input-clean-text {
+    flex: 2;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+}
+
+.input-clean-text:focus, .select-clean-status:focus {
+    border-color: var(--accent-color);
+}
+
+.select-clean-status {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+}
+
+.select-clean-status option {
+    background: var(--container-bg);
+    color: var(--text-color);
+}
+
+/* Botão Compacto e Discreto */
+.btn-clean-save {
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 9px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-clean-save:hover {
+    opacity: 0.9;
+}
+
+/* Adaptação de layout para telas menores */
+@media (max-width: 640px) {
+    .card-clean-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .select-clean-status, .btn-clean-save {
+        width: 100%;
+    }
 }
 
 /* --- SEÇÃO ESQUERDA: Número e Miniatura --- */
@@ -334,21 +462,6 @@ body.light-theme .status-select-modern option {
 
 /* --- CORES DO STATUS (MODERNO/PRO) --- */
 /* Aproximando as cores vistas na sua imagem de referência */
-.status-select-modern {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    font-size: 0.85rem;
-    padding: 9px 14px;
-    border-radius: 8px;
-    outline: none;
-    cursor: pointer;
-}
-
-.status-select-modern option {
-    background: var(--container-bg);
-    color: var(--text-color);
-}
 /* Pendente: Azul */
 .status-tag.pendente {
     color: #a3e635; /* Lime claro para o texto */

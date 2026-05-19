@@ -697,42 +697,34 @@ body.light-theme .progress-bar { background: #e5e7eb; }
 
                 pautas.forEach((p, index) => {
                     const card = document.createElement('div');
-                    card.className = `pauta-card ${p.status}`;
+                    card.className = `pauta-card-clean ${p.status}`;
                     card.id = `card-${p._id}`;
 
                     card.innerHTML = `
-                        <div class="card-left-section">
-                            <div class="row-number">${index + 1}</div>
+                        <div class="card-clean-header">
+                            <div class="pauta-clean-main">
+                                <span class="pauta-clean-index">#${index + 1}</span>
+                                <strong class="pauta-clean-title">${p.titulo}</strong>
+                            </div>
+                            <div class="status-badge-clean ${p.status}">${p.status.replace('_', ' ')}</div>
                         </div>
 
-                        <div class="card-right-section">
-                            <div class="info-top-row">
-                                <div class="pauta-title-meta">
-                                    <strong class="pauta-title">${p.titulo}</strong>
-                                    <small class="pauta-author-email">${p.autor} · ${p.email}</small>
-                                    ${p.descricao ? `<small class="pauta-desc-text">${p.descricao}</small>` : ''}
-                                </div>
-                                <div class="status-tag ${p.status}">${p.status.replace('_', ' ')}</div>
-                            </div>
+                        <div class="pauta-clean-meta">
+                            <span><strong>Autor:</strong> ${p.autor} (${p.email})</span>
+                            ${p.descricao ? `<p class="pauta-clean-desc">${p.descricao}</p>` : ''}
+                        </div>
 
-                            <div class="actions-bottom-row">
-                                <div class="input-wrapper-modern">
-                                    <label class="field-label-modern">Observações Internas</label>
-                                    <input type="text" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Adicione notas sobre o andamento..." class="obs-input-modern">
-                                </div>
-                                
-                                <div class="select-wrapper-modern">
-                                    <label class="field-label-modern">Alterar Status</label>
-                                    <select class="status-select-modern" id="sel-${p._id}">
-                                        <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
-                                        <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
-                                        <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
-                                        <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
-                                    </select>
-                                </div>
+                        <div class="card-clean-actions">
+                            <input type="text" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Adicionar observação interna..." class="input-clean-text">
+                            
+                            <select class="select-clean-status" id="sel-${p._id}">
+                                <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
+                                <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
+                                <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
+                                <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
+                            </select>
 
-                                <button class="btn-save-modern" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">SALVAR</button>
-                            </div>
+                            <button class="btn-clean-save" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">Salvar</button>
                         </div>
                     `;
                     containerCards.appendChild(card);
