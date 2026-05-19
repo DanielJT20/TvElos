@@ -552,7 +552,15 @@
                     </div>
 
                     <div class="dashboard-box activity-section" style="margin-top: 16px;">
-                        <div class="dashboard-box-title">Monitor de Tráfego de Usuários (Últimos Acessos)</div>
+                        <div class="dashboard-box activity-section" style="margin-top: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="dashboard-box-title" style="margin: 0;">Monitor de Tráfego de Usuários (Últimos Acessos)</div>
+        <button class="btn-mini" onclick="baixarLogsCSV()">📥 Baixar Relatório CSV</button>
+    </div>
+    <div id="dashboard-users-access" style="max-height: 280px; overflow-y: auto;">
+        <div class="loading-msg">Carregando histórico de auditoria...</div>
+    </div>
+</div>
                         <div id="dashboard-users-access" style="max-height: 280px; overflow-y: auto;">
                             <div class="loading-msg">Carregando histórico de auditoria...</div>
                         </div>
@@ -839,6 +847,34 @@
         } catch (err) {
             document.getElementById('acesso-negado').style.display = 'block';
         }
+        // Função para requisitar o arquivo CSV passando o Token de Autenticação com segurança
+async function baixarLogsCSV() {
+    try {
+        const res = await fetch('/api/admin/acessos/csv', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Falha ao gerar o arquivo.');
+        
+        // Transforma a resposta em um arquivo binário (blob)
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        
+        // Cria um link temporário oculto na tela para disparar o download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tvelos_acessos_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Limpa os elementos da memória
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        alert('Erro ao exportar logs: ' + err.message);
+    }
+}
     </script>
+    
 </body>
 </html>
