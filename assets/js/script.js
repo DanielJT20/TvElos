@@ -1,18 +1,8 @@
 /**
  * TV ELOS - Scripts do Frontend
  * ================================
- * 
- * Áreas principais:
- *   • Menu mobile (hambúrguer) — toggleMenu()
- *   • Modal de login/cadastro com abas
- *   • Formulários: login, cadastro, pauta, contato
- *   • Sincronização de role em tempo real (sincronizarRole)
- *   • Detecção de estado logado + injeção do link "Painel"
- *
- * Auth: JWT salvo em localStorage (per-device, não compartilhável)
  */
 
-/* Abre/fecha menu mobile (tela ≤ 768px) */
 function toggleMenu() {
     const nav = document.querySelector('nav');
     if (nav) {
@@ -21,13 +11,11 @@ function toggleMenu() {
     }
 }
 
-/* Abre/fecha o modal de login */
 function toggleModal() {
     const modal = document.getElementById('loginModal');
     if (modal) modal.classList.toggle('active');
 }
 
-/* Alterna entre as abas "Entrar" e "Criar Conta" no modal */
 function switchTab(tab) {
     const formLogin = document.getElementById('form-login');
     const formCadastro = document.getElementById('form-cadastro');
@@ -38,14 +26,49 @@ function switchTab(tab) {
     if (formCadastro) formCadastro.style.display = tab === 'cadastro' ? 'block' : 'none';
 }
 
+// NOVA FUNÇÃO: Rastrear cliques em links de vídeos externamente
+async function registrarCliqueVideo(id) {
+    try {
+        await fetch(`/api/programas/${id}/clique`, { method: 'POST' });
+    } catch (e) {
+        console.error("Erro ao computar clique no vídeo:", e);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ── Abas do modal ──
+    // ── TELEMETRIA DE AUDIÊNCIA AUTOMÁTICA ──
+    setTimeout(async () => {
+        try {
+            const usuarioSalvo = localStorage.getItem('tvelos_usuario');
+            let email = null;
+            let nome = null;
+            if (usuarioSalvo) {
+                const u = JSON.parse(usuarioSalvo);
+                email = u.email;
+                nome = u.nome;
+            }
+            await fetch('/api/acessos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pagina: document.title || window.location.pathname,
+                    url: window.location.href,
+                    email: email,
+                    nome: nome
+                })
+            });
+        } catch (err) {
+            console.error("Erro ao processar tracking de acesso:", err);
+        }
+    }, 600);
+
+    // Abas do modal
     document.querySelectorAll('.modal-tab').forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
     });
 
-    // ── LOGIN ──
+    // LOGIN
     const formLogin = document.getElementById('form-login');
     if (formLogin) {
         formLogin.addEventListener('submit', async function (e) {
@@ -67,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     localStorage.setItem('tvelos_usuario', JSON.stringify(data.usuario));
                     toggleModal();
                     atualizarBotaoLogin(data.usuario);
+                    location.reload();
                 } else {
                     alert(data.erro || 'Credenciais inválidas.');
                 }
@@ -79,17 +103,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ── CADASTRO ──
+    // CADASTRO
     const formCadastro = document.getElementById('form-cadastro');
     if (formCadastro) {
         formCadastro.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const nome     = document.getElementById('cadastro-nome').value.trim();
-            const email    = document.getElementById('cadastro-email').value.trim();
-            const senha    = document.getElementById('cadastro-senha').value;
+            const nome = document.getElementById('cadastro-nome').value.trim();
+            const email = document.getElementById('cadastro-email').value.trim();
+            const senha = document.getElementById('cadastro-senha').value;
             const confirmar = document.getElementById('cadastro-confirmar').value;
-            const btn = formCadastro.querySelector('.submit-btn');
             if (senha !== confirmar) { alert('As senhas não coincidem.'); return; }
+            const btn = formCadastro.querySelector('.submit-btn');
             btn.textContent = 'Criando conta...';
             btn.disabled = true;
             try {
@@ -100,14 +124,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert(`Conta criada! Bem-vindo(a), ${data.nome}. Faça login para continuar.`);
+                    alert(`Conta criada! Bem-vindo(a), ${data.nome}. Faça login.`);
                     formCadastro.reset();
                     switchTab('login');
                 } else {
                     alert(data.erro || 'Erro ao criar conta.');
                 }
             } catch (err) {
-                alert('Não foi possível conectar ao servidor.');
+                alert('Conexão falhou.');
             } finally {
                 btn.textContent = 'Criar Conta';
                 btn.disabled = false;
@@ -115,15 +139,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ── ENVIAR PAUTA ──
+    // ENVIAR PAUTA
     const formPauta = document.getElementById('form-pauta');
     if (formPauta) {
         formPauta.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const titulo    = document.getElementById('pauta-titulo').value.trim();
+            const titulo = document.getElementById('pauta-titulo').value.trim();
             const descricao = document.getElementById('pauta-descricao').value.trim();
-            const autor     = document.getElementById('pauta-autor').value.trim();
-            const email     = document.getElementById('pauta-email').value.trim();
+            const autor = document.getElementById('pauta-autor').value.trim();
+            const email = document.getElementById('pauta-email').value.trim();
             const btn = formPauta.querySelector('.submit-btn');
             btn.textContent = 'Enviando...';
             btn.disabled = true;
@@ -133,31 +157,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ titulo, descricao, autor, email })
                 });
-                const data = await res.json();
                 if (res.ok) {
                     formPauta.reset();
                     document.getElementById('pauta-success').style.display = 'block';
                     setTimeout(() => { document.getElementById('pauta-success').style.display = 'none'; }, 6000);
                 } else {
-                    alert(data.erro || 'Erro ao enviar pauta.');
+                    const d = await res.json();
+                    alert(d.erro || 'Erro.');
                 }
-            } catch (err) {
-                alert('Não foi possível conectar ao servidor.');
-            } finally {
-                btn.textContent = 'Enviar Pauta';
-                btn.disabled = false;
-            }
+            } catch (err) { alert('Erro de servidor.'); }
+            finally { btn.textContent = 'Enviar Pauta'; btn.disabled = false; }
         });
     }
 
-    // ── FORMULÁRIO DE CONTATO ──
+    // FORM CONTATO
     const formContato = document.getElementById('form-contato');
     if (formContato) {
         formContato.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const nome     = document.getElementById('contato-nome').value.trim();
-            const email    = document.getElementById('contato-email').value.trim();
-            const assunto  = document.getElementById('contato-assunto').value.trim();
+            const nome = document.getElementById('contato-nome').value.trim();
+            const email = document.getElementById('contato-email').value.trim();
+            const assunto = document.getElementById('contato-assunto').value.trim();
             const mensagem = document.getElementById('contato-mensagem').value.trim();
             const btn = formContato.querySelector('.submit-btn');
             btn.textContent = 'Enviando...';
@@ -168,110 +188,42 @@ document.addEventListener('DOMContentLoaded', function () {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nome, email, assunto, mensagem })
                 });
-                const data = await res.json();
                 if (res.ok) {
                     formContato.reset();
                     document.getElementById('contato-success').style.display = 'block';
                     setTimeout(() => { document.getElementById('contato-success').style.display = 'none'; }, 6000);
-                } else {
-                    alert(data.erro || 'Erro ao enviar mensagem.');
                 }
-            } catch (err) {
-                alert('Não foi possível conectar ao servidor.');
-            } finally {
-                btn.textContent = 'Enviar Mensagem';
-                btn.disabled = false;
-            }
+            } catch (e) {}
+            finally { btn.textContent = 'Enviar Mensagem'; btn.disabled = false; }
         });
     }
 
-    // ── Fecha menu ao clicar em link (mobile → fecha overlay) ──
-    document.querySelectorAll('nav a').forEach(link => {
-        link.addEventListener('click', () => {
-            const nav = document.querySelector('nav');
-            if (nav && nav.classList.contains('active')) {
-                toggleMenu();
-            }
-        });
-    });
-
-    // ── Sincroniza role do banco em tempo real ──
-    // Sempre que a página carrega, consulta /api/usuarios/me e
-    // atualiza o localStorage se a role mudou no banco (ex: participante → editor)
-    async function sincronizarRole() {
-        const token = localStorage.getItem('tvelos_token');
-        if (!token) return;
-        try {
-            const res = await fetch('/api/usuarios/me', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            if (!res.ok) return;
-            const atual = await res.json();
-            const salvo = JSON.parse(localStorage.getItem('tvelos_usuario') || '{}');
-            if (salvo.role !== atual.role) {
-                // Role mudou no banco → atualiza tudo
-                localStorage.setItem('tvelos_usuario', JSON.stringify(atual));
-                atualizarBotaoLogin(atual);
-            }
-        } catch (e) {}
-    }
-
-    // ── Animação Hero ──
-    const heroWrapper = document.getElementById('hero-title-wrapper');
-    if (heroWrapper) {
-        let isGlitching = false;
-        heroWrapper.addEventListener('mouseenter', () => {
-            if (isGlitching) return;
-            isGlitching = true;
-            heroWrapper.classList.add('is-glitching');
-            setTimeout(() => {
-                heroWrapper.classList.remove('is-glitching');
-                setTimeout(() => { isGlitching = false; }, 600);
-            }, 3000);
-        });
-    }
-
-    // ── Restaura estado de login e sincroniza role ──
     const usuarioSalvo = localStorage.getItem('tvelos_usuario');
     if (usuarioSalvo) {
-        try { atualizarBotaoLogin(JSON.parse(usuarioSalvo)); }
-        catch (e) {
-            localStorage.removeItem('tvelos_usuario');
-            localStorage.removeItem('tvelos_token');
-        }
-        sincronizarRole();
+        try { atualizarBotaoLogin(JSON.parse(usuarioSalvo)); } catch (e) {}
     }
 });
 
-/*
- * Atualiza a interface quando o usuário está logado:
- *  • Botão de login vira o primeiro nome do usuário
- *  • Clique no nome = confirmação de logout
- *  • Injeta link "Meu Painel" ou "Painel Admin" na nav
- */
 function atualizarBotaoLogin(usuario) {
     const isEquipe = ['editor', 'admin'].includes(usuario.role);
-    const primeiroNome = usuario.nome.split(' ')[0];
+    const primeiroNome = usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário';
 
-    // Troca o botão "Entrar" pelo nome do usuário
     document.querySelectorAll('.login-btn').forEach(btn => {
         btn.textContent = primeiroNome;
         btn.onclick = function () {
             if (confirm('Deseja sair da plataforma?')) {
                 localStorage.removeItem('tvelos_token');
                 localStorage.removeItem('tvelos_usuario');
-                location.reload();
+                window.location.href = 'index.html';
             }
         };
     });
 
-    // Injeta link "Meu Painel" na nav se ainda não existir
     const navLists = document.querySelectorAll('nav ul');
     navLists.forEach(ul => {
         if (!ul.querySelector('.painel-link')) {
             const li = document.createElement('li');
             li.innerHTML = `<a href="painel.html" class="painel-link" style="color: var(--accent-color); font-weight:700">${isEquipe ? 'Painel Admin' : 'Meu Painel'}</a>`;
-            // Insere antes do botão de login
             const loginLi = ul.querySelector('.login-btn')?.parentElement;
             if (loginLi) ul.insertBefore(li, loginLi);
             else ul.appendChild(li);
