@@ -443,6 +443,14 @@
             .metric-cards-grid { grid-template-columns: repeat(2, 1fr); }
             .activity-grid { grid-template-columns: 1fr; }
         }
+        /* --- BARRAS DE PROGRESSO (Situação Atual) --- */
+.progress-item { margin-bottom: 14px; }
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center; }
+.progress-label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.progress-value { font-size: 13px; font-weight: 900; }
+.progress-bar { height: 8px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease-out; }
+body.light-theme .progress-bar { background: #e5e7eb; }
     </style>
 </head>
 <body>
@@ -669,9 +677,12 @@
             if (res.ok) { carregarTodasPautas(); carregarStats(); }
         }
 
-        async function carregarTodasPautas() {
+async function carregarTodasPautas() {
             const el = document.getElementById('todas-pautas-conteudo');
             try {
+                el.style.overflowX = 'visible'; 
+                el.innerHTML = '<div class="loading-msg">A carregar pautas...</div>';
+
                 const res = await fetch('/api/pautas', { headers: authHeader() });
                 const pautas = await res.json();
                 
@@ -681,45 +692,50 @@
                     return;
                 }
 
-                el.innerHTML = `
-                    <table class="pauta-table">
-                        <thead>
-                            <tr>
-                                <th>Título / Autor</th>
-                                <th>Data</th>
-                                <th>Status</th>
-                                <th>Observação</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pautas-tbody">
-                            ${pautas.map(p => `
-                                <tr id="row-${p._id}">
-                                    <td>
-                                        <strong style="color: var(--text-color);">${p.titulo}</strong><br>
-                                        <small style="color: var(--text-muted);">${p.autor} · ${p.email}</small>
-                                        ${p.descricao ? `<br><small style="color: var(--text-muted); font-style:italic">${p.descricao.substring(0,80)}${p.descricao.length > 80 ? '…' : ''}</small>` : ''}
-                                    </td>
-                                    <td style="color: var(--text-muted); white-space:nowrap">${formatData(p.dataCriacao)}</td>
-                                    <td>${statusBadge(p.status)}</td>
-                                    <td>
-                                        <input type="text" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Adicionar obs..." 
-                                        style="background: transparent; border: 1px solid var(--border-color); color: var(--text-color); font-size: 0.75rem; padding: 6px 8px; width: 140px; outline: none; border-radius: 4px;">
-                                    </td>
-                                    <td>
-                                        <select class="status-select" id="sel-${p._id}" style="margin-bottom: 8px; width: 100%; border-radius: 4px;">
-                                            <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
-                                            <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
-                                            <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
-                                            <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
-                                        </select>
-                                        <br>
-                                        <button class="btn-mini" style="width: 100%;" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">Salvar</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>`;
+                el.innerHTML = '<div class="pautas-cards-container"></div>';
+                const containerCards = el.querySelector('.pautas-cards-container');
+
+                pautas.forEach((p, index) => {
+                    const card = document.createElement('div');
+                    card.className = `pauta-card ${p.status}`;
+                    card.id = `card-${p._id}`;
+
+                    card.innerHTML = `
+                        <div class="card-left-section">
+                            <div class="row-number">${index + 1}</div>
+                            <div class="video-thumbnail-placeholder">
+                                <div class="placeholder-icon">▶</div>
+                                <span>Em breve</span>
+                            </div>
+                        </div>
+
+                        <div class="card-right-section">
+                            <div class="info-top-row">
+                                <div class="pauta-title-meta">
+                                    <strong class="pauta-title">${p.titulo}</strong>
+                                    <small class="pauta-author-email">${p.autor} · ${p.email}</small>
+                                    ${p.descricao ? `<small style="color: var(--text-muted); font-style:italic; margin-top:4px;">${p.descricao.substring(0,80)}${p.descricao.length > 80 ? '…' : ''}</small>` : ''}
+                                </div>
+                                <div class="status-tag ${p.status}">${p.status.replace('_', ' ')}</div>
+                            </div>
+
+                            <div class="actions-bottom-row">
+                                <input type="text" id="obs-${p._id}" value="${p.observacao || ''}" placeholder="Adicionar observação..." class="obs-input-modern">
+                                
+                                <select class="status-select-modern" id="sel-${p._id}">
+                                    <option value="pendente"   ${p.status==='pendente'   ? 'selected':''}>Pendente</option>
+                                    <option value="em_analise" ${p.status==='em_analise' ? 'selected':''}>Em Análise</option>
+                                    <option value="aprovada"   ${p.status==='aprovada'   ? 'selected':''}>Aprovada</option>
+                                    <option value="rejeitada"  ${p.status==='rejeitada'  ? 'selected':''}>Rejeitada</option>
+                                </select>
+
+                                <button class="btn-mini btn-save-modern" onclick="atualizarStatus('${p._id}', document.getElementById('sel-${p._id}').value, document.getElementById('obs-${p._id}').value)">SALVAR</button>
+                            </div>
+                        </div>
+                    `;
+                    containerCards.appendChild(card);
+                });
+
             } catch (e) {
                 el.innerHTML = `<div class="empty-state">Erro ao carregar pautas: ${e.message}</div>`;
             }
@@ -741,28 +757,106 @@
             } catch (e) {}
         }
 
-        function renderizarGraficoChartJS(stats) {
+       function renderizarGraficoChartJS(stats) {
             const canvasEl = document.getElementById('chartEvolucaoPautas');
             if (!canvasEl) return;
             const ctx = canvasEl.getContext('2d');
             const isLight = document.body.classList.contains('light-theme');
-            const textColor = isLight ? '#374151' : 'rgba(255,255,255,0.6)';
-            
+            const textColor = isLight ? '#111827' : 'rgba(255,255,255,0.6)';
+
             if (meuGrafico) meuGrafico.destroy();
+            
+            // O gráfico usa dados simulados para o histórico (Jan-Abr) 
+            // e os dados REAIS do seu banco de dados no último mês
             meuGrafico = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'], datasets: [{ label: 'Aprovadas', data: [6, 9, 11, 10, stats.aprovadas], backgroundColor: '#4ade80' },{ label: 'Pendentes', data: [4, 5, 6, 7, stats.pendentes], backgroundColor: '#cfff04' }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, ticks: { color: textColor } }, y: { stacked: true, ticks: { color: textColor } } }, plugins: { legend: { labels: { color: textColor } } } }
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mês Atual'],
+                    datasets: [
+                        { label: 'Aprovadas', data: [6, 9, 11, 10, stats.aprovadas || 0], backgroundColor: 'rgba(207, 255, 4, 0.9)' },
+                        { label: 'Pendentes', data: [4, 5, 6, 7, stats.pendentes || 0], backgroundColor: '#a3e635' },
+                        { label: 'Em Análise', data: [2, 3, 2, 4, stats.em_analise || 0], backgroundColor: '#fbbf24' },
+                        { label: 'Rejeitadas', data: [1, 2, 1, 3, stats.rejeitadas || 0], backgroundColor: '#ef4444' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, ticks: { color: textColor } },
+                        y: { stacked: true, ticks: { color: textColor } }
+                    },
+                    plugins: { legend: { labels: { color: textColor } } }
+                }
             });
         }
 
         function atualizarDashboard(stats) {
-            const totalPautas = stats.pendentes + stats.em_analise + stats.aprovadas + stats.rejeitadas;
-            document.getElementById('dash-total-pautas').textContent = totalPautas;
-            document.getElementById('dash-aprovadas').textContent = stats.aprovadas;
-            document.getElementById('dash-usuarios').textContent = stats.totalUsuarios;
-            document.getElementById('dash-videos').textContent = stats.totalVideos;
+            // Garante que não existem valores nulos (fallback para 0)
+            const pendentes = stats.pendentes || 0;
+            const em_analise = stats.em_analise || 0;
+            const aprovadas = stats.aprovadas || 0;
+            const rejeitadas = stats.rejeitadas || 0;
+            
+            // Calcula o total
+            const total = pendentes + em_analise + aprovadas + rejeitadas;
+            
+            // Atualiza os Cards Superiores
+            document.getElementById('dash-total-pautas').textContent = total;
+            document.getElementById('dash-aprovadas').textContent = aprovadas;
+            document.getElementById('dash-usuarios').textContent = stats.totalUsuarios || 0;
+            document.getElementById('dash-videos').textContent = stats.totalVideos || 0;
+            
+            // Chama a função para desenhar o gráfico
             renderizarGraficoChartJS(stats);
+
+            // Calcula a percentagem de cada barra
+            const calcWidth = (val) => total > 0 ? (val / total) * 100 : 0;
+            
+            // Injeta o HTML das Barras de Progresso de volta na tela
+            const progressHtml = `
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Aprovadas</span>
+                        <span class="progress-value" style="color: var(--accent-color);">${aprovadas}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: var(--accent-color); width: ${calcWidth(aprovadas)}%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Pendentes</span>
+                        <span class="progress-value" style="color: #a3e635;">${pendentes}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #a3e635; width: ${calcWidth(pendentes)}%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Em Análise</span>
+                        <span class="progress-value" style="color: #fbbf24;">${em_analise}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #fbbf24; width: ${calcWidth(em_analise)}%;"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Rejeitadas</span>
+                        <span class="progress-value" style="color: #ef4444;">${rejeitadas}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="background: #ef4444; width: ${calcWidth(rejeitadas)}%;"></div>
+                    </div>
+                </div>
+            `;
+            
+            const pbContainer = document.getElementById('dashboard-progress-bars');
+            if (pbContainer) {
+                pbContainer.innerHTML = progressHtml;
+            }
         }
 
         // NOVO: Renderizar simultaneamente Páginas, Cliques em Vídeos e Auditoria de Acessos

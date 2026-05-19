@@ -106,6 +106,209 @@ nav a:hover {
     z-index: 101;
     padding: 4px;
 }
+/* =====================================================================
+   ESTÉTICA DE CARTÕES PARA PAUTAS (MODERNO/PRO)
+   ===================================================================== */
+
+/* Container Principal para os Cartões */
+.pautas-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Espaçamento vertical entre os cartões */
+    padding: 10px 0;
+}
+
+/* O Cartão Individual (Pauta Card) */
+.pauta-card {
+    background: rgba(255, 255, 255, 0.02); /* Fundo sutil */
+    border: 1px solid var(--border-color); /* Borda padrão da TV ELOS */
+    border-radius: 12px; /* Cantos arredondados modernos */
+    padding: 16px;
+    display: flex;
+    gap: 20px; /* Espaço entre a seção esquerda e direita */
+    transition: all 0.2s ease;
+    align-items: center; /* Alinha o conteúdo verticalmente ao centro */
+}
+
+/* Efeito de destaque ao passar o mouse */
+.pauta-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px); /* Efeito sutil de flutuação */
+}
+
+/* --- SEÇÃO ESQUERDA: Número e Miniatura --- */
+.card-left-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 180px; /* Garante tamanho mínimo para a miniatura */
+}
+
+/* Número da Linha */
+.row-number {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-muted); /* Cor secundária padrão */
+    width: 24px;
+    text-align: right;
+}
+
+/* Placeholder da Miniatura do Vídeo */
+.video-thumbnail-placeholder {
+    width: 140px;
+    height: 80px; /* Proporção de vídeo */
+    background: rgba(0, 0, 0, 0.3); /* Fundo escuro */
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.3); /* Texto do placeholder sutil */
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px dashed rgba(255, 255, 255, 0.1); /* Borda tracejada */
+}
+
+.placeholder-icon {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+/* --- SEÇÃO DIREITA: Informações e Ações --- */
+.card-right-section {
+    flex: 1; /* Ocupa o restante do espaço */
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Espaço entre a linha superior e inferior */
+}
+
+/* Linha Superior: Título/Autor e Tag de Status */
+.info-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.pauta-title-meta {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+}
+
+.pauta-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color); /* Cor principal padrão */
+    margin-bottom: 2px;
+}
+
+.pauta-author-email {
+    font-size: 0.8rem;
+    color: var(--text-muted); /* Cor secundária padrão */
+}
+
+/* A Tag de Status Modernizada (conforme imagem) */
+.status-tag {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 6px 14px;
+    border-radius: 20px; /* Cantos arredondados (pílula) */
+    font-weight: 700;
+    text-align: center;
+    min-width: 120px;
+}
+
+/* --- CORES DO STATUS (MODERNO/PRO) --- */
+/* Aproximando as cores vistas na sua imagem de referência */
+.status-select-modern {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    padding: 9px 14px;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+}
+
+.status-select-modern option {
+    background: var(--container-bg);
+    color: var(--text-color);
+}
+/* Pendente: Azul */
+.status-tag.pendente {
+    color: #a3e635; /* Lime claro para o texto */
+    background: rgba(163, 230, 53, 0.05);
+    border: 1px solid rgba(163, 230, 53, 0.2);
+}
+
+/* Em Análise: Laranja/Amarelo Escuro */
+.status-tag.em_analise {
+    color: #fbbf24; /* Amarelo âmbar */
+    background: rgba(251, 191, 36, 0.05);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+/* Aprovada: Verde (Lime original da TV ELOS) */
+.status-tag.aprovada {
+    color: var(--accent-color); /* Lime original */
+    background: rgba(207, 255, 4, 0.08);
+    border: 1px solid rgba(207, 255, 4, 0.3);
+}
+
+/* Rejeitada: Vermelho Profundo */
+.status-tag.rejeitada {
+    color: #ef4444; /* Vermelho vibrante */
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* --- LINHA INFERIOR: Campo de Observação e Botão --- */
+.actions-bottom-row {
+    display: flex;
+    justify-content: flex-end; /* Alinha as ações à direita */
+    gap: 12px;
+    align-items: center;
+}
+
+/* Campo de Input Modernizado */
+.obs-input-modern {
+    flex: 1; /* Ocupa o espaço disponível à esquerda do botão */
+    background: transparent;
+    border: 1px solid var(--border-color); /* Borda padrão da TV ELOS */
+    color: var(--text-color); /* Texto principal padrão */
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    outline: none;
+    border-radius: 8px; /* Cantos arredondados */
+    transition: all 0.2s ease;
+}
+
+.obs-input-modern:focus {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.01);
+}
+
+/* Botão SALVAR Modernizado */
+.btn-save-modern {
+    background: var(--accent-color); /* Lime original da TV ELOS */
+    color: #000; /* Texto preto para contraste */
+    border: none;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 12px 24px;
+    border-radius: 8px; /* Cantos arredondados */
+    min-width: 100px;
+}
+
+.btn-save-modern:hover {
+    transform: scale(1.03);
+    box-shadow: 0 2px 10px rgba(207, 255, 4, 0.15);
+}
 
 body.no-scroll {
     overflow: hidden;
